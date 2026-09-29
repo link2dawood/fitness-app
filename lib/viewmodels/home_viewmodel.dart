@@ -1,0 +1,25 @@
+import 'package:flutter/foundation.dart';
+
+import '../data/models/user_profile.dart';
+import '../data/repositories/onboarding_repository.dart';
+
+class HomeViewModel extends ChangeNotifier {
+  HomeViewModel(this._repository);
+
+  final OnboardingRepository _repository;
+
+  UserProfile? _profile;
+  bool _isLoading = true;
+
+  UserProfile? get profile => _profile;
+  bool get isLoading => _isLoading;
+
+  Future<void> load() async {
+    _profile = await _repository.loadProfile();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Handy during development to replay the onboarding flow.
+  Future<void> resetOnboarding() => _repository.clear();
+}
