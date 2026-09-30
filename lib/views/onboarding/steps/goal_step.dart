@@ -19,7 +19,7 @@ class GoalStep extends StatelessWidget {
       subtitle: 'We will build your plan around it.',
       child: ListView.separated(
         itemCount: FitnessGoal.values.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (_, i) {
           final goal = FitnessGoal.values[i];
           return SelectableCard(

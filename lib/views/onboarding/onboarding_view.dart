@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/routes/app_routes.dart';
+import '../../data/models/user_profile.dart';
 import '../../viewmodels/onboarding_viewmodel.dart';
+import 'steps/activity_level_step.dart';
 import 'steps/body_metrics_step.dart';
 import 'steps/fitness_level_step.dart';
 import 'steps/focus_area_step.dart';
 import 'steps/gender_step.dart';
 import 'steps/goal_step.dart';
 import 'steps/motivation_step.dart';
-import 'steps/schedule_step.dart';
+import 'steps/weekly_goal_step.dart';
 import 'widgets/onboarding_header.dart';
 import 'widgets/primary_button.dart';
 
@@ -28,15 +30,20 @@ class OnboardingView extends StatelessWidget {
         return const MotivationStep();
       case OnboardingStep.fitnessLevel:
         return const FitnessLevelStep();
+      case OnboardingStep.activityLevel:
+        return const ActivityLevelStep();
+      case OnboardingStep.weeklyGoal:
+        return const WeeklyGoalStep();
       case OnboardingStep.bodyMetrics:
         return const BodyMetricsStep();
-      case OnboardingStep.schedule:
-        return const ScheduleStep();
     }
   }
 
-  void _goHome(BuildContext context) {
-    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+  void _goToPlanGeneration(BuildContext context, UserProfile profile) {
+    Navigator.of(context).pushReplacementNamed(
+      AppRoutes.planGeneration,
+      arguments: profile,
+    );
   }
 
   Future<void> _onContinue(BuildContext context, OnboardingViewModel vm) async {
@@ -47,7 +54,7 @@ class OnboardingView extends StatelessWidget {
     final saved = await vm.complete();
     if (!context.mounted) return;
     if (saved) {
-      _goHome(context);
+      _goToPlanGeneration(context, vm.profile);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not save your data. Try again.')),
@@ -58,7 +65,7 @@ class OnboardingView extends StatelessWidget {
   Future<void> _onSkip(BuildContext context, OnboardingViewModel vm) async {
     final finished = await vm.skip();
     if (!context.mounted) return;
-    if (finished) _goHome(context);
+    if (finished) _goToPlanGeneration(context, vm.profile);
   }
 
   @override
@@ -103,7 +110,7 @@ class OnboardingView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
                 child: PrimaryButton(
-                  label: vm.isLast ? 'Finish' : 'Continue',
+                  label: vm.isLast ? 'Get My Plan' : 'NEXT',
                   isLoading: vm.isSaving,
                   onPressed:
                       vm.canProceed ? () => _onContinue(context, vm) : null,

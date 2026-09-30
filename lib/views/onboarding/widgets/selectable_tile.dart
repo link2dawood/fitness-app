@@ -31,7 +31,7 @@ class SelectableTile extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withOpacity(0.10)
+              ? AppColors.primary.withValues(alpha: 0.10)
               : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(

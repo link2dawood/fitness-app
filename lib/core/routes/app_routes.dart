@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/models/user_profile.dart';
 import '../../data/repositories/onboarding_repository.dart';
 import '../../viewmodels/home_viewmodel.dart';
 import '../../viewmodels/onboarding_viewmodel.dart';
 import '../../viewmodels/splash_viewmodel.dart';
 import '../../views/home/home_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
+import '../../views/plan/plan_generation_view.dart';
+import '../../views/plan/plan_ready_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -14,6 +17,8 @@ class AppRoutes {
 
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String planGeneration = '/plan-generation';
+  static const String planReady = '/plan-ready';
   static const String home = '/home';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -25,6 +30,18 @@ class AppRoutes {
             create: (ctx) => OnboardingViewModel(ctx.read<OnboardingRepository>()),
             child: const OnboardingView(),
           ),
+        );
+      case planGeneration:
+        final profile = settings.arguments as UserProfile?;
+        return _fade(
+          settings,
+          PlanGenerationView(profile: profile),
+        );
+      case planReady:
+        final profile = settings.arguments as UserProfile?;
+        return _fade(
+          settings,
+          PlanReadyView(profile: profile),
         );
       case home:
         return _fade(
@@ -51,8 +68,8 @@ class AppRoutes {
     return PageRouteBuilder<dynamic>(
       settings: settings,
       transitionDuration: const Duration(milliseconds: 450),
-      pageBuilder: (_, __, ___) => page,
-      transitionsBuilder: (_, animation, __, child) =>
+      pageBuilder: (_, _, _) => page,
+      transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),
     );
   }

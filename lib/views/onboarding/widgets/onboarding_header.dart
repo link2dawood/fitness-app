@@ -43,10 +43,10 @@ class OnboardingHeader extends StatelessWidget {
                     tween: Tween<double>(begin: 0, end: progress),
                     duration: const Duration(milliseconds: 350),
                     curve: Curves.easeOutCubic,
-                    builder: (_, value, __) => LinearProgressIndicator(
+                    builder: (_, value, _) => LinearProgressIndicator(
                       value: value,
                       minHeight: 6,
-                      backgroundColor: AppColors.surfaceLight,
+                      backgroundColor: AppColors.border,
                       valueColor:
                           const AlwaysStoppedAnimation(AppColors.primary),
                     ),

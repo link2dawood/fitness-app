@@ -32,7 +32,7 @@ class SelectableCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withOpacity(0.10)
+              ? AppColors.primary.withValues(alpha: 0.10)
               : AppColors.surface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(

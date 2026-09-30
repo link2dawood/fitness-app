@@ -77,3 +77,18 @@ extension FitnessLevelVisual on FitnessLevel {
     }
   }
 }
+
+extension ActivityLevelVisual on ActivityLevel {
+  IconData get icon {
+    switch (this) {
+      case ActivityLevel.sedentary:
+        return Icons.laptop_chromebook_rounded;
+      case ActivityLevel.lightlyActive:
+        return Icons.directions_walk_rounded;
+      case ActivityLevel.moderatelyActive:
+        return Icons.directions_run_rounded;
+      case ActivityLevel.veryActive:
+        return Icons.fitness_center_rounded;
+    }
+  }
+}

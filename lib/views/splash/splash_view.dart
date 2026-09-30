@@ -59,127 +59,156 @@ class _SplashViewState extends State<SplashView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Image (Gym Bodybuilder image)
-          Image.asset(
-            'assets/images/splash_bg.png',
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              // Fallback dark gradient if asset is not yet added
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF1A212D), Color(0xFF0D1117)],
+          // ── Background: bodybuilder image, aligned to show upper body ──
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/splash_bg.png',
+              fit: BoxFit.cover,
+              alignment: const Alignment(0.0, -0.3), // shift up to show torso/chest
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFF0D1117), Color(0xFF1A212D)],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
 
-          // Professional Dark Gradient Overlay for optimal contrast & depth
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.55),
-                  Colors.black.withValues(alpha: 0.75),
-                  Colors.black.withValues(alpha: 0.92),
-                ],
-                stops: const [0.0, 0.5, 1.0],
+          // ── Cinematic dark overlay matching reference ──
+          // Heavy at top & bottom, lighter in the mid-torso zone
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.82), // very dark top
+                    Colors.black.withValues(alpha: 0.55), // lighter at chest zone
+                    Colors.black.withValues(alpha: 0.70), // mid-body
+                    Colors.black.withValues(alpha: 0.90), // dark lower area
+                    Colors.black.withValues(alpha: 0.97), // near-black at bottom
+                  ],
+                  stops: const [0.0, 0.25, 0.55, 0.78, 1.0],
+                ),
               ),
             ),
           ),
 
-          // Content Layout
+          // ── Foreground Content ──
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Spacer(flex: 5),
+                  const Spacer(flex: 6),
 
-                  // App Logo Card (Red accent branding matching sample)
+                  // Red logo card + text row  (matches reference layout)
                   FadeTransition(
                     opacity: _logoFade,
                     child: ScaleTransition(
                       scale: _logoScale,
-                      child: Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE53935), // Professional fitness red
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFFE53935).withValues(alpha: 0.4),
-                              blurRadius: 24,
-                              offset: const Offset(0, 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Red rounded icon card
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD32F2F),
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFD32F2F).withValues(alpha: 0.45),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.fitness_center_rounded,
-                          size: 38,
-                          color: Colors.white,
-                        ),
+                            child: const Icon(
+                              Icons.directions_run_rounded,
+                              size: 36,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+
+                          // Title + tagline stacked next to icon
+                          Expanded(
+                            child: FadeTransition(
+                              opacity: _textFade,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Text(
+                                    AppStrings.appName,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 0.8,
+                                      height: 1.1,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    AppStrings.tagline,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFFB0BEC5),
+                                      letterSpacing: 2.0,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
 
-                  // App Title & Tagline matching user sample
+                  const SizedBox(height: 28),
+
+                  // ── Animated progress bar ──
                   FadeTransition(
                     opacity: _textFade,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          AppStrings.appName,
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
+                    child: Center(
+                      child: SizedBox(
+                        width: 180,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: AnimatedBuilder(
+                            animation: _controller,
+                            builder: (_, _) => LinearProgressIndicator(
+                              value: _controller.value,
+                              minHeight: 3,
+                              backgroundColor: Colors.white.withValues(alpha: 0.15),
+                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          AppStrings.tagline,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB0BEC5),
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const Spacer(flex: 1),
-
-                  // Loading Progress Indicator Bar at bottom
-                  Center(
-                    child: SizedBox(
-                      width: 160,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          minHeight: 4,
-                          backgroundColor: Colors.white.withValues(alpha: 0.15),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),

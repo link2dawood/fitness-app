@@ -51,6 +51,17 @@ enum FitnessLevel {
   final String description;
 }
 
+enum ActivityLevel {
+  sedentary('Sedentary', '👩‍💻'),
+  lightlyActive('Lightly active', '🚶'),
+  moderatelyActive('Moderately active', '🏃'),
+  veryActive('Very active', '🥰');
+
+  const ActivityLevel(this.label, this.emoji);
+  final String label;
+  final String emoji;
+}
+
 class UserProfile {
   const UserProfile({
     this.gender,
@@ -58,10 +69,12 @@ class UserProfile {
     this.goal,
     this.motivation,
     this.level,
+    this.activityLevel,
     this.age = 25,
     this.heightCm = 170,
     this.weightKg = 70,
-    this.workoutDaysPerWeek = 3,
+    this.workoutDaysPerWeek = 4,
+    this.firstDayOfWeek = 'SUNDAY',
   });
 
   final Gender? gender;
@@ -69,10 +82,12 @@ class UserProfile {
   final FitnessGoal? goal;
   final Motivation? motivation;
   final FitnessLevel? level;
+  final ActivityLevel? activityLevel;
   final int age;
   final int heightCm;
   final int weightKg;
   final int workoutDaysPerWeek;
+  final String firstDayOfWeek;
 
   /// Body Mass Index calculated from height and weight.
   double get bmi {
@@ -86,10 +101,12 @@ class UserProfile {
     FitnessGoal? goal,
     Motivation? motivation,
     FitnessLevel? level,
+    ActivityLevel? activityLevel,
     int? age,
     int? heightCm,
     int? weightKg,
     int? workoutDaysPerWeek,
+    String? firstDayOfWeek,
   }) {
     return UserProfile(
       gender: gender ?? this.gender,
@@ -97,10 +114,12 @@ class UserProfile {
       goal: goal ?? this.goal,
       motivation: motivation ?? this.motivation,
       level: level ?? this.level,
+      activityLevel: activityLevel ?? this.activityLevel,
       age: age ?? this.age,
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
       workoutDaysPerWeek: workoutDaysPerWeek ?? this.workoutDaysPerWeek,
+      firstDayOfWeek: firstDayOfWeek ?? this.firstDayOfWeek,
     );
   }
 
@@ -110,10 +129,12 @@ class UserProfile {
         'goal': goal?.name,
         'motivation': motivation?.name,
         'level': level?.name,
+        'activityLevel': activityLevel?.name,
         'age': age,
         'heightCm': heightCm,
         'weightKg': weightKg,
         'workoutDaysPerWeek': workoutDaysPerWeek,
+        'firstDayOfWeek': firstDayOfWeek,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -136,10 +157,12 @@ class UserProfile {
       goal: parse(FitnessGoal.values, json['goal'] as String?),
       motivation: parse(Motivation.values, json['motivation'] as String?),
       level: parse(FitnessLevel.values, json['level'] as String?),
+      activityLevel: parse(ActivityLevel.values, json['activityLevel'] as String?),
       age: json['age'] as int? ?? 25,
       heightCm: json['heightCm'] as int? ?? 170,
       weightKg: json['weightKg'] as int? ?? 70,
-      workoutDaysPerWeek: json['workoutDaysPerWeek'] as int? ?? 3,
+      workoutDaysPerWeek: json['workoutDaysPerWeek'] as int? ?? 4,
+      firstDayOfWeek: json['firstDayOfWeek'] as String? ?? 'SUNDAY',
     );
   }
 }

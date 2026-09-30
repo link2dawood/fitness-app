@@ -19,7 +19,7 @@ class MotivationStep extends StatelessWidget {
       subtitle: 'Knowing your why helps us keep you on track.',
       child: ListView.separated(
         itemCount: Motivation.values.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (_, i) {
           final item = Motivation.values[i];
           return SelectableCard(

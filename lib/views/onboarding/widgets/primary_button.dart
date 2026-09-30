@@ -27,7 +27,7 @@ class PrimaryButton extends StatelessWidget {
           disabledBackgroundColor: AppColors.surfaceLight,
           disabledForegroundColor: AppColors.textSecondary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(28),
           ),
           textStyle: const TextStyle(
             fontSize: 16,

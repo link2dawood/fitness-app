@@ -19,7 +19,7 @@ class FitnessLevelStep extends StatelessWidget {
       subtitle: 'Be honest. A quick push-up test is a good guide.',
       child: ListView.separated(
         itemCount: FitnessLevel.values.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: 12),
         itemBuilder: (_, i) {
           final level = FitnessLevel.values[i];
           return SelectableCard(

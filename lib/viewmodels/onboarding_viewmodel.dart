@@ -9,8 +9,9 @@ enum OnboardingStep {
   goal,
   motivation,
   fitnessLevel,
+  activityLevel,
+  weeklyGoal,
   bodyMetrics,
-  schedule,
 }
 
 class OnboardingViewModel extends ChangeNotifier {
@@ -47,8 +48,10 @@ class OnboardingViewModel extends ChangeNotifier {
         return _profile.motivation != null;
       case OnboardingStep.fitnessLevel:
         return _profile.level != null;
+      case OnboardingStep.activityLevel:
+        return _profile.activityLevel != null;
+      case OnboardingStep.weeklyGoal:
       case OnboardingStep.bodyMetrics:
-      case OnboardingStep.schedule:
         return true;
     }
   }
@@ -79,12 +82,18 @@ class OnboardingViewModel extends ChangeNotifier {
   void selectLevel(FitnessLevel value) =>
       _update(_profile.copyWith(level: value));
 
+  void selectActivityLevel(ActivityLevel value) =>
+      _update(_profile.copyWith(activityLevel: value));
+
   void updateAge(int value) => _update(_profile.copyWith(age: value));
   void updateHeight(int value) => _update(_profile.copyWith(heightCm: value));
   void updateWeight(int value) => _update(_profile.copyWith(weightKg: value));
 
   void selectWorkoutDays(int value) =>
       _update(_profile.copyWith(workoutDaysPerWeek: value));
+
+  void selectFirstDayOfWeek(String value) =>
+      _update(_profile.copyWith(firstDayOfWeek: value));
 
   // ------------------------------------------------------------- navigation
   void next() {

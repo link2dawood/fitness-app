@@ -55,7 +55,7 @@ class _WheelPickerState extends State<WheelPicker> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 220,
+          height: 180,
           child: Stack(
             alignment: Alignment.center,
             children: [
@@ -64,7 +64,7 @@ class _WheelPickerState extends State<WheelPicker> {
                   height: 52,
                   margin: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.12),
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.primary, width: 1.2),
                   ),
