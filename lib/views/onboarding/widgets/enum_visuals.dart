@@ -29,8 +29,6 @@ extension FocusAreaVisual on FocusArea {
         return Icons.grid_view_rounded;
       case FocusArea.legs:
         return Icons.directions_run_rounded;
-      case FocusArea.back:
-        return Icons.swap_vert_rounded;
     }
   }
 }

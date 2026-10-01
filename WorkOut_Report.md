@@ -107,3 +107,11 @@ In this Button include a calendar to saved and find History
 ### Offer Card
 (Only 4 moves for Abs)
 
+### Picks for You
+Belly Fat Burner HIIT Beginner, Lose Fat(No Jumping!), Killer Core HIIT Beginner, Six Pack Challenge, Fat Burning HIIT, HIIT Intermediate 
+
+### Card
+Stay Active stay in shape (5 Workouts)
+
+### For Beginners
+Only 4 moves for Abs, Leg Workout (No Jumping), Arm Workout (No Push-Ups),  

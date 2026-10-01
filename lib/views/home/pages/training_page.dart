@@ -2,134 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
 
-class TrainingPage extends StatelessWidget {
+class TrainingPage extends StatefulWidget {
   const TrainingPage({super.key});
 
+  @override
+  State<TrainingPage> createState() => _TrainingPageState();
+}
+
+class _TrainingPageState extends State<TrainingPage> {
   void _showProModal(BuildContext context) {
     HapticFeedback.selectionClick();
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle
-                Container(
-                  width: 44,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  '👑 GO PRO',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Unlock unlimited workouts, personalized plans & pro features',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Monthly Plan Option
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF7ED),
-                    border: Border.all(color: const Color(0xFFF97316), width: 1.8),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Monthly Access',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '7 Days Free Trial • 60% Newcomer Discount',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFFEA580C),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        '\$9.99/mo',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Pro Trial Activated!')),
-                      );
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF0062FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(27),
-                      ),
-                    ),
-                    child: const Text(
-                      'START 7-DAY FREE TRIAL',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    Navigator.of(context).pushNamed(AppRoutes.pro);
   }
+
 
   void _showStreakModal(BuildContext context) {
     HapticFeedback.selectionClick();
@@ -180,6 +68,20 @@ class TrainingPage extends StatelessWidget {
       },
     );
   }
+
+  void _showHistoryCalendar(BuildContext context) {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFFF5F5F5),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const _HistoryCalendarSheet(),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -361,19 +263,30 @@ class TrainingPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      // Days of current week row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildCalendarDay(27, isSelected: false),
-                          _buildCalendarDay(28, isSelected: false),
-                          _buildCalendarDay(29, isSelected: false),
-                          _buildCalendarDay(30, isSelected: true), // active date
-                          _buildCalendarDay(1, isSelected: false),
-                          _buildCalendarDay(2, isSelected: false),
-                          _buildCalendarDay(3, isSelected: false),
-                        ],
-                      ),
+                      // ── Dynamic current-week calendar row (tappable) ──────
+                      Builder(builder: (ctx) {
+                        final today = DateTime.now();
+                        // Compute Mon-based week containing today
+                        final weekday = today.weekday; // 1=Mon … 7=Sun
+                        final monday = today.subtract(Duration(days: weekday - 1));
+                        final weekDays = List.generate(
+                          7, (i) => monday.add(Duration(days: i)));
+
+                        return GestureDetector(
+                          onTap: () => _showHistoryCalendar(context),
+                          behavior: HitTestBehavior.opaque,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: weekDays.map((d) {
+                              final isToday = d.day == today.day &&
+                                  d.month == today.month &&
+                                  d.year == today.year;
+                              return _buildCalendarDay(d.day,
+                                  isSelected: isToday);
+                            }).toList(),
+                          ),
+                        );
+                      }),
 
                       const SizedBox(height: 16),
 
@@ -1604,6 +1517,197 @@ class TrainingPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// History Calendar Sheet  (matches reference image)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _HistoryCalendarSheet extends StatefulWidget {
+  const _HistoryCalendarSheet();
+
+  @override
+  State<_HistoryCalendarSheet> createState() => _HistoryCalendarSheetState();
+}
+
+class _HistoryCalendarSheetState extends State<_HistoryCalendarSheet> {
+  late DateTime _month;
+  final DateTime _today = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _month = DateTime(_today.year, _today.month);
+  }
+
+  void _prevMonth() =>
+      setState(() => _month = DateTime(_month.year, _month.month - 1));
+  void _nextMonth() =>
+      setState(() => _month = DateTime(_month.year, _month.month + 1));
+
+  @override
+  Widget build(BuildContext context) {
+    final screenH = MediaQuery.of(context).size.height;
+
+    // All days to display (pad to start on Sunday)
+    final firstDay = DateTime(_month.year, _month.month, 1);
+    final startOffset = firstDay.weekday % 7; // Sun=0, Mon=1, …
+    final daysInMonth = DateUtils.getDaysInMonth(_month.year, _month.month);
+    final totalCells = startOffset + daysInMonth;
+    final rows = (totalCells / 7).ceil();
+
+    return SizedBox(
+      height: screenH * 0.72,
+      child: Column(
+        children: [
+          // Handle
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: const Color(0xFFD1D5DB),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Title
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'History',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Month nav row  e.g.  ◀  2026/10  ▶
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: _prevMonth,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text('◀',
+                        style: TextStyle(fontSize: 16, color: Color(0xFF374151))),
+                  ),
+                ),
+                Text(
+                  '${_month.year}/${_month.month.toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: _nextMonth,
+                  child: const Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Text('▶',
+                        style: TextStyle(fontSize: 16, color: Color(0xFF374151))),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Day-of-week header  S  M  T  W  T  F  S
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: const ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                  .map((d) => SizedBox(
+                        width: 40,
+                        child: Text(
+                          d,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6B7280),
+                          ),
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Calendar grid
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(rows, (row) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(7, (col) {
+                      final cellIndex = row * 7 + col;
+                      final day = cellIndex - startOffset + 1;
+                      if (day < 1 || day > daysInMonth) {
+                        return const SizedBox(width: 40, height: 40);
+                      }
+
+                      final isToday = _month.year == _today.year &&
+                          _month.month == _today.month &&
+                          day == _today.day;
+
+                      return GestureDetector(
+                        onTap: () {}, // future: show day detail
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: isToday
+                              ? const BoxDecoration(
+                                  color: Color(0xFF111827),
+                                  shape: BoxShape.circle,
+                                )
+                              : null,
+                          child: Text(
+                            '$day',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: isToday
+                                  ? FontWeight.w800
+                                  : FontWeight.w500,
+                              color: isToday
+                                  ? Colors.white
+                                  : const Color(0xFF374151),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  );
+                }),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 }

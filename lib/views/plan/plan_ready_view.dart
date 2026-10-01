@@ -98,13 +98,13 @@ class PlanReadyView extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
 
               // ── Customized Plan Card ───────────────────────────────────────
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(22),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF0066FF), Color(0xFF004CE8)],
@@ -230,7 +230,8 @@ class PlanReadyView extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 4),
+
 
               // ── Action Buttons ─────────────────────────────────────────────
               SizedBox(

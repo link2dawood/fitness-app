@@ -10,6 +10,7 @@ import '../../views/home/home_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
 import '../../views/plan/plan_generation_view.dart';
 import '../../views/plan/plan_ready_view.dart';
+import '../../views/pro/pro_plan_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -20,6 +21,7 @@ class AppRoutes {
   static const String planGeneration = '/plan-generation';
   static const String planReady = '/plan-ready';
   static const String home = '/home';
+  static const String pro = '/pro';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -52,6 +54,8 @@ class AppRoutes {
             child: const HomeView(),
           ),
         );
+      case pro:
+        return _fade(settings, const ProPlanView());
       case splash:
       default:
         return _fade(

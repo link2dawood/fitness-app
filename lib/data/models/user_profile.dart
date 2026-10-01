@@ -12,8 +12,7 @@ enum FocusArea {
   arms('Arms'),
   chest('Chest'),
   abs('Abs'),
-  legs('Legs'),
-  back('Back');
+  legs('Legs');
 
   const FocusArea(this.label);
   final String label;
