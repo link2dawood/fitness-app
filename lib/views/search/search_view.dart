@@ -1,6 +1,4 @@
-﻿import 'package:flutter/material.dart';
-
-import 'body_focus_results_view.dart';
+import 'package:flutter/material.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key});
@@ -18,15 +16,57 @@ class _SearchViewState extends State<SearchView> {
   String? _selectedLevel;
   String? _selectedDuration;
 
-  // Dedicated per-body-part images that match the reference screenshots exactly.
-  final List<Map<String, String>> _bodyFocusItems = [
-    {'label': 'Back',       'asset': 'assets/images/body_back.png'},
-    {'label': 'Arm',        'asset': 'assets/images/body_arm.png'},
-    {'label': 'Butt & Leg', 'asset': 'assets/images/body_leg.png'},
-    {'label': 'Chest',      'asset': 'assets/images/body_chest.png'},
-    {'label': 'Shoulder',   'asset': 'assets/images/body_shoulder.png'},
-    {'label': 'Full Body',  'asset': 'assets/images/body_fullbody.png'},
-    {'label': 'Abs',        'asset': 'assets/images/body_abs.png'},
+  // Dedicated body part definitions with zoomed alignments focusing on each muscle group
+  final List<Map<String, dynamic>> _bodyFocusItems = [
+    {
+      'label': 'Back',
+      'primaryAsset': 'assets/images/body_back.png',
+      'fallbackAsset': 'assets/images/splash_bg.png',
+      'alignment': const Alignment(0.0, -0.8),
+      'scale': 2.0,
+    },
+    {
+      'label': 'Arm',
+      'primaryAsset': 'assets/images/body_arm.png',
+      'fallbackAsset': 'assets/images/splash_bg.png',
+      'alignment': const Alignment(-0.7, -0.3),
+      'scale': 2.4,
+    },
+    {
+      'label': 'Butt & Leg',
+      'primaryAsset': 'assets/images/body_leg.png',
+      'fallbackAsset': 'assets/images/workout_squat.jpg',
+      'alignment': const Alignment(0.0, 0.4),
+      'scale': 1.6,
+    },
+    {
+      'label': 'Chest',
+      'primaryAsset': 'assets/images/body_chest.png',
+      'fallbackAsset': 'assets/images/splash_bg.png',
+      'alignment': const Alignment(0.0, -0.45),
+      'scale': 2.2,
+    },
+    {
+      'label': 'Shoulder',
+      'primaryAsset': 'assets/images/body_shoulder.png',
+      'fallbackAsset': 'assets/images/splash_bg.png',
+      'alignment': const Alignment(0.65, -0.65),
+      'scale': 2.2,
+    },
+    {
+      'label': 'Full Body',
+      'primaryAsset': 'assets/images/body_fullbody.png',
+      'fallbackAsset': 'assets/images/male-Avatar.png',
+      'alignment': Alignment.center,
+      'scale': 1.0,
+    },
+    {
+      'label': 'Abs',
+      'primaryAsset': 'assets/images/body_abs.png',
+      'fallbackAsset': 'assets/images/workout_abs.jpg',
+      'alignment': const Alignment(0.0, 0.1),
+      'scale': 1.8,
+    },
   ];
 
   final List<Map<String, dynamic>> _workoutTypes = [
@@ -58,7 +98,7 @@ class _SearchViewState extends State<SearchView> {
   ];
 
   final List<String> _durations = [
-    '<=10\nmins',
+    '≤10\nmins',
     '11-20\nmins',
     '21-30\nmins',
     '>30\nmins',
@@ -67,6 +107,7 @@ class _SearchViewState extends State<SearchView> {
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -215,8 +256,7 @@ class _SearchViewState extends State<SearchView> {
         separatorBuilder: (_, _) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final item = _bodyFocusItems[index];
-          final label = item['label']!;
-          final asset = item['asset']!;
+          final label = item['label'] as String;
           final isSelected = _selectedBodyFocus == label;
 
           return GestureDetector(
@@ -224,23 +264,16 @@ class _SearchViewState extends State<SearchView> {
               setState(() {
                 _selectedBodyFocus = isSelected ? null : label;
               });
-              // Navigate to the results screen for this focus area
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BodyFocusResultsView(focusLabel: label),
-                ),
-              );
             },
             child: Column(
               children: [
-                _buildBodyFocusAvatar(asset, isSelected),
+                _buildBodyFocusAvatar(item, isSelected),
                 const SizedBox(height: 8),
                 Text(
                   label,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight:
-                        isSelected ? FontWeight.w700 : FontWeight.w600,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     color: isSelected
                         ? const Color(0xFF0066FF)
                         : const Color(0xFF1F2937),
@@ -254,15 +287,19 @@ class _SearchViewState extends State<SearchView> {
     );
   }
 
-  Widget _buildBodyFocusAvatar(String asset, bool isSelected) {
+  Widget _buildBodyFocusAvatar(Map<String, dynamic> item, bool isSelected) {
+    final primaryAsset = item['primaryAsset'] as String?;
+    final fallbackAsset = item['fallbackAsset'] as String;
+    final alignment = item['alignment'] as Alignment? ?? Alignment.center;
+    final scale = item['scale'] as double? ?? 1.0;
+
     return Container(
       width: 68,
       height: 68,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color:
-              isSelected ? const Color(0xFF0066FF) : Colors.transparent,
+          color: isSelected ? const Color(0xFF0066FF) : Colors.transparent,
           width: 2.5,
         ),
         boxShadow: [
@@ -274,11 +311,27 @@ class _SearchViewState extends State<SearchView> {
         ],
       ),
       child: ClipOval(
-        child: Image.asset(
-          asset,
-          fit: BoxFit.cover,
-        ),
+        child: primaryAsset != null
+            ? Image.asset(
+                primaryAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    _buildCroppedFallback(fallbackAsset, alignment, scale),
+              )
+            : _buildCroppedFallback(fallbackAsset, alignment, scale),
       ),
+    );
+  }
+
+  Widget _buildCroppedFallback(
+    String asset,
+    Alignment alignment,
+    double scale,
+  ) {
+    return Transform.scale(
+      scale: scale,
+      alignment: alignment,
+      child: Image.asset(asset, fit: BoxFit.cover, alignment: alignment),
     );
   }
 
@@ -318,11 +371,7 @@ class _SearchViewState extends State<SearchView> {
           ),
           const SizedBox(width: 12),
           // Column 4
-          Column(
-            children: [
-              _buildWorkoutTypeCard(_workoutTypes[5]),
-            ],
-          ),
+          Column(children: [_buildWorkoutTypeCard(_workoutTypes[5])]),
         ],
       ),
     );
@@ -349,9 +398,7 @@ class _SearchViewState extends State<SearchView> {
               : const Color(0xFFF1F5F9),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF0066FF)
-                : Colors.transparent,
+            color: isSelected ? const Color(0xFF0066FF) : Colors.transparent,
             width: 1.5,
           ),
         ),
@@ -452,8 +499,7 @@ class _SearchViewState extends State<SearchView> {
             child: Container(
               width: 110,
               height: 72,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected
                     ? const Color(0xFF0066FF).withValues(alpha: 0.1)
@@ -538,19 +584,12 @@ class _SearchViewState extends State<SearchView> {
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: const Color(0xFFE2E8F0),
-                  width: 1,
-                ),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: const [
-                  Icon(
-                    Icons.edit_outlined,
-                    size: 18,
-                    color: Color(0xFF0066FF),
-                  ),
+                  Icon(Icons.edit_outlined, size: 18, color: Color(0xFF0066FF)),
                   SizedBox(width: 8),
                   Text(
                     'Tell us what you need',
