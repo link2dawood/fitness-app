@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import 'body_focus_results_view.dart';
 
@@ -20,13 +20,13 @@ class _SearchViewState extends State<SearchView> {
 
   // Dedicated per-body-part images that match the reference screenshots exactly.
   final List<Map<String, String>> _bodyFocusItems = [
-    {'label': 'Back',      'asset': 'assets/images/body_back.png'},
-    {'label': 'Arm',       'asset': 'assets/images/body_arm.png'},
-    {'label': 'Butt & Leg','asset': 'assets/images/body_leg.png'},
-    {'label': 'Chest',     'asset': 'assets/images/body_chest.png'},
-    {'label': 'Shoulder',  'asset': 'assets/images/body_shoulder.png'},
-    {'label': 'Full Body', 'asset': 'assets/images/body_fullbody.png'},
-    {'label': 'Abs',       'asset': 'assets/images/body_abs.png'},
+    {'label': 'Back',       'asset': 'assets/images/body_back.png'},
+    {'label': 'Arm',        'asset': 'assets/images/body_arm.png'},
+    {'label': 'Butt & Leg', 'asset': 'assets/images/body_leg.png'},
+    {'label': 'Chest',      'asset': 'assets/images/body_chest.png'},
+    {'label': 'Shoulder',   'asset': 'assets/images/body_shoulder.png'},
+    {'label': 'Full Body',  'asset': 'assets/images/body_fullbody.png'},
+    {'label': 'Abs',        'asset': 'assets/images/body_abs.png'},
   ];
 
   final List<Map<String, dynamic>> _workoutTypes = [
@@ -58,7 +58,7 @@ class _SearchViewState extends State<SearchView> {
   ];
 
   final List<String> _durations = [
-    '≤10\nmins',
+    '<=10\nmins',
     '11-20\nmins',
     '21-30\nmins',
     '>30\nmins',
@@ -221,11 +221,10 @@ class _SearchViewState extends State<SearchView> {
 
           return GestureDetector(
             onTap: () {
-              // Highlight the badge
               setState(() {
                 _selectedBodyFocus = isSelected ? null : label;
               });
-              // Navigate to results screen for this focus area
+              // Navigate to the results screen for this focus area
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => BodyFocusResultsView(focusLabel: label),
@@ -240,7 +239,8 @@ class _SearchViewState extends State<SearchView> {
                   label,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    fontWeight:
+                        isSelected ? FontWeight.w700 : FontWeight.w600,
                     color: isSelected
                         ? const Color(0xFF0066FF)
                         : const Color(0xFF1F2937),
@@ -261,7 +261,8 @@ class _SearchViewState extends State<SearchView> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: isSelected ? const Color(0xFF0066FF) : Colors.transparent,
+          color:
+              isSelected ? const Color(0xFF0066FF) : Colors.transparent,
           width: 2.5,
         ),
         boxShadow: [
@@ -393,8 +394,9 @@ class _SearchViewState extends State<SearchView> {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    _selectedLevel =
-                        _selectedLevel == _levels[i]['label'] ? null : _levels[i]['label'] as String;
+                    _selectedLevel = _selectedLevel == _levels[i]['label']
+                        ? null
+                        : _levels[i]['label'] as String;
                   });
                 },
                 child: Container(
@@ -450,7 +452,8 @@ class _SearchViewState extends State<SearchView> {
             child: Container(
               width: 110,
               height: 72,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: isSelected
                     ? const Color(0xFF0066FF).withValues(alpha: 0.1)

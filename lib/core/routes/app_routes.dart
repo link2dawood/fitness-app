@@ -11,6 +11,7 @@ import '../../views/onboarding/onboarding_view.dart';
 import '../../views/plan/plan_generation_view.dart';
 import '../../views/plan/plan_ready_view.dart';
 import '../../views/pro/pro_plan_view.dart';
+import '../../views/search/search_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String planReady = '/plan-ready';
   static const String home = '/home';
   static const String pro = '/pro';
+  static const String search = '/search';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -56,6 +58,8 @@ class AppRoutes {
         );
       case pro:
         return _fade(settings, const ProPlanView());
+      case search:
+        return _fade(settings, const SearchView());
       case splash:
       default:
         return _fade(

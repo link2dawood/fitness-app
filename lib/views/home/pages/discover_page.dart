@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../../core/routes/app_routes.dart';
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({super.key});
@@ -28,19 +31,27 @@ class DiscoverPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
-            Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F3F7),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search exercises, coaches, articles...',
-                  hintStyle: TextStyle(fontSize: 14, color: Color(0xFF9CA3AF)),
-                  prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF9CA3AF)),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 14),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                Navigator.of(context).pushNamed(AppRoutes.search);
+              },
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F3F7),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: const AbsorbPointer(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search exercises, coaches, articles...',
+                      hintStyle: TextStyle(fontSize: 14, color: Color(0xFF9CA3AF)),
+                      prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF9CA3AF)),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
                 ),
               ),
             ),

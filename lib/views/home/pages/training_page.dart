@@ -170,26 +170,34 @@ class _TrainingPageState extends State<TrainingPage> {
               // ── 2. Search Bar ──────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F3F7),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search workouts, plans...',
-                      hintStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF9CA3AF),
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    Navigator.of(context).pushNamed(AppRoutes.search);
+                  },
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F3F7),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const AbsorbPointer(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search workouts, plans...',
+                          hintStyle: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF9CA3AF),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search_rounded,
+                            color: Color(0xFF9CA3AF),
+                            size: 22,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 14),
+                        ),
                       ),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFF9CA3AF),
-                        size: 22,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                   ),
                 ),
