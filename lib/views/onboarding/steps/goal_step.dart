@@ -74,7 +74,7 @@ class _GoalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFF0066FF); // Matching vibrant blue reference card
+    const activeColor = AppColors.primary; // Fitness green – consistent with all other steps
 
     return GestureDetector(
       onTap: () {
@@ -85,16 +85,18 @@ class _GoalCard extends StatelessWidget {
         duration: const Duration(milliseconds: 220),
         height: 115,
         decoration: BoxDecoration(
-          color: selected ? activeColor : AppColors.surface,
+          color: selected
+              ? activeColor.withValues(alpha: 0.10)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: selected ? Colors.transparent : AppColors.border,
-            width: 1,
+            color: selected ? activeColor : AppColors.border,
+            width: selected ? 2.0 : 1.0,
           ),
           boxShadow: [
             if (selected)
               BoxShadow(
-                color: activeColor.withValues(alpha: 0.35),
+                color: activeColor.withValues(alpha: 0.22),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               )
@@ -123,7 +125,7 @@ class _GoalCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: selected ? Colors.white : AppColors.textPrimary,
+                      color: selected ? activeColor : AppColors.textPrimary,
                       height: 1.2,
                     ),
                   ),
@@ -159,24 +161,26 @@ class _GoalCard extends StatelessWidget {
               // Selected checkmark badge
               if (selected)
                 Positioned(
-                  top: 12,
-                  right: 12,
+                  top: 10,
+                  left: 12,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      color: activeColor,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 4,
+                          color: activeColor.withValues(alpha: 0.4),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: const Icon(
-                      Icons.check,
+                      Icons.check_rounded,
                       size: 16,
-                      color: activeColor,
+                      color: Colors.white,
                     ),
                   ),
                 ),

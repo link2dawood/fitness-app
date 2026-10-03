@@ -51,14 +51,14 @@ enum FitnessLevel {
 }
 
 enum ActivityLevel {
-  sedentary('Sedentary', '👩‍💻'),
-  lightlyActive('Lightly active', '🚶'),
-  moderatelyActive('Moderately active', '🏃'),
-  veryActive('Very active', '🥰');
+  sedentary('Sedentary', 'Mostly sitting or lying down all day'),
+  lightlyActive('Lightly active', 'Light walks or standing most of the day'),
+  moderatelyActive('Moderately active', 'Some exercise or active job'),
+  veryActive('Very active', 'Intense exercise or physically demanding work');
 
-  const ActivityLevel(this.label, this.emoji);
+  const ActivityLevel(this.label, this.description);
   final String label;
-  final String emoji;
+  final String description;
 }
 
 class UserProfile {

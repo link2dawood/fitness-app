@@ -117,7 +117,11 @@ class WeeklyGoalStep extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Text('🎯', style: TextStyle(fontSize: 18)),
+                Icon(
+                  Icons.track_changes_rounded,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
                 SizedBox(width: 8),
                 Text(
                   'Weekly training days',
@@ -191,7 +195,11 @@ class WeeklyGoalStep extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Text('🗓️', style: TextStyle(fontSize: 18)),
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 18,
+                  color: Color(0xFF0066FF),
+                ),
                 SizedBox(width: 8),
                 Text(
                   'First day of week',

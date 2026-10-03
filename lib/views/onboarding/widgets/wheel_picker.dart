@@ -46,14 +46,15 @@ class _WheelPickerState extends State<WheelPicker> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          widget.label,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w600,
+        if (widget.label.isNotEmpty)
+          Text(
+            widget.label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
+        if (widget.label.isNotEmpty) const SizedBox(height: 12),
         SizedBox(
           height: 180,
           child: Stack(

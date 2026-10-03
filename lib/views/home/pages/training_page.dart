@@ -34,7 +34,11 @@ class _TrainingPageState extends State<TrainingPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('🔥', style: TextStyle(fontSize: 44)),
+                const Icon(
+                  Icons.local_fire_department_rounded,
+                  size: 52,
+                  color: Color(0xFFFF5722),
+                ),
                 const SizedBox(height: 12),
                 const Text(
                   '1 Day Streak!',
@@ -127,9 +131,10 @@ class _TrainingPageState extends State<TrainingPage> {
                           color: const Color(0xFFFFF1F2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Text(
-                          '🔥',
-                          style: TextStyle(fontSize: 18),
+                        child: const Icon(
+                          Icons.local_fire_department_rounded,
+                          size: 22,
+                          color: Color(0xFFFF5722),
                         ),
                       ),
                     ),
@@ -149,7 +154,11 @@ class _TrainingPageState extends State<TrainingPage> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Text('👑', style: TextStyle(fontSize: 13)),
+                            Icon(
+                              Icons.workspace_premium_rounded,
+                              size: 16,
+                              color: Color(0xFFD4A017),
+                            ),
                             SizedBox(width: 4),
                             Text(
                               'PRO ↗',

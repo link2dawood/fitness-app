@@ -4,6 +4,10 @@ import 'package:flutter/services.dart';
 import '../../../core/theme/app_colors.dart';
 
 /// Horizontal option card (icon + title + description + check).
+///
+/// Pass [iconColor] to give each option its own vibrant identity.
+/// - Unselected: pastel background tint + [iconColor] icon.
+/// - Selected  : solid [iconColor] background + white icon, with green border.
 class SelectableCard extends StatelessWidget {
   const SelectableCard({
     super.key,
@@ -12,6 +16,7 @@ class SelectableCard extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.subtitle,
+    this.iconColor,
   });
 
   final String title;
@@ -20,8 +25,22 @@ class SelectableCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// Optional per-item accent color for the icon container.
+  /// Falls back to [AppColors.primary] / [AppColors.surfaceLight] when null.
+  final Color? iconColor;
+
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = iconColor ?? AppColors.primary;
+
+    // Icon container colors
+    final iconBg = selected
+        ? effectiveColor                            // solid accent when selected
+        : effectiveColor.withValues(alpha: 0.12);  // soft pastel when idle
+    final iconFg = selected
+        ? Colors.white                              // white icon on solid bg
+        : effectiveColor;                           // colored icon on pastel bg
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
@@ -42,20 +61,21 @@ class SelectableCard extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // ── Icon box ──────────────────────────────────────────────────
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: selected ? AppColors.primary : AppColors.surfaceLight,
+                color: iconBg,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
-                icon,
-                color: selected ? AppColors.onPrimary : AppColors.textPrimary,
-              ),
+              child: Icon(icon, color: iconFg),
             ),
+
             const SizedBox(width: 16),
+
+            // ── Title + subtitle ──────────────────────────────────────────
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,6 +100,8 @@ class SelectableCard extends StatelessWidget {
                 ],
               ),
             ),
+
+            // ── Selection indicator ───────────────────────────────────────
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: selected

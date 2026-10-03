@@ -26,6 +26,7 @@ class MotivationStep extends StatelessWidget {
             title: item.label,
             subtitle: item.description,
             icon: item.icon,
+            iconColor: item.iconColor,
             selected: vm.profile.motivation == item,
             onTap: () => vm.selectMotivation(item),
           );

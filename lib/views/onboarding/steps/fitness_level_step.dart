@@ -26,6 +26,7 @@ class FitnessLevelStep extends StatelessWidget {
             title: level.label,
             subtitle: level.description,
             icon: level.icon,
+            iconColor: level.iconColor,
             selected: vm.profile.level == level,
             onTap: () => vm.selectLevel(level),
           );

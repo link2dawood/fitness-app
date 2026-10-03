@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/user_profile.dart';
 
-/// Maps model enums to icons so the data layer stays free of UI code.
+/// Maps model enums to icons & colors so the data layer stays free of UI code.
+
 extension GenderVisual on Gender {
   IconData get icon {
     switch (this) {
@@ -48,6 +49,8 @@ extension FitnessGoalVisual on FitnessGoal {
   }
 }
 
+// ── Step 4: Motivation ────────────────────────────────────────────────────────
+
 extension MotivationVisual on Motivation {
   IconData get icon {
     switch (this) {
@@ -61,7 +64,22 @@ extension MotivationVisual on Motivation {
         return Icons.wb_sunny_rounded;
     }
   }
+
+  Color get iconColor {
+    switch (this) {
+      case Motivation.confidence:
+        return const Color(0xFFFF9800); // amber — self-confidence
+      case Motivation.stress:
+        return const Color(0xFF9C27B0); // purple — calm & spa
+      case Motivation.health:
+        return const Color(0xFFE91E63); // pink-red — heart health
+      case Motivation.energy:
+        return const Color(0xFFFF5722); // deep orange — sun/energy
+    }
+  }
 }
+
+// ── Step 5: Fitness Level ─────────────────────────────────────────────────────
 
 extension FitnessLevelVisual on FitnessLevel {
   IconData get icon {
@@ -74,7 +92,20 @@ extension FitnessLevelVisual on FitnessLevel {
         return Icons.signal_cellular_alt_rounded;
     }
   }
+
+  Color get iconColor {
+    switch (this) {
+      case FitnessLevel.beginner:
+        return const Color(0xFF4CAF50); // green — just starting
+      case FitnessLevel.intermediate:
+        return const Color(0xFF2196F3); // blue — in progress
+      case FitnessLevel.advanced:
+        return const Color(0xFFFF5722); // deep orange — peak performance
+    }
+  }
 }
+
+// ── Step 6: Activity Level ────────────────────────────────────────────────────
 
 extension ActivityLevelVisual on ActivityLevel {
   IconData get icon {
@@ -87,6 +118,19 @@ extension ActivityLevelVisual on ActivityLevel {
         return Icons.directions_run_rounded;
       case ActivityLevel.veryActive:
         return Icons.fitness_center_rounded;
+    }
+  }
+
+  Color get iconColor {
+    switch (this) {
+      case ActivityLevel.sedentary:
+        return const Color(0xFF9C27B0); // purple — desk/rest
+      case ActivityLevel.lightlyActive:
+        return const Color(0xFF00BCD4); // cyan — light walk
+      case ActivityLevel.moderatelyActive:
+        return const Color(0xFF2196F3); // blue — jogging
+      case ActivityLevel.veryActive:
+        return const Color(0xFFFF5722); // deep orange — intense training
     }
   }
 }
