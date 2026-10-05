@@ -321,7 +321,7 @@ class _TrainingPageState extends State<TrainingPage> {
                           children: [
                             ClipOval(
                               child: Image.asset(
-                                'assets/images/plan_coach.jpg',
+                                'assets/images/ui/plan_coach.jpg',
                                 width: 44,
                                 height: 44,
                                 fit: BoxFit.cover,
@@ -453,21 +453,21 @@ class _TrainingPageState extends State<TrainingPage> {
                     _buildWorkoutTile(
                       title: '${vm.selectedBodyFocus} Beginner',
                       subtitle: '16 mins • 16 Exercises',
-                      imagePath: 'assets/images/workout_abs.jpg',
+                      imagePath: 'assets/images/workouts/abs.jpg',
                       intensity: 1,
                     ),
                     const SizedBox(height: 12),
                     _buildWorkoutTile(
                       title: '${vm.selectedBodyFocus} Intermediate',
                       subtitle: '25 mins • 21 Exercises',
-                      imagePath: 'assets/images/workout_abs.jpg',
+                      imagePath: 'assets/images/workouts/abs.jpg',
                       intensity: 2,
                     ),
                     const SizedBox(height: 12),
                     _buildWorkoutTile(
                       title: '${vm.selectedBodyFocus} Advanced',
                       subtitle: '28 mins • 21 Exercises',
-                      imagePath: 'assets/images/plan_athlete.jpg',
+                      imagePath: 'assets/images/ui/plan_athlete.jpg',
                       intensity: 3,
                     ),
                   ],
@@ -676,7 +676,7 @@ class _TrainingPageState extends State<TrainingPage> {
                             right: Radius.circular(22),
                           ),
                           child: Image.asset(
-                            'assets/images/recommended_height.jpg',
+                            'assets/images/ui/recommended_height.jpg',
                             width: 175,
                             fit: BoxFit.cover,
                             alignment: Alignment.centerRight,
@@ -772,13 +772,13 @@ class _TrainingPageState extends State<TrainingPage> {
                     _buildSimpleWorkoutItem(
                       title: 'Ripped V-Cut Abs Sculpting',
                       subtitle: '22 min • Intermediate',
-                      imagePath: 'assets/images/workout_abs.jpg',
+                      imagePath: 'assets/images/workouts/abs.jpg',
                     ),
                     const SizedBox(height: 12),
                     _buildSimpleWorkoutItem(
                       title: 'Band Workout at Home',
                       subtitle: '17 min • Beginner',
-                      imagePath: 'assets/images/workout_squat.jpg',
+                      imagePath: 'assets/images/workouts/squat.jpg',
                     ),
                   ],
                 ),
@@ -823,12 +823,12 @@ class _TrainingPageState extends State<TrainingPage> {
                   children: [
                     _buildStretchCard(
                       title: 'Before Workout Warm-Up',
-                      imagePath: 'assets/images/stretch_warmup.jpg',
+                      imagePath: 'assets/images/workouts/stretch_warmup.jpg',
                     ),
                     const SizedBox(width: 14),
                     _buildStretchCard(
                       title: 'Knee Pain Relief',
-                      imagePath: 'assets/images/recommended_height.jpg',
+                      imagePath: 'assets/images/ui/recommended_height.jpg',
                     ),
                   ],
                 ),
@@ -894,19 +894,19 @@ class _TrainingPageState extends State<TrainingPage> {
                       _buildPopularGoalItem(
                         title: 'Strong Legs Routine',
                         subtitle: '13 min • Beginner',
-                        imagePath: 'assets/images/workout_squat.jpg',
+                        imagePath: 'assets/images/workouts/squat.jpg',
                       ),
                       const Divider(height: 24, color: Color(0xFFF3F4F6)),
                       _buildPopularGoalItem(
                         title: 'Intense Leg Transformation',
                         subtitle: '31 min • Advanced',
-                        imagePath: 'assets/images/workout_squat.jpg',
+                        imagePath: 'assets/images/workouts/squat.jpg',
                       ),
                       const Divider(height: 24, color: Color(0xFFF3F4F6)),
                       _buildPopularGoalItem(
                         title: 'Beginner Abs Shred',
                         subtitle: '17 min • Beginner',
-                        imagePath: 'assets/images/workout_abs.jpg',
+                        imagePath: 'assets/images/workouts/abs.jpg',
                       ),
                       const SizedBox(height: 12),
                       const Center(
@@ -1030,7 +1030,7 @@ class _TrainingPageState extends State<TrainingPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: Image.asset(
-                  'assets/images/plan_athlete.jpg',
+                  'assets/images/ui/plan_athlete.jpg',
                   width: 100,
                   height: 105,
                   fit: BoxFit.cover,

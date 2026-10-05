@@ -35,7 +35,7 @@ class GenderStep extends StatelessWidget {
                     child: _AvatarCard(
                       label: 'Male',
                       gender: Gender.male,
-                      imagePath: 'assets/images/male-Avatar.png',
+                      imagePath: 'assets/images/avatars/male/avatar.png',
                       selected: selected == Gender.male,
                       onTap: () => vm.selectGender(Gender.male),
                     ),
@@ -46,7 +46,7 @@ class GenderStep extends StatelessWidget {
                     child: _AvatarCard(
                       label: 'Female',
                       gender: Gender.female,
-                      imagePath: 'assets/images/female-Avatar.png',
+                      imagePath: 'assets/images/avatars/female/avatar.png',
                       selected: selected == Gender.female,
                       onTap: () => vm.selectGender(Gender.female),
                     ),

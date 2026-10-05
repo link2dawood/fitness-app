@@ -102,7 +102,7 @@ class DiscoverPage extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(14),
                     child: Image.asset(
-                      'assets/images/workout_abs.jpg',
+                      'assets/images/workouts/abs.jpg',
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,

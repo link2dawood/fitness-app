@@ -49,7 +49,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 ClipOval(
                   child: Image.asset(
-                    'assets/images/plan_coach.jpg',
+                    'assets/images/ui/plan_coach.jpg',
                     width: 56,
                     height: 56,
                     fit: BoxFit.cover,

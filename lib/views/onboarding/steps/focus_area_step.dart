@@ -27,10 +27,8 @@ class FocusAreaStep extends StatefulWidget {
 }
 
 class _FocusAreaStepState extends State<FocusAreaStep> {
-  static const String _avatarAsset = 'assets/images/male-Avatar.png';
-
-  /// Order of the pills, top to bottom.
-  static const List<FocusArea> _order = [
+  /// Pill order for male: Full Body → Arms → Chest → Abs → Legs
+  static const List<FocusArea> _maleOrder = [
     FocusArea.fullBody,
     FocusArea.arms,
     FocusArea.chest,
@@ -38,39 +36,86 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
     FocusArea.legs,
   ];
 
-  /// Dot positions as a fraction (x, y) of the VISIBLE character
-  /// (the transparent padding of the PNG is ignored automatically).
-  /// Tweak these numbers if you want a dot to sit somewhere else on the body.
-  static const Map<FocusArea, Offset> _anchors = {
+  /// Pill order for female: Full Body → Arms → Abs → Butt → Legs (no Chest)
+  static const List<FocusArea> _femaleOrder = [
+    FocusArea.fullBody,
+    FocusArea.arms,
+    FocusArea.abs,
+    FocusArea.butt,
+    FocusArea.legs,
+  ];
+
+  /// Dot positions (fraction of visible figure) for the male avatar.
+  static const Map<FocusArea, Offset> _maleAnchors = {
     FocusArea.arms: Offset(0.21, 0.225), // left shoulder / sleeve
     FocusArea.chest: Offset(0.40, 0.245), // left chest
     FocusArea.abs: Offset(0.52, 0.420), // abdomen
     FocusArea.legs: Offset(0.30, 0.680), // left thigh
   };
 
+  /// Dot positions for the female avatar.
+  static const Map<FocusArea, Offset> _femaleAnchors = {
+    FocusArea.arms: Offset(0.24, 0.220), // left shoulder
+    FocusArea.abs: Offset(0.50, 0.400), // abdomen
+    FocusArea.butt: Offset(0.90, 0.500), // right glute / hip
+    FocusArea.legs: Offset(0.32, 0.720), // left thigh
+  };
+
   static const double _pillHeight = 52;
 
-  // The measured character is cached so revisiting the step is instant.
-  static _Figure? _cache;
+  /// Per-asset cache keyed by image path so male and female are stored
+  /// independently and switching gender shows the correct figure instantly.
+  static final Map<String, _Figure> _cache = {};
   _Figure? _figure;
+  String? _loadedAsset;
+
+  String _avatarAsset(Gender? gender) => gender == Gender.female
+      ? 'assets/images/avatars/female/avatar.png'
+      : 'assets/images/avatars/male/avatar.png';
+
+  void _loadFigure(String asset) {
+    if (_loadedAsset == asset) {
+      return; // already loaded / loading for this asset
+    }
+    _loadedAsset = asset;
+    if (_cache.containsKey(asset)) {
+      setState(() => _figure = _cache[asset]);
+      return;
+    }
+    _Figure.measure(asset).then((f) {
+      _cache[asset] = f;
+      if (mounted && _loadedAsset == asset) setState(() => _figure = f);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    if (_cache != null) {
-      _figure = _cache;
-    } else {
-      _Figure.measure(_avatarAsset).then((f) {
-        _cache = f;
-        if (mounted) setState(() => _figure = f);
-      });
-    }
+    // initState cannot call context.read yet; defer to didChangeDependencies.
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final gender = context.read<OnboardingViewModel>().profile.gender;
+    _loadFigure(_avatarAsset(gender));
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<OnboardingViewModel>();
     final selected = vm.profile.focusAreas;
+    final gender = vm.profile.gender;
+    final asset = _avatarAsset(gender);
+    final isFemale = gender == Gender.female;
+    final order = isFemale ? _femaleOrder : _maleOrder;
+    final anchors = isFemale ? _femaleAnchors : _maleAnchors;
+
+    // Reload the figure whenever the selected gender changes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadFigure(asset);
+    });
+
     final figure = _figure;
 
     return StepScaffold(
@@ -79,8 +124,16 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
       child: figure == null
           ? const SizedBox.shrink()
           : LayoutBuilder(
-              builder: (context, c) =>
-                  _buildStage(c.maxWidth, c.maxHeight, figure, selected, vm),
+              builder: (context, c) => _buildStage(
+                c.maxWidth,
+                c.maxHeight,
+                asset,
+                figure,
+                order,
+                anchors,
+                selected,
+                vm,
+              ),
             ),
     );
   }
@@ -88,7 +141,10 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
   Widget _buildStage(
     double w,
     double h,
+    String avatarAsset,
     _Figure figure,
+    List<FocusArea> order,
+    Map<FocusArea, Offset> anchors,
     Set<FocusArea> selected,
     OnboardingViewModel vm,
   ) {
@@ -112,33 +168,30 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
     final imgLeft = figLeft - figure.norm.left * imgW;
     final imgTop = figTop - figure.norm.top * imgH;
 
-    Offset dot(FocusArea a) => Offset(
-      figLeft + _anchors[a]!.dx * figW,
-      figTop + _anchors[a]!.dy * figH,
-    );
+    // Convert a relative anchor to an absolute canvas Offset.
+    Offset dot(FocusArea a) =>
+        Offset(figLeft + anchors[a]!.dx * figW, figTop + anchors[a]!.dy * figH);
 
     // ---- Pill placement ---------------------------------------------------
     // Arms pill is level with the shoulder dot and Legs pill is level with
-    // the thigh dot, so those two lines are straight (like the reference).
-    // The pills in between are evenly spaced; their lines bend to reach dots.
+    // the thigh dot. Pills in between are evenly spaced.
     final armY = dot(FocusArea.arms).dy;
     final legY = dot(FocusArea.legs).dy;
+    // 3 gaps for 5 pills (fullBody, arms, middle1, middle2, legs)
     final step = ((legY - armY) / 3).clamp(_pillHeight + 10, _pillHeight + 40);
 
-    final centers = <FocusArea, double>{
-      FocusArea.fullBody: armY - step,
-      FocusArea.arms: armY,
-      FocusArea.chest: armY + step,
-      FocusArea.abs: armY + step * 2,
-      FocusArea.legs: armY + step * 3,
-    };
+    // Build centers for every pill in the current order.
+    final centers = <FocusArea, double>{};
+    for (var i = 0; i < order.length; i++) {
+      centers[order[i]] = armY + (i - 1) * step;
+    }
 
     // Keep the whole pill column inside the available height.
     var shift = 0.0;
-    final top = centers[FocusArea.fullBody]! - _pillHeight / 2;
-    final bottom = centers[FocusArea.legs]! + _pillHeight / 2;
-    if (top < 0) shift = -top;
-    if (bottom + shift > h) shift = h - bottom;
+    final colTop = centers[order.first]! - _pillHeight / 2;
+    final colBottom = centers[order.last]! + _pillHeight / 2;
+    if (colTop < 0) shift = -colTop;
+    if (colBottom + shift > h) shift = h - colBottom;
     if (shift != 0) {
       for (final k in centers.keys.toList()) {
         centers[k] = centers[k]! + shift;
@@ -147,8 +200,8 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
 
     // ---- Connector lines --------------------------------------------------
     final links = <_Link>[
-      for (final area in _order)
-        if (area != FocusArea.fullBody)
+      for (final area in order)
+        if (anchors.containsKey(area)) // skip fullBody which has no anchor
           _Link(
             start: Offset(tileW, centers[area]!),
             end: dot(area),
@@ -166,7 +219,7 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
           width: imgW,
           height: imgH,
           child: IgnorePointer(
-            child: Image.asset(_avatarAsset, fit: BoxFit.fill),
+            child: Image.asset(avatarAsset, fit: BoxFit.fill),
           ),
         ),
 
@@ -178,7 +231,7 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
         ),
 
         // 3) Pills
-        for (final area in _order)
+        for (final area in order)
           Positioned(
             left: 0,
             top: centers[area]! - _pillHeight / 2,

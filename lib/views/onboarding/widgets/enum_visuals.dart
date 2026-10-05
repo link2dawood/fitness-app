@@ -28,6 +28,8 @@ extension FocusAreaVisual on FocusArea {
         return Icons.shield_outlined;
       case FocusArea.abs:
         return Icons.grid_view_rounded;
+      case FocusArea.butt:
+        return Icons.airline_seat_recline_normal_rounded;
       case FocusArea.legs:
         return Icons.directions_run_rounded;
     }

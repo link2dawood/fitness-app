@@ -12,6 +12,7 @@ enum FocusArea {
   arms('Arms'),
   chest('Chest'),
   abs('Abs'),
+  butt('Butt'),
   legs('Legs');
 
   const FocusArea(this.label);

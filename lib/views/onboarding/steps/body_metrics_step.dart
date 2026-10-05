@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../viewmodels/onboarding_viewmodel.dart';
 import '../widgets/step_scaffold.dart';
+import '../widgets/ruler_picker.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Conversion helpers
@@ -42,134 +43,108 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
     final lb = _kgToLb(p.weightKg);
 
     return StepScaffold(
-      title: 'Tell us about your body',
-      subtitle: 'Tap + / − to adjust your stats.',
+      title: 'Let us know you better',
+      subtitle: 'Let us know you better to help boost your\nworkout results',
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 40),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Age ──────────────────────────────────────────────────────────
-            _MetricCard(
-              icon: Icons.cake_rounded,
-              iconColor: const Color(0xFF9C27B0),
-              label: 'Age',
-              displayValue: '${p.age}',
-              displayUnit: 'years',
-              child: _StepCounter(
-                value: p.age,
-                min: 13,
-                max: 90,
-                onChanged: vm.updateAge,
-              ),
-            ),
-
-            const SizedBox(height: 14),
-
-            // ── Height ───────────────────────────────────────────────────────
-            _MetricCard(
-              icon: Icons.height_rounded,
-              iconColor: const Color(0xFF2196F3),
-              label: 'Height',
-              displayValue: _heightImperial
-                  ? "${ftIn.feet}' ${ftIn.inches}\""
-                  : '${p.heightCm}',
-              displayUnit: _heightImperial ? '' : 'cm',
-              unitToggle: _UnitToggle(
-                leftLabel: 'cm',
-                rightLabel: 'ft / in',
-                isRight: _heightImperial,
-                onChanged: (v) => setState(() => _heightImperial = v),
-              ),
-              child: _heightImperial
-                  ? _FtInCounter(
-                      feet: ftIn.feet,
-                      inches: ftIn.inches,
-                      onChanged: (f, i) => vm.updateHeight(_ftInToCm(f, i)),
-                    )
-                  : _StepCounter(
-                      value: p.heightCm,
-                      min: 120,
-                      max: 220,
-                      onChanged: vm.updateHeight,
-                    ),
-            ),
-
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
 
             // ── Weight ───────────────────────────────────────────────────────
-            _MetricCard(
-              icon: Icons.monitor_weight_rounded,
-              iconColor: const Color(0xFFFF5722),
-              label: 'Weight',
-              displayValue: _weightImperial ? '$lb' : '${p.weightKg}',
-              displayUnit: _weightImperial ? 'lb' : 'kg',
-              unitToggle: _UnitToggle(
+            _HeaderRow(
+              title: 'Weight',
+              toggle: _UnitToggle(
                 leftLabel: 'kg',
-                rightLabel: 'lb',
+                rightLabel: 'lbs',
                 isRight: _weightImperial,
                 onChanged: (v) => setState(() => _weightImperial = v),
               ),
-              child: _weightImperial
-                  ? _StepCounter(
-                      value: lb,
-                      min: 66,
-                      max: 441,
-                      onChanged: (v) => vm.updateWeight(_lbToKg(v)),
-                    )
-                  : _StepCounter(
-                      value: p.weightKg,
-                      min: 30,
-                      max: 200,
-                      onChanged: vm.updateWeight,
-                    ),
             ),
-
-            const SizedBox(height: 18),
-
-            // ── BMI ──────────────────────────────────────────────────────────
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.analytics_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Your BMI',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
+            const SizedBox(height: 20),
+            _ValueDisplay(
+              value: _weightImperial ? '$lb.0' : '${p.weightKg}.0',
+              unit: _weightImperial ? 'lbs' : 'kg',
+            ),
+            const SizedBox(height: 20),
+            _weightImperial
+                ? RulerPicker(
+                    value: lb,
+                    min: 66,
+                    max: 441,
+                    stepWidth: 80.0,
+                    labelInterval: 1,
+                    visualTicksPerStep: 10,
+                    onChanged: (v) => vm.updateWeight(_lbToKg(v)),
+                  )
+                : RulerPicker(
+                    value: p.weightKg,
+                    min: 30,
+                    max: 200,
+                    stepWidth: 80.0,
+                    labelInterval: 1,
+                    visualTicksPerStep: 10,
+                    onChanged: vm.updateWeight,
                   ),
-                  Text(
-                    p.bmi.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ],
+
+            const SizedBox(height: 50),
+
+            // ── Height ───────────────────────────────────────────────────────
+            _HeaderRow(
+              title: 'Height',
+              toggle: _UnitToggle(
+                leftLabel: 'cm',
+                rightLabel: 'ft',
+                isRight: _heightImperial,
+                onChanged: (v) => setState(() => _heightImperial = v),
               ),
             ),
+            const SizedBox(height: 20),
+            _ValueDisplay(
+              value: _heightImperial ? "${ftIn.feet}' ${ftIn.inches}\"" : '${p.heightCm}',
+              unit: _heightImperial ? '' : 'cm',
+            ),
+            const SizedBox(height: 20),
+            _heightImperial
+                ? _FtInRuler(
+                    feet: ftIn.feet,
+                    inches: ftIn.inches,
+                    onChanged: (f, i) => vm.updateHeight(_ftInToCm(f, i)),
+                  )
+                : RulerPicker(
+                    value: p.heightCm,
+                    min: 120,
+                    max: 220,
+                    stepWidth: 12.0,
+                    labelInterval: 10,
+                    visualTicksPerStep: 1,
+                    onChanged: vm.updateHeight,
+                  ),
+            
+            const SizedBox(height: 50),
 
-            const SizedBox(height: 8),
+            // ── Age ──────────────────────────────────────────────────────────
+            _HeaderRow(
+              title: 'Age',
+              toggle: const SizedBox(),
+            ),
+            const SizedBox(height: 20),
+            _ValueDisplay(
+              value: '${p.age}',
+              unit: 'years',
+            ),
+            const SizedBox(height: 20),
+            RulerPicker(
+              value: p.age,
+              min: 13,
+              max: 90,
+              stepWidth: 80.0,
+              labelInterval: 1,
+              visualTicksPerStep: 10,
+              onChanged: vm.updateAge,
+            ),
           ],
         ),
       ),
@@ -177,208 +152,64 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Metric Card
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.displayValue,
-    required this.displayUnit,
-    required this.child,
-    this.unitToggle,
-  });
-
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final String displayValue;
-  final String displayUnit;
-  final Widget child;
-  final Widget? unitToggle;
+class _HeaderRow extends StatelessWidget {
+  const _HeaderRow({required this.title, required this.toggle});
+  final String title;
+  final Widget toggle;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
           ),
+          toggle,
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Card header: icon + label + optional unit toggle ────────────
-          Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
+    );
+  }
+}
+
+class _ValueDisplay extends StatelessWidget {
+  const _ValueDisplay({required this.value, required this.unit});
+  final String value;
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: value,
+              style: const TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primary,
+                height: 1,
               ),
-              const SizedBox(width: 10),
-              Text(
-                label,
+            ),
+            if (unit.isNotEmpty)
+              TextSpan(
+                text: ' $unit',
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
+                  height: 1,
                 ),
               ),
-              const Spacer(),
-              ?unitToggle,
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // ── Large value display ─────────────────────────────────────────
-          Center(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: displayValue,
-                    style: const TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textPrimary,
-                      height: 1,
-                    ),
-                  ),
-                  if (displayUnit.isNotEmpty)
-                    TextSpan(
-                      text: ' $displayUnit',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
-                        height: 1,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // ── Counter / picker ────────────────────────────────────────────
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Step Counter  (– value +)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _StepCounter extends StatelessWidget {
-  const _StepCounter({
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.onChanged,
-  });
-
-  final int value;
-  final int min;
-  final int max;
-  final ValueChanged<int> onChanged;
-
-  void _tap(int delta) {
-    HapticFeedback.selectionClick();
-    final next = (value + delta).clamp(min, max);
-    onChanged(next);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Minus
-        _CounterBtn(
-          icon: Icons.remove_rounded,
-          enabled: value > min,
-          onTap: () => _tap(-1),
-        ),
-
-        // Progress bar
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: (value - min) / (max - min),
-                minHeight: 8,
-                backgroundColor: AppColors.surfaceLight,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-              ),
-            ),
-          ),
-        ),
-
-        // Plus
-        _CounterBtn(
-          icon: Icons.add_rounded,
-          enabled: value < max,
-          onTap: () => _tap(1),
-        ),
-      ],
-    );
-  }
-}
-
-class _CounterBtn extends StatelessWidget {
-  const _CounterBtn({
-    required this.icon,
-    required this.enabled,
-    required this.onTap,
-  });
-  final IconData icon;
-  final bool enabled;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: enabled
-              ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: enabled ? AppColors.primary : AppColors.border,
-          ),
-        ),
-        child: Icon(
-          icon,
-          size: 22,
-          color: enabled ? AppColors.primary : AppColors.border,
+          ],
         ),
       ),
     );
@@ -389,8 +220,8 @@ class _CounterBtn extends StatelessWidget {
 // Feet + Inches dual counter
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _FtInCounter extends StatelessWidget {
-  const _FtInCounter({
+class _FtInRuler extends StatelessWidget {
+  const _FtInRuler({
     required this.feet,
     required this.inches,
     required this.onChanged,
@@ -408,25 +239,28 @@ class _FtInCounter extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              Text(
+              const Text(
                 'ft',
-                style: const TextStyle(
-                  fontSize: 13,
+                style: TextStyle(
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 8),
-              _StepCounter(
+              const SizedBox(height: 4),
+              RulerPicker(
                 value: feet,
                 min: 4,
                 max: 7,
+                stepWidth: 60.0,
+                labelInterval: 1,
+                visualTicksPerStep: 1,
                 onChanged: (f) => onChanged(f, inches),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 8),
         // Inches
         Expanded(
           child: Column(
@@ -434,16 +268,19 @@ class _FtInCounter extends StatelessWidget {
               const Text(
                 'in',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 8),
-              _StepCounter(
+              const SizedBox(height: 4),
+              RulerPicker(
                 value: inches,
                 min: 0,
                 max: 11,
+                stepWidth: 40.0,
+                labelInterval: 1,
+                visualTicksPerStep: 1,
                 onChanged: (i) => onChanged(feet, i),
               ),
             ],
@@ -480,11 +317,11 @@ class _UnitToggle extends StatelessWidget {
         onChanged(!isRight);
       },
       child: Container(
-        height: 32,
+        height: 34,
+        padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.border),
+          color: AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(17),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -507,16 +344,16 @@ class _ToggleTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      margin: const EdgeInsets.all(2),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: active ? AppColors.primary : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: FontWeight.w700,
           color: active ? Colors.white : AppColors.textSecondary,
         ),

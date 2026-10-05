@@ -27,6 +27,7 @@ class GoalStep extends StatelessWidget {
           return _GoalCard(
             goal: goal,
             selected: vm.profile.goal == goal,
+            gender: vm.profile.gender,
             onTap: () => vm.selectGoal(goal),
           );
         },
@@ -40,13 +41,28 @@ class _GoalCard extends StatelessWidget {
     required this.goal,
     required this.selected,
     required this.onTap,
+    this.gender,
   });
 
   final FitnessGoal goal;
   final bool selected;
   final VoidCallback onTap;
+  final Gender? gender;
 
-  String _getPrimaryAsset(FitnessGoal goal) {
+  String _getPrimaryAsset(FitnessGoal goal, Gender? gender) {
+    if (gender == Gender.female) {
+       switch (goal) {
+        case FitnessGoal.loseWeight:
+          return 'assets/images/ui/goal_female_lose_weight.jpg';
+        case FitnessGoal.buildMuscle:
+          return 'assets/images/ui/goal_female_build_muscle.jpg';
+        case FitnessGoal.keepFit:
+          return 'assets/images/ui/goal_female_keep_fit.jpg';
+        case FitnessGoal.endurance:
+          return 'assets/images/ui/goal_female_endurance.jpg';
+      }
+    }
+
     switch (goal) {
       case FitnessGoal.loseWeight:
         return 'assets/images/goal_lose_weight.png';
@@ -62,13 +78,13 @@ class _GoalCard extends StatelessWidget {
   String _getFallbackAsset(FitnessGoal goal) {
     switch (goal) {
       case FitnessGoal.loseWeight:
-        return 'assets/images/pro_before_after.jpg';
+        return 'assets/images/ui/pro_before_after.jpg';
       case FitnessGoal.buildMuscle:
-        return 'assets/images/workout_abs.jpg';
+        return 'assets/images/workouts/abs.jpg';
       case FitnessGoal.keepFit:
-        return 'assets/images/plan_athlete.jpg';
+        return 'assets/images/ui/plan_athlete.jpg';
       case FitnessGoal.endurance:
-        return 'assets/images/stretch_warmup.jpg';
+        return 'assets/images/workouts/stretch_warmup.jpg';
     }
   }
 
@@ -144,7 +160,7 @@ class _GoalCard extends StatelessWidget {
                     bottomRight: Radius.circular(22),
                   ),
                   child: Image.asset(
-                    _getPrimaryAsset(goal),
+                    _getPrimaryAsset(goal, gender),
                     fit: BoxFit.cover,
                     alignment: Alignment.center,
                     errorBuilder: (context, error, stackTrace) {

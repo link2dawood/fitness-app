@@ -67,7 +67,7 @@ class PlanReadyView extends StatelessWidget {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/plan_coach.jpg',
+                      'assets/images/ui/plan_coach.jpg',
                       fit: BoxFit.cover,
                       alignment: const Alignment(0, -0.6),
                     ),
@@ -171,11 +171,19 @@ class PlanReadyView extends StatelessWidget {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(18),
                             child: Image.asset(
-                              'assets/images/plan_athlete.jpg',
+                              profile?.gender == Gender.female 
+                                ? 'assets/images/ui/plan_athlete_female.jpg'
+                                : 'assets/images/ui/plan_athlete.jpg',
                               width: 135,
                               height: 145,
                               fit: BoxFit.cover,
                               alignment: const Alignment(0, -0.3),
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                width: 135,
+                                height: 145,
+                                color: Colors.white24,
+                                child: const Icon(Icons.broken_image, color: Colors.white, size: 40),
+                              ),
                             ),
                           ),
                         ],

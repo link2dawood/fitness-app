@@ -114,7 +114,10 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
   @override
   Widget build(BuildContext context) {
     final bodyMetricsText = _formatBodyMetrics();
-    final fitnessLevelText = widget.profile?.level?.label ?? 'Advanced';
+    final fitnessLevelText = widget.profile?.level?.label ?? 'Beginner';
+    final targetedWorkoutText = widget.profile != null && widget.profile!.focusAreas.isNotEmpty
+        ? widget.profile!.focusAreas.map((e) => e.label).join(', ')
+        : 'Full Body';
     final percentage = (_currentProgress * 100).round();
 
     return Scaffold(
@@ -204,8 +207,8 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
               _StepCheckRow(
                 isCompleted: _completedSteps >= 3,
                 isVisible: _completedSteps >= 2,
-                prefixText: 'Select targeted workout...',
-                highlightText: '',
+                prefixText: 'Select targeted workout: ',
+                highlightText: targetedWorkoutText,
               ),
               const SizedBox(height: 14),
 

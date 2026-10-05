@@ -30,7 +30,7 @@ class _ProPlanViewState extends State<ProPlanView> {
 
   static const _reviews = [
     _Review(
-      image: 'assets/images/review_user_1.jpg',
+      image: 'assets/images/reviews/user_1.jpg',
       stars: 5,
       title: 'Lose 10kg in just 1 month',
       body:
@@ -41,7 +41,7 @@ class _ProPlanViewState extends State<ProPlanView> {
       date: '2025/02/14',
     ),
     _Review(
-      image: 'assets/images/review_user_2.jpg',
+      image: 'assets/images/reviews/user_2.jpg',
       stars: 5,
       title: 'Boost vitality and confidence',
       body:
@@ -51,7 +51,7 @@ class _ProPlanViewState extends State<ProPlanView> {
       date: '2024/11/26',
     ),
     _Review(
-      image: 'assets/images/review_user_3.jpg',
+      image: 'assets/images/reviews/user_3.jpg',
       stars: 5,
       title: 'Super helpful home workout app',
       body:
@@ -203,7 +203,7 @@ class _ProPlanViewState extends State<ProPlanView> {
         children: [
           // Full-width before/after image
           Image.asset(
-            'assets/images/pro_before_after.jpg',
+            'assets/images/ui/pro_before_after.jpg',
             fit: BoxFit.cover,
             alignment: const Alignment(0, -0.3),
           ),

@@ -66,7 +66,7 @@ class _SplashViewState extends State<SplashView>
           // ── Background: bodybuilder image, aligned to show upper body ──
           Positioned.fill(
             child: Image.asset(
-              'assets/images/splash_bg.png',
+              'assets/images/ui/splash_bg.png',
               fit: BoxFit.cover,
               alignment: const Alignment(0.0, -0.3), // shift up to show torso/chest
               errorBuilder: (context, error, stackTrace) {
