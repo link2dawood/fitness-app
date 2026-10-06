@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../../widgets/challenge_cards.dart';
+import 'challenge_page.dart';
 
 class TrainingPage extends StatefulWidget {
   const TrainingPage({super.key});
@@ -13,6 +15,83 @@ class TrainingPage extends StatefulWidget {
 }
 
 class _TrainingPageState extends State<TrainingPage> {
+  PageController? _pageController;
+  PageController get _bodyFocusPageController {
+    _pageController ??= PageController(viewportFraction: 0.90);
+    return _pageController!;
+  }
+
+  static const List<String> bodyFocusCategories = [
+    'Abs',
+    'Arm',
+    'Forearm',
+    'Chest',
+    'Leg',
+    'Butt',
+    'Shoulder & Back',
+  ];
+
+  @override
+  void dispose() {
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, dynamic>> _getBodyFocusData(String category) {
+    switch (category) {
+      case 'Abs':
+        return [
+          {'level': 'Beginner', 'time': '16 mins', 'exercises': '16 Exercises', 'image': 'assets/images/workouts/abs.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '25 mins', 'exercises': '21 Exercises', 'image': 'assets/images/workouts/belly_fat_burn.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '28 mins', 'exercises': '21 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 3},
+        ];
+      case 'Arm':
+        return [
+          {'level': 'Beginner', 'time': '18 mins', 'exercises': '19 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '23 mins', 'exercises': '25 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '31 mins', 'exercises': '28 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 3},
+        ];
+      case 'Forearm':
+        return [
+          {'level': 'Beginner', 'time': '16 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '20 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/stretch_warmup.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '22 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 3},
+        ];
+      case 'Chest':
+        return [
+          {'level': 'Beginner', 'time': '8 mins', 'exercises': '11 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '13 mins', 'exercises': '14 Exercises', 'image': 'assets/images/workouts/abs.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '18 mins', 'exercises': '16 Exercises', 'image': 'assets/images/workouts/belly_fat_burn.jpg', 'intensity': 3},
+        ];
+      case 'Leg':
+        return [
+          {'level': 'Beginner', 'time': '23 mins', 'exercises': '23 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '31 mins', 'exercises': '36 Exercises', 'image': 'assets/images/workouts/lower_body.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '40 mins', 'exercises': '43 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 3},
+        ];
+      case 'Butt':
+        return [
+          {'level': 'Beginner', 'time': '14 mins', 'exercises': '15 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '22 mins', 'exercises': '20 Exercises', 'image': 'assets/images/workouts/lower_body.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '30 mins', 'exercises': '25 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 3},
+        ];
+      case 'Shoulder & Back':
+      default:
+        return [
+          {'level': 'Beginner', 'time': '15 mins', 'exercises': '14 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 1},
+          {'level': 'Intermediate', 'time': '24 mins', 'exercises': '22 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 2},
+          {'level': 'Advanced', 'time': '32 mins', 'exercises': '28 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 3},
+        ];
+    }
+  }
+
+  void _onBodyFocusPageChanged(int index, HomeViewModel vm) {
+    final category = bodyFocusCategories[index];
+    if (vm.selectedBodyFocus != category) {
+      vm.setBodyFocus(category);
+    }
+  }
+
   void _showProModal(BuildContext context) {
     HapticFeedback.selectionClick();
     Navigator.of(context).pushNamed(AppRoutes.pro);
@@ -355,8 +434,8 @@ class _TrainingPageState extends State<TrainingPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'Challenge',
                       style: TextStyle(
                         fontSize: 20,
@@ -364,12 +443,22 @@ class _TrainingPageState extends State<TrainingPage> {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    Text(
-                      'More >',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0062FF),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ChallengePage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'More >',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0062FF),
+                        ),
                       ),
                     ),
                   ],
@@ -387,13 +476,90 @@ class _TrainingPageState extends State<TrainingPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     // Card 1: Customized For You
-                    _buildCustomizedChallengeCard(
+                    ChallengeCardWidgets.buildCustomizedChallengeCard(
                       levelText: levelText,
                       targetAreaText: targetAreaText,
                     ),
                     const SizedBox(width: 14),
-                    // Card 2: 28 Days Calisthenics Plank
-                    _buildCalisthenicsCard(),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '30 DAYS',
+                      titleText: 'GET RIPPED\nWITH\nDUMBBELL ',
+                      description: 'Use dumbbells to build bigger muscles and boost full-body strength in 30 days!',
+                      baseColor: const Color(0xFF00ACC1),
+                      imagePath: 'assets/images/workouts/back_builder.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '28 DAYS',
+                      titleText: 'CALISTHENICS\nPLAN ',
+                      description: 'Take on bodyweight exercises to maximize your muscle gain and fat loss!',
+                      baseColor: const Color(0xFF7E22CE),
+                      imagePath: 'assets/images/workouts/squat.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '28 DAYS',
+                      titleText: 'FULL BODY\nCHALLENGE ',
+                      description: 'Start your body-toning journey to target all muscle groups and build your dream body in 4 weeks!',
+                      baseColor: const Color(0xFF0062FF),
+                      imagePath: 'assets/images/body/fullbody.png',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '30 DAYS',
+                      titleText: 'LOSE WEIGHT\nFOR MEN ',
+                      description: 'Lose man boobs and love handles in just 5-10 min a day!',
+                      baseColor: const Color(0xFFFF7043),
+                      imagePath: 'assets/images/ui/plan_coach.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '30 DAYS',
+                      titleText: 'SIX PACK\nCHALLENGE ',
+                      description: 'Crush this challenge and carve out your six-pack in no time!',
+                      baseColor: const Color(0xFF311B92),
+                      imagePath: 'assets/images/workouts/abs.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '14 DAYS',
+                      titleText: 'KEGEL POWER\nBOOST ',
+                      description: 'Strengthen your pelvic floor with Kegel exercises for better sex and intimacy!',
+                      baseColor: const Color(0xFF607D8B),
+                      imagePath: 'assets/images/workouts/stretch_warmup.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '14 DAYS',
+                      titleText: 'INTENSE\nBELLY FAT\nBURN ',
+                      description: 'Feel the burn, lose the fat—killer abs exercises that work your core fast!',
+                      baseColor: const Color(0xFF796B6B),
+                      imagePath: 'assets/images/workouts/belly_fat_burn.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '28 DAYS',
+                      titleText: 'HEIGHT\nINCREASE\nCHALLENGE ',
+                      description: 'Stretch, strengthen, and reveal a taller, more confident you!',
+                      baseColor: const Color(0xFF329D8F),
+                      imagePath: 'assets/images/workouts/height_increase.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '28 DAYS',
+                      titleText: 'LOWER BODY\nCHALLENGE ',
+                      description: 'In just 4 weeks, power up your legs, boost lower body strength, and enhance your overall strength!',
+                      baseColor: const Color(0xFF0077EE),
+                      imagePath: 'assets/images/workouts/lower_body.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    ChallengeCardWidgets.buildGenericChallengeCard(
+                      topText: '28 DAYS',
+                      titleText: 'MASSIVE\nBODY\nCHALLENGE ',
+                      description: 'Sculpt your upper body and shred your abs in 4 weeks—no equipment needed!',
+                      baseColor: const Color(0xFF3A506B),
+                      imagePath: 'assets/images/workouts/massive_body.jpg',
+                    ),
                   ],
                 ),
               ),
@@ -423,19 +589,20 @@ class _TrainingPageState extends State<TrainingPage> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    for (final category in [
-                      'Abs',
-                      'Arm',
-                      'Forearm',
-                      'Chest',
-                      'Leg',
-                      'Butt',
-                      'Shoulder & Back',
-                    ]) ...[
+                    for (int i = 0; i < bodyFocusCategories.length; i++) ...[
                       _buildFilterChip(
-                        label: category,
-                        isSelected: vm.selectedBodyFocus == category,
-                        onTap: () => vm.setBodyFocus(category),
+                        label: bodyFocusCategories[i],
+                        isSelected: vm.selectedBodyFocus == bodyFocusCategories[i],
+                        onTap: () {
+                          vm.setBodyFocus(bodyFocusCategories[i]);
+                          if (_bodyFocusPageController.hasClients) {
+                            _bodyFocusPageController.animateToPage(
+                              i,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
                       ),
                       const SizedBox(width: 8),
                     ],
@@ -446,31 +613,34 @@ class _TrainingPageState extends State<TrainingPage> {
               const SizedBox(height: 16),
 
               // Workouts under Body Focus
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    _buildWorkoutTile(
-                      title: '${vm.selectedBodyFocus} Beginner',
-                      subtitle: '16 mins • 16 Exercises',
-                      imagePath: 'assets/images/workouts/abs.jpg',
-                      intensity: 1,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildWorkoutTile(
-                      title: '${vm.selectedBodyFocus} Intermediate',
-                      subtitle: '25 mins • 21 Exercises',
-                      imagePath: 'assets/images/workouts/abs.jpg',
-                      intensity: 2,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildWorkoutTile(
-                      title: '${vm.selectedBodyFocus} Advanced',
-                      subtitle: '28 mins • 21 Exercises',
-                      imagePath: 'assets/images/ui/plan_athlete.jpg',
-                      intensity: 3,
-                    ),
-                  ],
+              SizedBox(
+                height: 350,
+                child: PageView.builder(
+                  controller: _bodyFocusPageController,
+                  physics: const BouncingScrollPhysics(),
+                  onPageChanged: (index) => _onBodyFocusPageChanged(index, vm),
+                  itemCount: bodyFocusCategories.length,
+                  itemBuilder: (context, index) {
+                    final category = bodyFocusCategories[index];
+                    final workouts = _getBodyFocusData(category);
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 14),
+                      child: Column(
+                        children: [
+                          for (final workout in workouts) ...[
+                            _buildWorkoutTile(
+                              title: '$category ${workout['level']}',
+                              subtitle: '${workout['time']} • ${workout['exercises']}',
+                              imagePath: workout['image'],
+                              intensity: workout['intensity'],
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ),
 
@@ -952,274 +1122,7 @@ class _TrainingPageState extends State<TrainingPage> {
     );
   }
 
-  static Widget _buildCustomizedChallengeCard({
-    required String levelText,
-    required String targetAreaText,
-  }) {
-    return Container(
-      width: 295,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0066FF), Color(0xFF004BD6)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0062FF).withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top Row: Badge + Athlete Image
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFDFB5),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'CUSTOMIZED FOR YOU',
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.4,
-                          color: Color(0xFF1E293B),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: const [
-                        Text(
-                          'FULL BODY\nSHRED',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            height: 1.15,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 6),
-                        Icon(
-                          Icons.arrow_circle_right_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.asset(
-                  'assets/images/ui/plan_athlete.jpg',
-                  width: 100,
-                  height: 105,
-                  fit: BoxFit.cover,
-                  alignment: const Alignment(0, -0.3),
-                ),
-              ),
-            ],
-          ),
 
-          const Spacer(),
-
-          // 2x2 Stats
-          Row(
-            children: [
-              _buildMiniStat(Icons.calendar_month_rounded, '10-22 Min', 'Daily Time'),
-              const SizedBox(width: 8),
-              _buildMiniStat(Icons.bar_chart_rounded, levelText, 'Level'),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              _buildMiniStat(Icons.track_changes_rounded, targetAreaText, 'Target area'),
-              const SizedBox(width: 8),
-              _buildMiniStat(Icons.check_circle_outline_rounded, 'No Equipment', 'Equipment'),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Start Day 1 Button
-          Container(
-            width: double.infinity,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  'START DAY 1',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.5,
-                    color: Color(0xFF0062FF),
-                  ),
-                ),
-                SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_circle_right_rounded,
-                  color: Color(0xFF0062FF),
-                  size: 20,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildCalisthenicsCard() {
-    return Container(
-      width: 280,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7E22CE), Color(0xFF6B21A8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF7E22CE).withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text(
-              '28 DAYS CHALLENGE',
-              style: TextStyle(
-                fontSize: 9.5,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.4,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'CALISTHENICS\nPLANK',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              height: 1.15,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Build core stability & endurance',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-          ),
-          const Spacer(),
-          Container(
-            width: double.infinity,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            alignment: Alignment.center,
-            child: const Text(
-              'START DAY 1',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF7E22CE),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _buildMiniStat(IconData icon, String value, String label) {
-    return Expanded(
-      child: Row(
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 16, color: Colors.white),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.white.withValues(alpha: 0.75),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   static Widget _buildFilterChip({
     required String label,
