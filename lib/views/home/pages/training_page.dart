@@ -41,46 +41,172 @@ class _TrainingPageState extends State<TrainingPage> {
     switch (category) {
       case 'Abs':
         return [
-          {'level': 'Beginner', 'time': '16 mins', 'exercises': '16 Exercises', 'image': 'assets/images/workouts/abs.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '25 mins', 'exercises': '21 Exercises', 'image': 'assets/images/workouts/belly_fat_burn.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '28 mins', 'exercises': '21 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '16 mins',
+            'exercises': '16 Exercises',
+            'image': 'assets/images/workouts/abs.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '25 mins',
+            'exercises': '21 Exercises',
+            'image': 'assets/images/workouts/belly_fat_burn.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '28 mins',
+            'exercises': '21 Exercises',
+            'image': 'assets/images/workouts/massive_body.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Arm':
         return [
-          {'level': 'Beginner', 'time': '18 mins', 'exercises': '19 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '23 mins', 'exercises': '25 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '31 mins', 'exercises': '28 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '18 mins',
+            'exercises': '19 Exercises',
+            'image': 'assets/images/workouts/back_builder.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '23 mins',
+            'exercises': '25 Exercises',
+            'image': 'assets/images/workouts/massive_body.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '31 mins',
+            'exercises': '28 Exercises',
+            'image': 'assets/images/workouts/back_sb.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Forearm':
         return [
-          {'level': 'Beginner', 'time': '16 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '20 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/stretch_warmup.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '22 mins', 'exercises': '24 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '16 mins',
+            'exercises': '24 Exercises',
+            'image': 'assets/images/workouts/back_sb.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '20 mins',
+            'exercises': '24 Exercises',
+            'image': 'assets/images/workouts/stretch_warmup.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '22 mins',
+            'exercises': '24 Exercises',
+            'image': 'assets/images/workouts/back_builder.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Chest':
         return [
-          {'level': 'Beginner', 'time': '8 mins', 'exercises': '11 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '13 mins', 'exercises': '14 Exercises', 'image': 'assets/images/workouts/abs.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '18 mins', 'exercises': '16 Exercises', 'image': 'assets/images/workouts/belly_fat_burn.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '8 mins',
+            'exercises': '11 Exercises',
+            'image': 'assets/images/workouts/massive_body.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '13 mins',
+            'exercises': '14 Exercises',
+            'image': 'assets/images/workouts/abs.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '18 mins',
+            'exercises': '16 Exercises',
+            'image': 'assets/images/workouts/belly_fat_burn.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Leg':
         return [
-          {'level': 'Beginner', 'time': '23 mins', 'exercises': '23 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '31 mins', 'exercises': '36 Exercises', 'image': 'assets/images/workouts/lower_body.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '40 mins', 'exercises': '43 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '23 mins',
+            'exercises': '23 Exercises',
+            'image': 'assets/images/workouts/squat.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '31 mins',
+            'exercises': '36 Exercises',
+            'image': 'assets/images/workouts/lower_body.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '40 mins',
+            'exercises': '43 Exercises',
+            'image': 'assets/images/workouts/squat.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Butt':
         return [
-          {'level': 'Beginner', 'time': '14 mins', 'exercises': '15 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '22 mins', 'exercises': '20 Exercises', 'image': 'assets/images/workouts/lower_body.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '30 mins', 'exercises': '25 Exercises', 'image': 'assets/images/workouts/squat.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '14 mins',
+            'exercises': '15 Exercises',
+            'image': 'assets/images/workouts/squat.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '22 mins',
+            'exercises': '20 Exercises',
+            'image': 'assets/images/workouts/lower_body.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '30 mins',
+            'exercises': '25 Exercises',
+            'image': 'assets/images/workouts/squat.jpg',
+            'intensity': 3,
+          },
         ];
       case 'Shoulder & Back':
       default:
         return [
-          {'level': 'Beginner', 'time': '15 mins', 'exercises': '14 Exercises', 'image': 'assets/images/workouts/back_builder.jpg', 'intensity': 1},
-          {'level': 'Intermediate', 'time': '24 mins', 'exercises': '22 Exercises', 'image': 'assets/images/workouts/back_sb.jpg', 'intensity': 2},
-          {'level': 'Advanced', 'time': '32 mins', 'exercises': '28 Exercises', 'image': 'assets/images/workouts/massive_body.jpg', 'intensity': 3},
+          {
+            'level': 'Beginner',
+            'time': '15 mins',
+            'exercises': '14 Exercises',
+            'image': 'assets/images/workouts/back_builder.jpg',
+            'intensity': 1,
+          },
+          {
+            'level': 'Intermediate',
+            'time': '24 mins',
+            'exercises': '22 Exercises',
+            'image': 'assets/images/workouts/back_sb.jpg',
+            'intensity': 2,
+          },
+          {
+            'level': 'Advanced',
+            'time': '32 mins',
+            'exercises': '28 Exercises',
+            'image': 'assets/images/workouts/massive_body.jpg',
+            'intensity': 3,
+          },
         ];
     }
   }
@@ -96,7 +222,6 @@ class _TrainingPageState extends State<TrainingPage> {
     HapticFeedback.selectionClick();
     Navigator.of(context).pushNamed(AppRoutes.pro);
   }
-
 
   void _showStreakModal(BuildContext context) {
     HapticFeedback.selectionClick();
@@ -164,7 +289,6 @@ class _TrainingPageState extends State<TrainingPage> {
       builder: (_) => const _HistoryCalendarSheet(),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -360,29 +484,38 @@ class _TrainingPageState extends State<TrainingPage> {
                       const SizedBox(height: 16),
 
                       // ── Dynamic current-week calendar row (tappable) ──────
-                      Builder(builder: (ctx) {
-                        final today = DateTime.now();
-                        // Compute Mon-based week containing today
-                        final weekday = today.weekday; // 1=Mon … 7=Sun
-                        final monday = today.subtract(Duration(days: weekday - 1));
-                        final weekDays = List.generate(
-                          7, (i) => monday.add(Duration(days: i)));
+                      Builder(
+                        builder: (ctx) {
+                          final today = DateTime.now();
+                          // Compute Mon-based week containing today
+                          final weekday = today.weekday; // 1=Mon … 7=Sun
+                          final monday = today.subtract(
+                            Duration(days: weekday - 1),
+                          );
+                          final weekDays = List.generate(
+                            7,
+                            (i) => monday.add(Duration(days: i)),
+                          );
 
-                        return GestureDetector(
-                          onTap: () => _showHistoryCalendar(context),
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: weekDays.map((d) {
-                              final isToday = d.day == today.day &&
-                                  d.month == today.month &&
-                                  d.year == today.year;
-                              return _buildCalendarDay(d.day,
-                                  isSelected: isToday);
-                            }).toList(),
-                          ),
-                        );
-                      }),
+                          return GestureDetector(
+                            onTap: () => _showHistoryCalendar(context),
+                            behavior: HitTestBehavior.opaque,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: weekDays.map((d) {
+                                final isToday =
+                                    d.day == today.day &&
+                                    d.month == today.month &&
+                                    d.year == today.year;
+                                return _buildCalendarDay(
+                                  d.day,
+                                  isSelected: isToday,
+                                );
+                              }).toList(),
+                            ),
+                          );
+                        },
+                      ),
 
                       const SizedBox(height: 16),
 
@@ -484,7 +617,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '30 DAYS',
                       titleText: 'GET RIPPED\nWITH\nDUMBBELL ',
-                      description: 'Use dumbbells to build bigger muscles and boost full-body strength in 30 days!',
+                      description:
+                          'Use dumbbells to build bigger muscles and boost full-body strength in 30 days!',
                       baseColor: const Color(0xFF00ACC1),
                       imagePath: 'assets/images/workouts/back_builder.jpg',
                     ),
@@ -492,7 +626,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '28 DAYS',
                       titleText: 'CALISTHENICS\nPLAN ',
-                      description: 'Take on bodyweight exercises to maximize your muscle gain and fat loss!',
+                      description:
+                          'Take on bodyweight exercises to maximize your muscle gain and fat loss!',
                       baseColor: const Color(0xFF7E22CE),
                       imagePath: 'assets/images/workouts/squat.jpg',
                     ),
@@ -500,7 +635,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '28 DAYS',
                       titleText: 'FULL BODY\nCHALLENGE ',
-                      description: 'Start your body-toning journey to target all muscle groups and build your dream body in 4 weeks!',
+                      description:
+                          'Start your body-toning journey to target all muscle groups and build your dream body in 4 weeks!',
                       baseColor: const Color(0xFF0062FF),
                       imagePath: 'assets/images/body/fullbody.png',
                     ),
@@ -508,7 +644,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '30 DAYS',
                       titleText: 'LOSE WEIGHT\nFOR MEN ',
-                      description: 'Lose man boobs and love handles in just 5-10 min a day!',
+                      description:
+                          'Lose man boobs and love handles in just 5-10 min a day!',
                       baseColor: const Color(0xFFFF7043),
                       imagePath: 'assets/images/ui/plan_coach.jpg',
                     ),
@@ -516,7 +653,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '30 DAYS',
                       titleText: 'SIX PACK\nCHALLENGE ',
-                      description: 'Crush this challenge and carve out your six-pack in no time!',
+                      description:
+                          'Crush this challenge and carve out your six-pack in no time!',
                       baseColor: const Color(0xFF311B92),
                       imagePath: 'assets/images/workouts/abs.jpg',
                     ),
@@ -524,7 +662,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '14 DAYS',
                       titleText: 'KEGEL POWER\nBOOST ',
-                      description: 'Strengthen your pelvic floor with Kegel exercises for better sex and intimacy!',
+                      description:
+                          'Strengthen your pelvic floor with Kegel exercises for better sex and intimacy!',
                       baseColor: const Color(0xFF607D8B),
                       imagePath: 'assets/images/workouts/stretch_warmup.jpg',
                     ),
@@ -532,7 +671,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '14 DAYS',
                       titleText: 'INTENSE\nBELLY FAT\nBURN ',
-                      description: 'Feel the burn, lose the fat—killer abs exercises that work your core fast!',
+                      description:
+                          'Feel the burn, lose the fat—killer abs exercises that work your core fast!',
                       baseColor: const Color(0xFF796B6B),
                       imagePath: 'assets/images/workouts/belly_fat_burn.jpg',
                     ),
@@ -540,7 +680,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '28 DAYS',
                       titleText: 'HEIGHT\nINCREASE\nCHALLENGE ',
-                      description: 'Stretch, strengthen, and reveal a taller, more confident you!',
+                      description:
+                          'Stretch, strengthen, and reveal a taller, more confident you!',
                       baseColor: const Color(0xFF329D8F),
                       imagePath: 'assets/images/workouts/height_increase.jpg',
                     ),
@@ -548,7 +689,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '28 DAYS',
                       titleText: 'LOWER BODY\nCHALLENGE ',
-                      description: 'In just 4 weeks, power up your legs, boost lower body strength, and enhance your overall strength!',
+                      description:
+                          'In just 4 weeks, power up your legs, boost lower body strength, and enhance your overall strength!',
                       baseColor: const Color(0xFF0077EE),
                       imagePath: 'assets/images/workouts/lower_body.jpg',
                     ),
@@ -556,7 +698,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     ChallengeCardWidgets.buildGenericChallengeCard(
                       topText: '28 DAYS',
                       titleText: 'MASSIVE\nBODY\nCHALLENGE ',
-                      description: 'Sculpt your upper body and shred your abs in 4 weeks—no equipment needed!',
+                      description:
+                          'Sculpt your upper body and shred your abs in 4 weeks—no equipment needed!',
                       baseColor: const Color(0xFF3A506B),
                       imagePath: 'assets/images/workouts/massive_body.jpg',
                     ),
@@ -592,7 +735,8 @@ class _TrainingPageState extends State<TrainingPage> {
                     for (int i = 0; i < bodyFocusCategories.length; i++) ...[
                       _buildFilterChip(
                         label: bodyFocusCategories[i],
-                        isSelected: vm.selectedBodyFocus == bodyFocusCategories[i],
+                        isSelected:
+                            vm.selectedBodyFocus == bodyFocusCategories[i],
                         onTap: () {
                           vm.setBodyFocus(bodyFocusCategories[i]);
                           if (_bodyFocusPageController.hasClients) {
@@ -623,7 +767,7 @@ class _TrainingPageState extends State<TrainingPage> {
                   itemBuilder: (context, index) {
                     final category = bodyFocusCategories[index];
                     final workouts = _getBodyFocusData(category);
-                    
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 14),
                       child: Column(
@@ -631,7 +775,8 @@ class _TrainingPageState extends State<TrainingPage> {
                           for (final workout in workouts) ...[
                             _buildWorkoutTile(
                               title: '$category ${workout['level']}',
-                              subtitle: '${workout['time']} • ${workout['exercises']}',
+                              subtitle:
+                                  '${workout['time']} • ${workout['exercises']}',
                               imagePath: workout['image'],
                               intensity: workout['intensity'],
                             ),
@@ -647,56 +792,62 @@ class _TrainingPageState extends State<TrainingPage> {
               const SizedBox(height: 24),
 
               // ── 6. Badges (Workout Types) ──────────────────────────────────
-              Padding(
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.fitness_center_rounded,
-                            label: 'With Equipment',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.sports_gymnastics_rounded,
+                          label: 'Build Muscle',
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.local_fire_department_rounded,
-                            label: 'Burn Fat',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.self_improvement_rounded,
+                          label: 'Stretch',
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.favorite_rounded,
-                            label: 'Keep Fit',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.schedule_rounded,
+                          label: '<7 mins',
+                        ),
+                        const SizedBox(width: 8),
+                        _buildBadgePill(
+                          icon: Icons.local_fire_department_rounded,
+                          label: 'Burn Fat',
+                        ),
+                        const SizedBox(width: 8),
+                        _buildBadgePill(
+                          icon: Icons.favorite_rounded,
+                          label: 'Keep Fit',
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.sports_gymnastics_rounded,
-                            label: 'Build Muscle',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.fitness_center_rounded,
+                          label: 'With Equipment',
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.accessibility_new_rounded,
-                            label: 'Warm-Up',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.layers_outlined,
+                          label: 'Beginner',
                         ),
                         const SizedBox(width: 8),
-                        Expanded(
-                          child: _buildBadgePill(
-                            icon: Icons.signal_cellular_alt_2_bar_rounded,
-                            label: 'Intermediate',
-                          ),
+                        _buildBadgePill(
+                          icon: Icons.layers_outlined,
+                          label: 'Intermediate',
+                        ),
+                        const SizedBox(width: 8),
+                        _buildBadgePill(
+                          icon: Icons.accessibility_new_rounded,
+                          label: 'Warm-Up',
                         ),
                       ],
                     ),
@@ -818,7 +969,8 @@ class _TrainingPageState extends State<TrainingPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
-                  height: 150,
+                  width: double.infinity,
+                  constraints: const BoxConstraints(minHeight: 150),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFF86B5E7), Color(0xFFA5C9F1)],
@@ -935,20 +1087,53 @@ class _TrainingPageState extends State<TrainingPage> {
 
               const SizedBox(height: 14),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
+              SizedBox(
+                height: 200,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    _buildSimpleWorkoutItem(
-                      title: 'Ripped V-Cut Abs Sculpting',
-                      subtitle: '22 min • Intermediate',
-                      imagePath: 'assets/images/workouts/abs.jpg',
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: Column(
+                        children: [
+                          _buildJustForYouItem(
+                            title: 'Beginner Chest Sculpt',
+                            subtitle: '26 min • Beginner',
+                            imagePath:
+                                'assets/images/workouts/massive_body.jpg',
+                            showDivider: true,
+                          ),
+                          _buildJustForYouItem(
+                            title: 'Belly Fat Burner HIIT Advanced',
+                            subtitle: '29 min • Advanced',
+                            imagePath:
+                                'assets/images/workouts/belly_fat_burn.jpg',
+                            showDivider: false,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    _buildSimpleWorkoutItem(
-                      title: 'Band Workout at Home',
-                      subtitle: '17 min • Beginner',
-                      imagePath: 'assets/images/workouts/squat.jpg',
+                    const SizedBox(width: 16),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: Column(
+                        children: [
+                          _buildJustForYouItem(
+                            title: 'Full Body Shred',
+                            subtitle: '30 min • Advanced',
+                            imagePath: 'assets/images/workouts/abs.jpg',
+                            showDivider: true,
+                          ),
+                          _buildJustForYouItem(
+                            title: 'Legs & Glutes',
+                            subtitle: '20 min • Intermediate',
+                            imagePath: 'assets/images/workouts/squat.jpg',
+                            showDivider: false,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -992,13 +1177,13 @@ class _TrainingPageState extends State<TrainingPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     _buildStretchCard(
-                      title: 'Before Workout Warm-Up',
-                      imagePath: 'assets/images/workouts/stretch_warmup.jpg',
+                      title: 'Sleepy Time Stretching',
+                      imagePath: 'assets/images/workouts/stretch_sleepy.jpg',
                     ),
                     const SizedBox(width: 14),
                     _buildStretchCard(
-                      title: 'Knee Pain Relief',
-                      imagePath: 'assets/images/ui/recommended_height.jpg',
+                      title: 'Shoulder Tension Relief',
+                      imagePath: 'assets/images/workouts/stretch_shoulder.jpg',
                     ),
                   ],
                 ),
@@ -1029,7 +1214,11 @@ class _TrainingPageState extends State<TrainingPage> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    for (final goal in ['Build Muscle', 'Burn Fat', 'Keep Fit']) ...[
+                    for (final goal in [
+                      'Build Muscle',
+                      'Burn Fat',
+                      'Keep Fit',
+                    ]) ...[
                       _buildFilterChip(
                         label: goal,
                         isSelected: vm.selectedPopularGoal == goal,
@@ -1122,8 +1311,6 @@ class _TrainingPageState extends State<TrainingPage> {
     );
   }
 
-
-
   static Widget _buildFilterChip({
     required String label,
     required bool isSelected,
@@ -1152,7 +1339,9 @@ class _TrainingPageState extends State<TrainingPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? const Color(0xFF0062FF) : const Color(0xFF4B5563),
+            color: isSelected
+                ? const Color(0xFF0062FF)
+                : const Color(0xFF4B5563),
           ),
         ),
       ),
@@ -1249,16 +1438,13 @@ class _TrainingPageState extends State<TrainingPage> {
         children: [
           Icon(icon, size: 16, color: const Color(0xFF0062FF)),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
-              ),
+          Text(
+            label,
+            maxLines: 1,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1E293B),
             ),
           ),
         ],
@@ -1266,61 +1452,68 @@ class _TrainingPageState extends State<TrainingPage> {
     );
   }
 
-  static Widget _buildSimpleWorkoutItem({
+  static Widget _buildJustForYouItem({
     required String title,
     required String subtitle,
     required String imagePath,
+    required bool showDivider,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Image.asset(
-              imagePath,
-              width: 72,
-              height: 72,
-              fit: BoxFit.cover,
+    return Column(
+      children: [
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                imagePath,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111827),
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF9CA3AF),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+          ],
+        ),
+        if (showDivider) ...[
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const SizedBox(width: 96),
+              Expanded(
+                child: Container(height: 1, color: const Color(0xFFE5E7EB)),
+              ),
+            ],
           ),
+          const SizedBox(height: 16),
         ],
-      ),
+      ],
     );
   }
 
@@ -1415,10 +1608,7 @@ class _TrainingPageState extends State<TrainingPage> {
               const SizedBox(height: 3),
               Text(
                 subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF6B7280),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
               ),
             ],
           ),
@@ -1522,8 +1712,10 @@ class _HistoryCalendarSheetState extends State<_HistoryCalendarSheet> {
                   onTap: _prevMonth,
                   child: const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Text('◀',
-                        style: TextStyle(fontSize: 16, color: Color(0xFF374151))),
+                    child: Text(
+                      '◀',
+                      style: TextStyle(fontSize: 16, color: Color(0xFF374151)),
+                    ),
                   ),
                 ),
                 Text(
@@ -1538,8 +1730,10 @@ class _HistoryCalendarSheetState extends State<_HistoryCalendarSheet> {
                   onTap: _nextMonth,
                   child: const Padding(
                     padding: EdgeInsets.all(8),
-                    child: Text('▶',
-                        style: TextStyle(fontSize: 16, color: Color(0xFF374151))),
+                    child: Text(
+                      '▶',
+                      style: TextStyle(fontSize: 16, color: Color(0xFF374151)),
+                    ),
                   ),
                 ),
               ],
@@ -1554,18 +1748,20 @@ class _HistoryCalendarSheetState extends State<_HistoryCalendarSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: const ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map((d) => SizedBox(
-                        width: 40,
-                        child: Text(
-                          d,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6B7280),
-                          ),
+                  .map(
+                    (d) => SizedBox(
+                      width: 40,
+                      child: Text(
+                        d,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF6B7280),
                         ),
-                      ))
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -1588,7 +1784,8 @@ class _HistoryCalendarSheetState extends State<_HistoryCalendarSheet> {
                         return const SizedBox(width: 40, height: 40);
                       }
 
-                      final isToday = _month.year == _today.year &&
+                      final isToday =
+                          _month.year == _today.year &&
                           _month.month == _today.month &&
                           day == _today.day;
 

@@ -150,69 +150,73 @@ class _WorkoutCard extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F6FA),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            // Thumbnail
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                bottomLeft: Radius.circular(16),
-              ),
-              child: Image.asset(
-                entry.imagePath,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
-            ),
-
-            // Info
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
-                        letterSpacing: -0.1,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '${entry.durationMins} mins · ${entry.exerciseCount} exercises',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                  ],
+      child: IntrinsicHeight(
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 80),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F6FA),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Thumbnail
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomLeft: Radius.circular(16),
+                ),
+                child: Image.asset(
+                  entry.imagePath,
+                  width: 80,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
 
-            // Chevron
-            const Padding(
-              padding: EdgeInsets.only(right: 14),
-              child: Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFFCBD5E1),
-                size: 22,
+              // Info
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                          letterSpacing: -0.1,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '${entry.durationMins} mins · ${entry.exerciseCount} exercises',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              // Chevron
+              const Padding(
+                padding: EdgeInsets.only(right: 14),
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFCBD5E1),
+                  size: 22,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

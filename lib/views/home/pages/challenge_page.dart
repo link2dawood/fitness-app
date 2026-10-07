@@ -20,7 +20,7 @@ class _ChallengePageState extends State<ChallengePage> {
     'Height Increase',
     'Calisthenics',
     'Kegel',
-    'Dumbbell'
+    'Dumbbell',
   ];
 
   String selectedCategory = 'All';
@@ -72,15 +72,21 @@ class _ChallengePageState extends State<ChallengePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF0062FF) : const Color(0xFFF3F4F6),
+                      color: isSelected
+                          ? const Color(0xFF0062FF)
+                          : const Color(0xFFF3F4F6),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       category,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? Colors.white : const Color(0xFF374151),
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF374151),
                       ),
                     ),
                   ),
@@ -95,7 +101,9 @@ class _ChallengePageState extends State<ChallengePage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               physics: const BouncingScrollPhysics(),
               children: [
-                if (selectedCategory == 'All' || selectedCategory == 'Full Body' || selectedCategory == 'Lose Weight') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Full Body' ||
+                    selectedCategory == 'Lose Weight') ...[
                   ChallengeCardWidgets.buildCustomizedChallengeCard(
                     levelText: 'Beginner',
                     targetAreaText: 'Full Body',
@@ -103,110 +111,141 @@ class _ChallengePageState extends State<ChallengePage> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Dumbbell' || selectedCategory == 'Build Muscle' || selectedCategory == 'Full Body') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Dumbbell' ||
+                    selectedCategory == 'Build Muscle' ||
+                    selectedCategory == 'Full Body') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '30 DAYS',
                     titleText: 'GET RIPPED\nWITH\nDUMBBELL ',
-                    description: 'Use dumbbells to build bigger muscles and boost full-body strength in 30 days!',
+                    description:
+                        'Use dumbbells to build bigger muscles and boost full-body strength in 30 days!',
                     baseColor: const Color(0xFF00ACC1),
                     imagePath: 'assets/images/workouts/back_builder.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Calisthenics' || selectedCategory == 'Full Body' || selectedCategory == 'Build Muscle') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Calisthenics' ||
+                    selectedCategory == 'Full Body' ||
+                    selectedCategory == 'Build Muscle') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '28 DAYS',
                     titleText: 'CALISTHENICS\nPLAN ',
-                    description: 'Take on bodyweight exercises to maximize your muscle gain and fat loss!',
+                    description:
+                        'Take on bodyweight exercises to maximize your muscle gain and fat loss!',
                     baseColor: const Color(0xFF7E22CE),
                     imagePath: 'assets/images/workouts/squat.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Full Body' || selectedCategory == 'Build Muscle') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Full Body' ||
+                    selectedCategory == 'Build Muscle') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '28 DAYS',
                     titleText: 'FULL BODY\nCHALLENGE ',
-                    description: 'Start your body-toning journey to target all muscle groups and build your dream body in 4 weeks!',
+                    description:
+                        'Start your body-toning journey to target all muscle groups and build your dream body in 4 weeks!',
                     baseColor: const Color(0xFF0062FF),
                     imagePath: 'assets/images/body/fullbody.png',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Lose Weight' || selectedCategory == 'Full Body') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Lose Weight' ||
+                    selectedCategory == 'Full Body') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '30 DAYS',
                     titleText: 'LOSE WEIGHT\nFOR MEN ',
-                    description: 'Lose man boobs and love handles in just 5-10 min a day!',
+                    description:
+                        'Lose man boobs and love handles in just 5-10 min a day!',
                     baseColor: const Color(0xFFFF7043),
                     imagePath: 'assets/images/ui/plan_coach.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Abs' || selectedCategory == 'Lose Weight') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Abs' ||
+                    selectedCategory == 'Lose Weight') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '30 DAYS',
                     titleText: 'SIX PACK\nCHALLENGE ',
-                    description: 'Crush this challenge and carve out your six-pack in no time!',
+                    description:
+                        'Crush this challenge and carve out your six-pack in no time!',
                     baseColor: const Color(0xFF311B92),
                     imagePath: 'assets/images/workouts/abs.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Kegel') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Kegel') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '14 DAYS',
                     titleText: 'KEGEL POWER\nBOOST ',
-                    description: 'Strengthen your pelvic floor with Kegel exercises for better sex and intimacy!',
+                    description:
+                        'Strengthen your pelvic floor with Kegel exercises for better sex and intimacy!',
                     baseColor: const Color(0xFF607D8B),
                     imagePath: 'assets/images/workouts/stretch_warmup.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Abs' || selectedCategory == 'Lose Weight') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Abs' ||
+                    selectedCategory == 'Lose Weight') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '14 DAYS',
                     titleText: 'INTENSE\nBELLY FAT\nBURN ',
-                    description: 'Feel the burn, lose the fat—killer abs exercises that work your core fast!',
+                    description:
+                        'Feel the burn, lose the fat—killer abs exercises that work your core fast!',
                     baseColor: const Color(0xFF796B6B),
                     imagePath: 'assets/images/workouts/belly_fat_burn.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Height Increase') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Height Increase') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '28 DAYS',
                     titleText: 'HEIGHT\nINCREASE\nCHALLENGE ',
-                    description: 'Stretch, strengthen, and reveal a taller, more confident you!',
+                    description:
+                        'Stretch, strengthen, and reveal a taller, more confident you!',
                     baseColor: const Color(0xFF329D8F),
                     imagePath: 'assets/images/workouts/height_increase.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Lower Body' || selectedCategory == 'Build Muscle') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Lower Body' ||
+                    selectedCategory == 'Build Muscle') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '28 DAYS',
                     titleText: 'LOWER BODY\nCHALLENGE ',
-                    description: 'In just 4 weeks, power up your legs, boost lower body strength, and enhance your overall strength!',
+                    description:
+                        'In just 4 weeks, power up your legs, boost lower body strength, and enhance your overall strength!',
                     baseColor: const Color(0xFF0077EE),
                     imagePath: 'assets/images/workouts/lower_body.jpg',
                     width: double.infinity,
                   ),
                   const SizedBox(height: 20),
                 ],
-                if (selectedCategory == 'All' || selectedCategory == 'Upper Body' || selectedCategory == 'Build Muscle' || selectedCategory == 'Full Body') ...[
+                if (selectedCategory == 'All' ||
+                    selectedCategory == 'Upper Body' ||
+                    selectedCategory == 'Build Muscle' ||
+                    selectedCategory == 'Full Body') ...[
                   ChallengeCardWidgets.buildGenericChallengeCard(
                     topText: '28 DAYS',
                     titleText: 'MASSIVE\nBODY\nCHALLENGE ',
-                    description: 'Sculpt your upper body and shred your abs in 4 weeks—no equipment needed!',
+                    description:
+                        'Sculpt your upper body and shred your abs in 4 weeks—no equipment needed!',
                     baseColor: const Color(0xFF3A506B),
                     imagePath: 'assets/images/workouts/massive_body.jpg',
                     width: double.infinity,
