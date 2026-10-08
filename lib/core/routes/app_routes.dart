@@ -7,6 +7,11 @@ import '../../viewmodels/home_viewmodel.dart';
 import '../../viewmodels/onboarding_viewmodel.dart';
 import '../../viewmodels/splash_viewmodel.dart';
 import '../../views/home/home_view.dart';
+import '../../views/home/pages/build_muscle_more_page.dart';
+import '../../views/home/pages/burn_fat_more_page.dart';
+import '../../views/home/pages/just_for_you_page.dart';
+import '../../views/home/pages/keep_fit_more_page.dart';
+import '../../views/home/pages/stretch_warm_up_page.dart';
 import '../../views/onboarding/onboarding_view.dart';
 import '../../views/plan/plan_generation_view.dart';
 import '../../views/plan/plan_ready_view.dart';
@@ -24,6 +29,11 @@ class AppRoutes {
   static const String home = '/home';
   static const String pro = '/pro';
   static const String search = '/search';
+  static const String stretchWarmUp = '/stretch-warm-up';
+  static const String justForYou = '/just-for-you';
+  static const String buildMuscleMore = '/build-muscle-more';
+  static const String burnFatMore = '/burn-fat-more';
+  static const String keepFitMore = '/keep-fit-more';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -60,6 +70,16 @@ class AppRoutes {
         return _fade(settings, const ProPlanView());
       case search:
         return _fade(settings, const SearchView());
+      case stretchWarmUp:
+        return _fade(settings, const StretchWarmUpPage());
+      case justForYou:
+        return _fade(settings, const JustForYouPage());
+      case buildMuscleMore:
+        return _fade(settings, const BuildMuscleMorePage());
+      case burnFatMore:
+        return _fade(settings, const BurnFatMorePage());
+      case keepFitMore:
+        return _fade(settings, const KeepFitMorePage());
       case splash:
       default:
         return _fade(

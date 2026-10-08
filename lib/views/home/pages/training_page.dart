@@ -1064,8 +1064,8 @@ class _TrainingPageState extends State<TrainingPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'Just For You',
                       style: TextStyle(
                         fontSize: 20,
@@ -1073,12 +1073,18 @@ class _TrainingPageState extends State<TrainingPage> {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    Text(
-                      'More >',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0062FF),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.of(context).pushNamed(AppRoutes.justForYou);
+                      },
+                      child: const Text(
+                        'More >',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0062FF),
+                        ),
                       ),
                     ),
                   ],
@@ -1146,8 +1152,8 @@ class _TrainingPageState extends State<TrainingPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
+                  children: [
+                    const Text(
                       'Stretch & Warm Up',
                       style: TextStyle(
                         fontSize: 20,
@@ -1155,12 +1161,18 @@ class _TrainingPageState extends State<TrainingPage> {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    Text(
-                      'More >',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0062FF),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.of(context).pushNamed(AppRoutes.stretchWarmUp);
+                      },
+                      child: const Text(
+                        'More >',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0062FF),
+                        ),
                       ),
                     ),
                   ],
@@ -1170,20 +1182,30 @@ class _TrainingPageState extends State<TrainingPage> {
               const SizedBox(height: 14),
 
               SizedBox(
-                height: 120,
+                height: 140,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     _buildStretchCard(
+                      title: 'Before Workout Warm-Up',
+                      imagePath: 'assets/images/workouts/stretch_warmup.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    _buildStretchCard(
                       title: 'Sleepy Time Stretching',
                       imagePath: 'assets/images/workouts/stretch_sleepy.jpg',
                     ),
                     const SizedBox(width: 14),
                     _buildStretchCard(
-                      title: 'Shoulder Tension Relief',
-                      imagePath: 'assets/images/workouts/stretch_shoulder.jpg',
+                      title: 'Knee Pain Relief',
+                      imagePath: 'assets/images/workouts/knee_pain_relief.jpg',
+                    ),
+                    const SizedBox(width: 14),
+                    _buildStretchCard(
+                      title: 'Neck & Shoulder Tension Relief',
+                      imagePath: 'assets/images/workouts/neck_shoulder_tension_relief.jpg',
                     ),
                   ],
                 ),
@@ -1215,8 +1237,8 @@ class _TrainingPageState extends State<TrainingPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     for (final goal in [
-                      'Build Muscle',
                       'Burn Fat',
+                      'Build Muscle',
                       'Keep Fit',
                     ]) ...[
                       _buildFilterChip(
@@ -1232,50 +1254,172 @@ class _TrainingPageState extends State<TrainingPage> {
 
               const SizedBox(height: 14),
 
-              // Popular Goals Container Box with List
+              // Popular Goals Container Box with List (tab-driven)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 14,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: child,
                   ),
-                  child: Column(
-                    children: [
-                      _buildPopularGoalItem(
-                        title: 'Strong Legs Routine',
-                        subtitle: '13 min • Beginner',
-                        imagePath: 'assets/images/workouts/squat.jpg',
-                      ),
-                      const Divider(height: 24, color: Color(0xFFF3F4F6)),
-                      _buildPopularGoalItem(
-                        title: 'Intense Leg Transformation',
-                        subtitle: '31 min • Advanced',
-                        imagePath: 'assets/images/workouts/squat.jpg',
-                      ),
-                      const Divider(height: 24, color: Color(0xFFF3F4F6)),
-                      _buildPopularGoalItem(
-                        title: 'Beginner Abs Shred',
-                        subtitle: '17 min • Beginner',
-                        imagePath: 'assets/images/workouts/abs.jpg',
-                      ),
-                      const SizedBox(height: 12),
-                      const Center(
-                        child: Text(
-                          'More >',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF0062FF),
+                  child: _buildPopularGoalsList(
+                    key: ValueKey(vm.selectedPopularGoal),
+                    goal: vm.selectedPopularGoal,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ── 12. Explore More Workouts Banner ───────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    vm.setTab(1); // Switch to Discover tab
+                  },
+                  child: Container(
+                    height: 110,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.18),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // Background collage of workout images
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Image.asset(
+                                  'assets/images/workouts/hiit_fat_burning.jpg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Expanded(
+                                child: Image.asset(
+                                  'assets/images/workouts/dumbbell_abs_shaper.jpg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Expanded(
+                                child: Image.asset(
+                                  'assets/images/workouts/massive_body.jpg',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
                           ),
+                          // Dark overlay
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withValues(alpha: 0.72),
+                                  Colors.black.withValues(alpha: 0.35),
+                                ],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                            ),
+                          ),
+                          // Content
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 18,
+                            ),
+                            child: Row(
+                              children: [
+                                const Expanded(
+                                  child: Text(
+                                    'Explore more\nworkouts',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      height: 1.25,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 22,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  child: const Text(
+                                    'Go',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF111827),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ── 13. "Can't find" hint row ──────────────────────────────────
+              Center(
+                child: Text(
+                  "Can't find what you want?",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                },
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.edit_outlined,
+                        size: 16,
+                        color: Color(0xFF0062FF),
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Tell us what you need',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0062FF),
                         ),
                       ),
                     ],
@@ -1540,7 +1684,7 @@ class _TrainingPageState extends State<TrainingPage> {
             child: Image.asset(
               imagePath,
               width: 175,
-              height: 120,
+              height: 140,
               fit: BoxFit.cover,
             ),
           ),
@@ -1570,6 +1714,125 @@ class _TrainingPageState extends State<TrainingPage> {
                 color: Colors.white,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Popular Goals list factory (tab-driven) ─────────────────────────────────
+  static Widget _buildPopularGoalsList({
+    Key? key,
+    required String goal,
+  }) {
+    // Data per tab – matches reference screenshots exactly
+    final Map<String, List<Map<String, String>>> goalData = {
+      'Burn Fat': [
+        {
+          'title': '7 Min HIIT Fat Burning',
+          'subtitle': '8 min • Beginner',
+          'image': 'assets/images/workouts/hiit_fat_burning.jpg',
+        },
+        {
+          'title': 'Build Strong Triceps',
+          'subtitle': '7 min • Beginner',
+          'image': 'assets/images/workouts/build_triceps.jpg',
+        },
+        {
+          'title': '10 Min Shredded Arms',
+          'subtitle': '11 min • Beginner',
+          'image': 'assets/images/workouts/shredded_arms.jpg',
+        },
+      ],
+      'Build Muscle': [
+        {
+          'title': 'Dumbbell Abs Shaper',
+          'subtitle': '22 min • Intermediate',
+          'image': 'assets/images/workouts/dumbbell_abs_shaper.jpg',
+        },
+        {
+          'title': 'Beginner Back Builder',
+          'subtitle': '16 min • Beginner',
+          'image': 'assets/images/workouts/beginner_back_builder.jpg',
+        },
+        {
+          'title': 'Beginner Chest Workout',
+          'subtitle': '7 min • Beginner',
+          'image': 'assets/images/workouts/beginner_chest_workout.jpg',
+        },
+      ],
+      'Keep Fit': [
+        {
+          'title': 'Upper Body Stretching',
+          'subtitle': '13 min • Beginner',
+          'image': 'assets/images/workouts/upper_body_stretching.jpg',
+        },
+        {
+          'title': 'Lower Body Stretching',
+          'subtitle': '15 min • Beginner',
+          'image': 'assets/images/workouts/lower_body.jpg',
+        },
+        {
+          'title': 'Neck & Shoulder Tension Relief',
+          'subtitle': '16 min • Beginner',
+          'image': 'assets/images/workouts/neck_shoulder_tension_relief.jpg',
+        },
+      ],
+    };
+
+    final items = goalData[goal] ?? goalData['Burn Fat']!;
+
+    return Container(
+      key: key,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          for (int i = 0; i < items.length; i++) ...[
+            _buildPopularGoalItem(
+              title: items[i]['title']!,
+              subtitle: items[i]['subtitle']!,
+              imagePath: items[i]['image']!,
+            ),
+            if (i < items.length - 1)
+              const Divider(height: 24, color: Color(0xFFF3F4F6)),
+          ],
+          const SizedBox(height: 12),
+          Builder(
+            builder: (context) {
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  if (goal == 'Build Muscle') {
+                    Navigator.of(context).pushNamed(AppRoutes.buildMuscleMore);
+                  } else if (goal == 'Burn Fat') {
+                    Navigator.of(context).pushNamed(AppRoutes.burnFatMore);
+                  } else if (goal == 'Keep Fit') {
+                    Navigator.of(context).pushNamed(AppRoutes.keepFitMore);
+                  }
+                },
+                child: const Center(
+                  child: Text(
+                    'More >',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0062FF),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

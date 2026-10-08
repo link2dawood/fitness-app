@@ -12,7 +12,7 @@ class HomeViewModel extends ChangeNotifier {
   bool _isLoading = true;
   int _currentTab = 0;
   String _selectedBodyFocus = 'Abs';
-  String _selectedPopularGoal = 'Build Muscle';
+  String _selectedPopularGoal = 'Burn Fat';
   int _selectedDay = 30;
 
   UserProfile? get profile => _profile;
