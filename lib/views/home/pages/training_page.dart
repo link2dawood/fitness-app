@@ -585,11 +585,15 @@ class _TrainingPageState extends State<TrainingPage> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'More >',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0062FF).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
                           color: Color(0xFF0062FF),
                         ),
                       ),
@@ -811,9 +815,29 @@ class _TrainingPageState extends State<TrainingPage> {
                           label: 'Stretch',
                         ),
                         const SizedBox(width: 8),
-                        _buildBadgePill(
-                          icon: Icons.schedule_rounded,
-                          label: '<7 mins',
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F5F9),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.schedule_rounded, size: 16, color: Color(0xFF0062FF)),
+                              SizedBox(width: 2),
+                              Icon(Icons.chevron_left_rounded, size: 16, color: Color(0xFF0062FF)),
+                              Text(
+                                '7 mins',
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF1E293B),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 8),
                         _buildBadgePill(
@@ -1078,11 +1102,15 @@ class _TrainingPageState extends State<TrainingPage> {
                         HapticFeedback.selectionClick();
                         Navigator.of(context).pushNamed(AppRoutes.justForYou);
                       },
-                      child: const Text(
-                        'More >',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0062FF).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
                           color: Color(0xFF0062FF),
                         ),
                       ),
@@ -1166,11 +1194,15 @@ class _TrainingPageState extends State<TrainingPage> {
                         HapticFeedback.selectionClick();
                         Navigator.of(context).pushNamed(AppRoutes.stretchWarmUp);
                       },
-                      child: const Text(
-                        'More >',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0062FF).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 16,
                           color: Color(0xFF0062FF),
                         ),
                       ),
@@ -1822,12 +1854,19 @@ class _TrainingPageState extends State<TrainingPage> {
                   }
                 },
                 child: const Center(
-                  child: Text(
-                    'More >',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0062FF),
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF111827),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
