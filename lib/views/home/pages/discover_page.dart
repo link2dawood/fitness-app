@@ -136,11 +136,45 @@ class DiscoverPage extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // ── 7. Body Focus Badges ─────────────────────────────────
+                // ── 7. With Equipment ────────────────────────────────────
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    'Body Focus',
+                    'With Equipment',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _WithEquipmentCard(),
+
+                const SizedBox(height: 28),
+
+                // ── 8. Stretch ───────────────────────────────────────────
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'Stretch',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _StretchGrid(),
+
+                const SizedBox(height: 28),
+
+                // ── 9. Body focus ────────────────────────────────────────
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'Body focus',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -187,7 +221,7 @@ class _HeroBanner extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.75),
+                        Colors.black.withValues(alpha: 0.75),
                       ],
                       stops: const [0.3, 1.0],
                     ),
@@ -234,7 +268,6 @@ class _HeroBanner extends StatelessWidget {
 
 // ── Picks For You ─────────────────────────────────────────────────────────
 class _PicksForYouList extends StatelessWidget {
-  // Each inner list = one card (2 items stacked). Swiped horizontally.
   static const List<List<Map<String, String>>> _groups = [
     [
       {
@@ -284,7 +317,7 @@ class _PicksForYouList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenW = MediaQuery.of(context).size.width;
-    final cardW = screenW - 56.0; // peek of ~28px on right
+    final cardW = screenW - 56.0;
 
     return SizedBox(
       height: 190,
@@ -293,7 +326,7 @@ class _PicksForYouList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _groups.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, gi) {
           final group = _groups[gi];
           return Container(
@@ -303,7 +336,7 @@ class _PicksForYouList extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -420,7 +453,7 @@ class _PromoBanner extends StatelessWidget {
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.45),
+                    color: Colors.black.withValues(alpha: 0.45),
                   ),
                 ),
               ),
@@ -455,7 +488,7 @@ class _PromoBanner extends StatelessWidget {
   }
 }
 
-// ── For Beginners (large overlay cards) ──────────────────────────────────
+// ── For Beginners ────────────────────────────────────────────────────────
 class _BeginnersList extends StatelessWidget {
   static const List<Map<String, String>> _items = [
     {
@@ -501,7 +534,7 @@ class _BeginnersList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, i) => _BegOverlayCard(
           title: _items[i]['title']!,
           imagePath: _items[i]['image']!,
@@ -537,7 +570,7 @@ class _BegOverlayCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.72),
+                      Colors.black.withValues(alpha: 0.72),
                     ],
                     stops: const [0.45, 1.0],
                   ),
@@ -637,7 +670,7 @@ class _FastWorkoutList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _groups.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, gi) {
           final group = _groups[gi];
           return Container(
@@ -647,7 +680,7 @@ class _FastWorkoutList extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 14,
                   offset: const Offset(0, 4),
                 ),
@@ -743,7 +776,7 @@ class _FastWorkoutItem extends StatelessWidget {
   }
 }
 
-// ── Challenge (large square overlay cards) ────────────────────────────────
+// ── Challenge ─────────────────────────────────────────────────────────────
 class _ChallengeList extends StatelessWidget {
   static const List<Map<String, String>> _items = [
     {
@@ -794,7 +827,7 @@ class _ChallengeList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: _items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, i) => _ChallengeCard(
           title: _items[i]['title']!,
           imagePath: _items[i]['image']!,
@@ -830,7 +863,7 @@ class _ChallengeCard extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.78),
+                      Colors.black.withValues(alpha: 0.78),
                     ],
                     stops: const [0.4, 1.0],
                   ),
@@ -858,16 +891,254 @@ class _ChallengeCard extends StatelessWidget {
   }
 }
 
+// ── With Equipment ───────────────────────────────────────────────────────
+class _WithEquipmentCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: () => HapticFeedback.selectionClick(),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            children: [
+              Image.asset(
+                'assets/images/workouts/massive_body.jpg',
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.25),
+                        Colors.black.withValues(alpha: 0.85),
+                      ],
+                      stops: const [0.3, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 18,
+                right: 18,
+                bottom: 18,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Boost your results with added\nresistance for faster, better\ngains.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Text(
+                            "Let's Go!",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 16,
+                            color: Color(0xFF111827),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Stretch ───────────────────────────────────────────────────────────────
+class _StretchGrid extends StatelessWidget {
+  static const List<List<Map<String, String>>> _groups = [
+    [
+      {
+        'title': 'Neck & Shoulder\nTension Relief',
+        'image': 'assets/images/workouts/neck_shoulder_tension_relief.jpg',
+      },
+      {
+        'title': 'Knee Pain Relief',
+        'image': 'assets/images/workouts/knee_pain_relief.jpg',
+      },
+    ],
+    [
+      {
+        'title': 'Upper Body Stretching',
+        'image': 'assets/images/workouts/upper_body_stretching.jpg',
+      },
+      {
+        'title': 'Lower Back Pain\nRelief',
+        'image': 'assets/images/workouts/stretch_sleepy.jpg',
+      },
+    ],
+    [
+      {
+        'title': 'Lower Body Stretching',
+        'image': 'assets/images/workouts/lower_body.jpg',
+      },
+      {
+        'title': 'Back Stretching',
+        'image': 'assets/images/workouts/back_builder.jpg',
+      },
+    ],
+    [
+      {
+        'title': 'Full Body Stretching',
+        'image': 'assets/images/workouts/stretch_shoulder.jpg',
+      },
+      {
+        'title': 'Shoulder Tension\nRelief',
+        'image': 'assets/images/workouts/shoulder_tension_relief.jpg',
+      },
+    ],
+    [
+      {
+        'title': 'Morning Warm-Up',
+        'image': 'assets/images/workouts/stretch_warmup.jpg',
+      },
+      {
+        'title': 'Sleepy Time\nStretching',
+        'image': 'assets/images/workouts/back_sb.jpg',
+      },
+    ],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 330,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: _groups.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (context, gi) {
+          final group = _groups[gi];
+          return Column(
+            children: [
+              for (int i = 0; i < group.length; i++) ...[
+                _StretchCard(
+                  title: group[i]['title']!,
+                  imagePath: group[i]['image']!,
+                ),
+                if (i < group.length - 1) const SizedBox(height: 14),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StretchCard extends StatelessWidget {
+  const _StretchCard({required this.title, required this.imagePath});
+
+  final String title;
+  final String imagePath;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => HapticFeedback.selectionClick(),
+      child: SizedBox(
+        width: 165,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                imagePath,
+                width: 165,
+                height: 105,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 165,
+                  height: 105,
+                  color: const Color(0xFFF1F5F9),
+                  child: const Icon(Icons.fitness_center, color: Colors.grey),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Body focus grid ───────────────────────────────────────────────────────
 class _BodyFocusGrid extends StatelessWidget {
-  static const List<Map<String, dynamic>> _focuses = [
-    {'label': 'Full Body', 'icon': Icons.accessibility_new_rounded},
-    {'label': 'ABS', 'icon': Icons.self_improvement_rounded},
-    {'label': 'Arms', 'icon': Icons.fitness_center_rounded},
-    {'label': 'Butt & Legs', 'icon': Icons.directions_run_rounded},
-    {'label': 'Chest', 'icon': Icons.sports_gymnastics_rounded},
-    {'label': 'Back', 'icon': Icons.sports_martial_arts_rounded},
-    {'label': 'Shoulder', 'icon': Icons.sports_handball_rounded},
-    {'label': 'Stretch', 'icon': Icons.airline_seat_flat_rounded},
+  static const List<Map<String, String>> _items = [
+    {
+      'title': 'Chest',
+      'type': 'chest',
+    },
+    {
+      'title': 'Arm & Shoulder',
+      'type': 'arm',
+    },
+    {
+      'title': 'Butt & Leg',
+      'type': 'leg',
+    },
+    {
+      'title': 'Six pack',
+      'type': 'abs',
+    },
   ];
 
   @override
@@ -878,47 +1149,195 @@ class _BodyFocusGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.85,
+          crossAxisCount: 2,
+          mainAxisSpacing: 14,
+          crossAxisSpacing: 14,
+          childAspectRatio: 1.3,
         ),
-        itemCount: _focuses.length,
+        itemCount: _items.length,
         itemBuilder: (context, i) {
-          final item = _focuses[i];
-          return GestureDetector(
-            onTap: () => HapticFeedback.selectionClick(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F5F9),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    item['icon'] as IconData,
-                    color: const Color(0xFF0062FF),
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  item['label'] as String,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF374151),
-                  ),
-                ),
-              ],
-            ),
+          final item = _items[i];
+          return _BodyFocusCard(
+            title: item['title']!,
+            type: item['type']!,
           );
         },
       ),
     );
   }
+}
+
+class _BodyFocusCard extends StatelessWidget {
+  const _BodyFocusCard({
+    required this.title,
+    required this.type,
+  });
+
+  final String title;
+  final String type;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => HapticFeedback.selectionClick(),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2C364F),
+              Color(0xFF1E2638),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Center(
+                child: CustomPaint(
+                  size: const Size(60, 50),
+                  painter: MuscleSilhouettePainter(type: type),
+                ),
+              ),
+            ),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: 0.1,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MuscleSilhouettePainter extends CustomPainter {
+  MuscleSilhouettePainter({required this.type});
+
+  final String type;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+
+    if (type == 'chest') {
+      // Draw Chest Pectoral Muscles Silhouette
+      final pathLeft = Path()
+        ..moveTo(cx - 3, cy - 12)
+        ..cubicTo(cx - 16, cy - 14, cx - 24, cy - 6, cx - 22, cy + 6)
+        ..cubicTo(cx - 20, cy + 14, cx - 10, cy + 14, cx - 3, cy + 9)
+        ..close();
+
+      final pathRight = Path()
+        ..moveTo(cx + 3, cy - 12)
+        ..cubicTo(cx + 16, cy - 14, cx + 24, cy - 6, cx + 22, cy + 6)
+        ..cubicTo(cx + 20, cy + 14, cx + 10, cy + 14, cx + 3, cy + 9)
+        ..close();
+
+      canvas.drawPath(pathLeft, paint);
+      canvas.drawPath(pathRight, paint);
+    } else if (type == 'arm') {
+      // Draw Flexed Bicep Arm Silhouette
+      final path = Path()
+        ..moveTo(cx - 20, cy + 14)
+        ..cubicTo(cx - 16, cy + 4, cx - 10, cy - 2, cx - 3, cy - 12)
+        ..cubicTo(cx + 6, cy - 18, cx + 18, cy - 10, cx + 18, cy + 2)
+        ..cubicTo(cx + 18, cy + 10, cx + 10, cy + 14, cx - 2, cy + 14)
+        ..close();
+
+      canvas.drawPath(path, paint);
+    } else if (type == 'leg') {
+      // Draw Athletic Legs Silhouette
+      final pathLeft = Path()
+        ..moveTo(cx - 10, cy - 16)
+        ..cubicTo(cx - 18, cy - 6, cx - 16, cy + 6, cx - 8, cy + 16)
+        ..lineTo(cx - 3, cy + 16)
+        ..cubicTo(cx - 8, cy + 4, cx - 8, cy - 6, cx - 4, cy - 16)
+        ..close();
+
+      final pathRight = Path()
+        ..moveTo(cx + 10, cy - 16)
+        ..cubicTo(cx + 18, cy - 6, cx + 16, cy + 6, cx + 8, cy + 16)
+        ..lineTo(cx + 3, cy + 16)
+        ..cubicTo(cx + 8, cy + 4, cx + 8, cy - 6, cx + 4, cy - 16)
+        ..close();
+
+      canvas.drawPath(pathLeft, paint);
+      canvas.drawPath(pathRight, paint);
+    } else if (type == 'abs') {
+      // Draw Six Pack Abs Silhouette
+      final r = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx - 6, cy - 9), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+      final r2 = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx + 6, cy - 9), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+      final r3 = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx - 6, cy), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+      final r4 = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx + 6, cy), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+      final r5 = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx - 6, cy + 9), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+      final r6 = RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset(cx + 6, cy + 9), width: 9, height: 6),
+        const Radius.circular(2),
+      );
+
+      canvas.drawRRect(r, paint);
+      canvas.drawRRect(r2, paint);
+      canvas.drawRRect(r3, paint);
+      canvas.drawRRect(r4, paint);
+      canvas.drawRRect(r5, paint);
+      canvas.drawRRect(r6, paint);
+
+      final linePaint = Paint()
+        ..color = Colors.white
+        ..strokeWidth = 2.2
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round;
+
+      final leftBracket = Path()
+        ..moveTo(cx - 16, cy - 12)
+        ..lineTo(cx - 13, cy + 12);
+
+      final rightBracket = Path()
+        ..moveTo(cx + 16, cy - 12)
+        ..lineTo(cx + 13, cy + 12);
+
+      canvas.drawPath(leftBracket, linePaint);
+      canvas.drawPath(rightBracket, linePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
