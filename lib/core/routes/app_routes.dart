@@ -17,6 +17,7 @@ import '../../views/plan/plan_generation_view.dart';
 import '../../views/plan/plan_ready_view.dart';
 import '../../views/pro/pro_plan_view.dart';
 import '../../views/search/search_view.dart';
+import '../../views/settings/workout_settings_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -34,6 +35,7 @@ class AppRoutes {
   static const String buildMuscleMore = '/build-muscle-more';
   static const String burnFatMore = '/burn-fat-more';
   static const String keepFitMore = '/keep-fit-more';
+  static const String workoutSettings = '/workout-settings';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -80,6 +82,8 @@ class AppRoutes {
         return _fade(settings, const BurnFatMorePage());
       case keepFitMore:
         return _fade(settings, const KeepFitMorePage());
+      case workoutSettings:
+        return _fade(settings, const WorkoutSettingsView());
       case splash:
       default:
         return _fade(

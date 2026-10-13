@@ -50,6 +50,20 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateWeight(int weightKg) async {
+    final current = _profile ?? const UserProfile();
+    _profile = current.copyWith(weightKg: weightKg);
+    await _repository.saveProfile(_profile!);
+    notifyListeners();
+  }
+
+  Future<void> updateHeight(int heightCm) async {
+    final current = _profile ?? const UserProfile();
+    _profile = current.copyWith(heightCm: heightCm);
+    await _repository.saveProfile(_profile!);
+    notifyListeners();
+  }
+
   /// Handy during development to replay the onboarding flow.
   Future<void> resetOnboarding() => _repository.clear();
 }

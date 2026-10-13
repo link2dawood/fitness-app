@@ -1,26 +1,192 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool _syncHealthConnect = false;
+
+  void _showBackupAndRestoreModal(BuildContext context) {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Top Right Close (X) button
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(ctx).pop(),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD1D5DB),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Google Logo Badge Container
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: CustomPaint(painter: GoogleLogoPainter()),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Title: Backup & Restore
+              const Text(
+                'Backup & Restore',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Subtitle: Synchronize your data
+              const Text(
+                'Synchronize your data',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF6B7280),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Button: Continue with Google
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Connected with Google! Data synchronized.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Container(
+                  height: 54,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0066FF),
+                    borderRadius: BorderRadius.circular(27),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0066FF).withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Continue with Google',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Bottom text: v Others
+              GestureDetector(
+                onTap: () {},
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      'Others',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
-    final profile = vm.profile;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFC),
+      backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
         title: const Text(
           'SETTINGS',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w900,
-            letterSpacing: 0.2,
+            letterSpacing: 0.3,
             color: Color(0xFF111827),
           ),
         ),
@@ -29,9 +195,10 @@ class SettingsPage extends StatelessWidget {
         centerTitle: false,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         children: [
-          // Profile summary card
+          // ── 1. Main Settings Card ──────────────────────────────────────────
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -45,112 +212,378 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipOval(
-                  child: Image.asset(
-                    'assets/images/ui/plan_coach.jpg',
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
+                // Backup & Restore Header (Clickable)
+                GestureDetector(
+                  onTap: () => _showBackupAndRestoreModal(context),
+                  behavior: HitTestBehavior.opaque,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        profile?.gender?.label ?? 'Athlete',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Backup & Restore',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Text(
+                            'G',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF4285F4),
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.sync_rounded,
+                              color: Color(0xFF0066FF),
+                              size: 22,
+                            ),
+                            onPressed: () => _showBackupAndRestoreModal(context),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        '${profile?.heightCm ?? 170} cm • ${profile?.weightKg ?? 70} kg • ${profile?.level?.label ?? 'Intermediate'}',
-                        style: const TextStyle(
+                      const Text(
+                        'Sign in and synchronize your data',
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF9CA3AF),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 18),
+
+                // GO PREMIUM Button
+                _buildGoPremiumButton(context),
+
+                const SizedBox(height: 16),
+                const Divider(color: Color(0xFFF3F4F6), height: 1),
+                const SizedBox(height: 8),
+
+                // Menu items inside Card 1
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF4CAF50),
+                  icon: Icons.water_drop_rounded,
+                  title: 'Workout Settings',
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    Navigator.of(context).pushNamed(AppRoutes.workoutSettings);
+                  },
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF2196F3),
+                  icon: Icons.settings_rounded,
+                  title: 'General Settings',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFFFFA000),
+                  icon: Icons.mic_rounded,
+                  title: 'Voice Options (TTS)',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF00BCD4),
+                  icon: Icons.chat_bubble_rounded,
+                  title: 'Suggest Other Features',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF7E57C2),
+                  icon: Icons.public_rounded,
+                  title: 'Language Options',
+                  subtitle: 'Default',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF0288D1),
+                  icon: Icons.favorite_rounded,
+                  title: 'Sync to Health Connect',
+                  trailing: Switch(
+                    value: _syncHealthConnect,
+                    activeTrackColor: const Color(0xFF0066FF),
+                    onChanged: (val) {
+                      setState(() {
+                        _syncHealthConnect = val;
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
 
-          // Settings list options
-          _buildSettingsTile(
-            icon: Icons.notifications_none_rounded,
-            title: 'Reminders & Notifications',
-          ),
-          _buildSettingsTile(
-            icon: Icons.fitness_center_rounded,
-            title: 'Training Preferences',
-          ),
-          _buildSettingsTile(
-            icon: Icons.star_border_rounded,
-            title: 'Rate App',
-          ),
-          _buildSettingsTile(
-            icon: Icons.help_outline_rounded,
-            title: 'Help & Feedback',
-          ),
           const SizedBox(height: 16),
 
-          // Restart onboarding option
-          ListTile(
-            onTap: () async {
-              await vm.resetOnboarding();
-              if (!context.mounted) return;
-              Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+          // ── 2. Social & App Info Card ──────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            tileColor: Colors.white,
-            leading: const Icon(Icons.restart_alt_rounded, color: Colors.red),
-            title: const Text(
-              'Reset & Restart Onboarding',
+            child: Column(
+              children: [
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF607D8B),
+                  icon: Icons.share_rounded,
+                  title: 'Share with friends',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF607D8B),
+                  icon: Icons.star_rounded,
+                  title: 'Rate us',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF607D8B),
+                  icon: Icons.edit_rounded,
+                  title: 'Feedback',
+                  onTap: () {},
+                ),
+                const Divider(color: Color(0xFFF9FAFB), height: 1),
+                _buildSettingTile(
+                  iconBgColor: const Color(0xFF607D8B),
+                  icon: Icons.block_rounded,
+                  title: 'Remove Ads',
+                  onTap: () {
+                    Navigator.of(context).pushNamed(AppRoutes.pro);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          // App Version Text
+          const Center(
+            child: Text(
+              'Version 1.7.91',
               style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Colors.red,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF9CA3AF),
               ),
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          // Reset Onboarding Option
+          Center(
+            child: TextButton.icon(
+              onPressed: () async {
+                await vm.resetOnboarding();
+                if (!context.mounted) return;
+                Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
+              },
+              icon: const Icon(Icons.restart_alt_rounded, color: Colors.redAccent, size: 18),
+              label: const Text(
+                'Reset Onboarding Data',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  static Widget _buildSettingsTile({
-    required IconData icon,
-    required String title,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF0062FF)),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
-          ),
+  Widget _buildGoPremiumButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.of(context).pushNamed(AppRoutes.pro);
+      },
+      child: Container(
+        height: 52,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0066FF),
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0066FF).withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
-        onTap: () {},
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Icon(
+              Icons.block_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            SizedBox(width: 8),
+            Text(
+              'GO PREMIUM',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  Widget _buildSettingTile({
+    required Color iconBgColor,
+    required IconData icon,
+    required String title,
+    String? subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 11.0),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            trailing ??
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: Color(0xFFD1D5DB),
+                  size: 22,
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final radius = size.width / 2;
+    final strokeWidth = size.width * 0.22;
+
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: radius - strokeWidth / 2);
+
+    final redPaint = Paint()
+      ..color = const Color(0xFFEA4335)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final yellowPaint = Paint()
+      ..color = const Color(0xFFFBBC05)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final greenPaint = Paint()
+      ..color = const Color(0xFF34A853)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final bluePaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    // Draw 4 color arcs
+    canvas.drawArc(rect, -2.35, 1.4, false, redPaint);
+    canvas.drawArc(rect, -0.95, 1.2, false, yellowPaint);
+    canvas.drawArc(rect, 0.25, 1.3, false, greenPaint);
+    canvas.drawArc(rect, 1.55, 1.5, false, bluePaint);
+
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawRect(
+      Rect.fromLTWH(cx - 2, cy - strokeWidth / 2, radius * 0.9, strokeWidth),
+      barPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

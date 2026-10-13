@@ -9,6 +9,8 @@ class RulerPicker extends StatefulWidget {
     required this.max,
     required this.value,
     required this.onChanged,
+    this.decimalValue,
+    this.onDecimalChanged,
     this.step = 1,
     this.labelInterval = 10,
     this.visualTicksPerStep = 1,
@@ -18,7 +20,9 @@ class RulerPicker extends StatefulWidget {
   final int min;
   final int max;
   final int value;
+  final double? decimalValue;
   final ValueChanged<int> onChanged;
+  final ValueChanged<double>? onDecimalChanged;
   final int step;
   final int labelInterval;
   final int visualTicksPerStep;
@@ -31,12 +35,18 @@ class RulerPicker extends StatefulWidget {
 class _RulerPickerState extends State<RulerPicker> {
   late ScrollController _scrollController;
   int _currentValue = 0;
+  double _currentDecimalValue = 0.0;
+
+  double get _subTickWidth =>
+      widget.stepWidth / (widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep : 1);
 
   @override
   void initState() {
     super.initState();
     _currentValue = widget.value;
-    final initialOffset = ((_currentValue - widget.min) / widget.step) * widget.stepWidth;
+    _currentDecimalValue = widget.decimalValue ?? widget.value.toDouble();
+    final activeVal = widget.decimalValue ?? widget.value.toDouble();
+    final initialOffset = ((activeVal - widget.min) / widget.step) * widget.stepWidth;
     _scrollController = ScrollController(initialScrollOffset: initialOffset);
     _scrollController.addListener(_onScroll);
   }
@@ -44,8 +54,25 @@ class _RulerPickerState extends State<RulerPicker> {
   @override
   void didUpdateWidget(covariant RulerPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != _currentValue) {
+    if (widget.decimalValue != null) {
+      final factor = widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep.toDouble() : 10.0;
+      final threshold = 0.5 / factor;
+      if ((widget.decimalValue! - _currentDecimalValue).abs() > threshold) {
+        _currentDecimalValue = widget.decimalValue!;
+        _currentValue = widget.decimalValue!.round();
+        final offset =
+            ((_currentDecimalValue - widget.min) / widget.step) * widget.stepWidth;
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            offset,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      }
+    } else if (widget.value != _currentValue) {
       _currentValue = widget.value;
+      _currentDecimalValue = widget.value.toDouble();
       final offset = ((_currentValue - widget.min) / widget.step) * widget.stepWidth;
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -59,12 +86,28 @@ class _RulerPickerState extends State<RulerPicker> {
 
   void _onScroll() {
     final offset = _scrollController.offset;
-    final index = (offset / widget.stepWidth).round();
-    final newValue = (widget.min + index * widget.step).clamp(widget.min, widget.max);
-    if (newValue != _currentValue) {
-      setState(() => _currentValue = newValue);
-      HapticFeedback.selectionClick();
-      widget.onChanged(_currentValue);
+    if (widget.onDecimalChanged != null) {
+      final subIndex = (offset / _subTickWidth).round();
+      final newDecimal = (widget.min + (subIndex / widget.visualTicksPerStep) * widget.step)
+          .clamp(widget.min.toDouble(), widget.max.toDouble());
+      final factor = widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep.toDouble() : 10.0;
+      final roundedDecimal = (newDecimal * factor).round() / factor;
+      final threshold = 0.5 / factor;
+      if ((roundedDecimal - _currentDecimalValue).abs() >= threshold) {
+        _currentDecimalValue = roundedDecimal;
+        _currentValue = roundedDecimal.round();
+        HapticFeedback.selectionClick();
+        widget.onDecimalChanged!(roundedDecimal);
+        widget.onChanged(_currentValue);
+      }
+    } else {
+      final index = (offset / widget.stepWidth).round();
+      final newValue = (widget.min + index * widget.step).clamp(widget.min, widget.max);
+      if (newValue != _currentValue) {
+        setState(() => _currentValue = newValue);
+        HapticFeedback.selectionClick();
+        widget.onChanged(_currentValue);
+      }
     }
   }
 
@@ -90,8 +133,14 @@ class _RulerPickerState extends State<RulerPicker> {
               NotificationListener<ScrollNotification>(
                 onNotification: (notif) {
                   if (notif is ScrollEndNotification) {
-                    final index = (_scrollController.offset / widget.stepWidth).round();
-                    final targetOffset = index * widget.stepWidth;
+                    final double targetOffset;
+                    if (widget.onDecimalChanged != null) {
+                      final subIndex = (_scrollController.offset / _subTickWidth).round();
+                      targetOffset = subIndex * _subTickWidth;
+                    } else {
+                      final index = (_scrollController.offset / widget.stepWidth).round();
+                      targetOffset = index * widget.stepWidth;
+                    }
                     Future.microtask(() {
                       if (_scrollController.hasClients) {
                         _scrollController.animateTo(
@@ -154,12 +203,14 @@ class _RulerPickerState extends State<RulerPicker> {
                           // Render the text label
                           if (isLabel || (val == widget.min) || (val == widget.max))
                             Positioned(
-                              left: -20, // Center a 40px wide box over x=0
+                              left: -25, // Center a 50px wide box over x=0
                               top: -4,
-                              width: 40,
+                              width: 50,
                               child: Text(
                                 '$val',
                                 textAlign: TextAlign.center,
+                                maxLines: 1,
+                                softWrap: false,
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
