@@ -115,10 +115,26 @@ class _ProPlanViewState extends State<ProPlanView> {
                   onTap: () => Navigator.of(context).pop(),
                 ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () => showDialog<void>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Purchases unavailable'),
+                      content: const Text(
+                        'Premium purchases and restoration are not available yet.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  ),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(16),
@@ -153,13 +169,7 @@ class _ProPlanViewState extends State<ProPlanView> {
               child: SizedBox(
                 height: 56,
                 child: FilledButton(
-                  onPressed: () {
-                    HapticFeedback.mediumImpact();
-                    Navigator.of(context).pop();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Pro Plan Activated!')),
-                    );
-                  },
+                  onPressed: null,
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF0062FF),
                     shape: RoundedRectangleBorder(
@@ -170,7 +180,7 @@ class _ProPlanViewState extends State<ProPlanView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
                       Text(
-                        'START',
+                        'COMING SOON',
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
@@ -301,11 +311,7 @@ class _ProPlanViewState extends State<ProPlanView> {
           const SizedBox(height: 24),
 
           // Monthly option
-          _planTile(
-            index: 0,
-            title: 'Monthly',
-            price: 'Rs 1,400.00/month',
-          ),
+          _planTile(index: 0, title: 'Monthly', price: 'Rs 1,400.00/month'),
           const SizedBox(height: 12),
 
           // Newcomer discount
@@ -427,8 +433,10 @@ class _ProPlanViewState extends State<ProPlanView> {
                 top: -6,
                 right: 0,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF0062FF),
                     borderRadius: BorderRadius.circular(8),
@@ -484,8 +492,10 @@ class _ProPlanViewState extends State<ProPlanView> {
   Widget _buildFeaturesSection() {
     const features = [
       _Feature(Icons.lock_open_rounded, 'Unlimited targeted workouts'),
-      _Feature(Icons.local_fire_department_rounded,
-          '300+ workouts for fat burning'),
+      _Feature(
+        Icons.local_fire_department_rounded,
+        '300+ workouts for fat burning',
+      ),
       _Feature(Icons.thumb_up_alt_rounded, 'Visible results in just 4 weeks'),
       _Feature(Icons.auto_awesome_rounded, 'Add new workouts constantly'),
       _Feature(Icons.block_rounded, 'Remove Ads'),
@@ -563,8 +573,10 @@ class _ProPlanViewState extends State<ProPlanView> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
-                    border:
-                        Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                    border: Border.all(
+                      color: const Color(0xFFE5E7EB),
+                      width: 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.04),
@@ -739,10 +751,7 @@ class _ProPlanViewState extends State<ProPlanView> {
   // HELPERS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _circleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _circleButton({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

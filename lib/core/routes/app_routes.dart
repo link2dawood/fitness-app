@@ -18,6 +18,7 @@ import '../../views/plan/plan_ready_view.dart';
 import '../../views/pro/pro_plan_view.dart';
 import '../../views/search/search_view.dart';
 import '../../views/settings/workout_settings_view.dart';
+import '../../views/settings/gender_settings_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -36,6 +37,7 @@ class AppRoutes {
   static const String burnFatMore = '/burn-fat-more';
   static const String keepFitMore = '/keep-fit-more';
   static const String workoutSettings = '/workout-settings';
+  static const String genderSettings = '/gender-settings';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -43,22 +45,17 @@ class AppRoutes {
         return _fade(
           settings,
           ChangeNotifierProvider(
-            create: (ctx) => OnboardingViewModel(ctx.read<OnboardingRepository>()),
+            create: (ctx) =>
+                OnboardingViewModel(ctx.read<OnboardingRepository>()),
             child: const OnboardingView(),
           ),
         );
       case planGeneration:
         final profile = settings.arguments as UserProfile?;
-        return _fade(
-          settings,
-          PlanGenerationView(profile: profile),
-        );
+        return _fade(settings, PlanGenerationView(profile: profile));
       case planReady:
         final profile = settings.arguments as UserProfile?;
-        return _fade(
-          settings,
-          PlanReadyView(profile: profile),
-        );
+        return _fade(settings, PlanReadyView(profile: profile));
       case home:
         return _fade(
           settings,
@@ -84,6 +81,8 @@ class AppRoutes {
         return _fade(settings, const KeepFitMorePage());
       case workoutSettings:
         return _fade(settings, const WorkoutSettingsView());
+      case genderSettings:
+        return _fade(settings, const GenderSettingsView());
       case splash:
       default:
         return _fade(

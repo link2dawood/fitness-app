@@ -13,164 +13,26 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _syncHealthConnect = false;
+  void _showUnavailable(String feature, String reason) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(feature),
+        content: Text(reason),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showBackupAndRestoreModal(BuildContext context) {
-    HapticFeedback.selectionClick();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Top Right Close (X) button
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(ctx).pop(),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFD1D5DB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close_rounded,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              // Google Logo Badge Container
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 16,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: SizedBox(
-                    width: 44,
-                    height: 44,
-                    child: CustomPaint(painter: GoogleLogoPainter()),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Title: Backup & Restore
-              const Text(
-                'Backup & Restore',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Subtitle: Synchronize your data
-              const Text(
-                'Synchronize your data',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Button: Continue with Google
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Connected with Google! Data synchronized.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: Container(
-                  height: 54,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0066FF),
-                    borderRadius: BorderRadius.circular(27),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF0066FF).withValues(alpha: 0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Continue with Google',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Bottom text: v Others
-              GestureDetector(
-                onTap: () {},
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
-                      color: Color(0xFF9CA3AF),
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Others',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF9CA3AF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+    _showUnavailable(
+      'Backup & Restore',
+      'Cloud backup is not available yet. Your profile is stored only on this device.',
     );
   }
 
@@ -249,12 +111,13 @@ class _SettingsPageState extends State<SettingsPage> {
                               color: Color(0xFF0066FF),
                               size: 22,
                             ),
-                            onPressed: () => _showBackupAndRestoreModal(context),
+                            onPressed: () =>
+                                _showBackupAndRestoreModal(context),
                           ),
                         ],
                       ),
                       const Text(
-                        'Sign in and synchronize your data',
+                        'Cloud backup is not available yet',
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF9CA3AF),
@@ -279,9 +142,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFF4CAF50),
                   icon: Icons.water_drop_rounded,
                   title: 'Workout Settings',
-                  onTap: () {
+                  onTap: () async {
                     HapticFeedback.selectionClick();
-                    Navigator.of(context).pushNamed(AppRoutes.workoutSettings);
+                    await Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.workoutSettings);
+                    if (!context.mounted) return;
+                    await vm.load();
                   },
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
@@ -289,21 +156,30 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFF2196F3),
                   icon: Icons.settings_rounded,
                   title: 'General Settings',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'General Settings',
+                    'General preferences are not available yet.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFFFFA000),
                   icon: Icons.mic_rounded,
                   title: 'Voice Options (TTS)',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'Voice Options (TTS)',
+                    'Voice guidance is not available yet.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFF00BCD4),
                   icon: Icons.chat_bubble_rounded,
                   title: 'Suggest Other Features',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'Suggest Other Features',
+                    'Feature suggestions require a configured support contact.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
@@ -311,21 +187,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   icon: Icons.public_rounded,
                   title: 'Language Options',
                   subtitle: 'Default',
-                  onTap: () {},
-                ),
-                const Divider(color: Color(0xFFF9FAFB), height: 1),
-                _buildSettingTile(
-                  iconBgColor: const Color(0xFF0288D1),
-                  icon: Icons.favorite_rounded,
-                  title: 'Sync to Health Connect',
-                  trailing: Switch(
-                    value: _syncHealthConnect,
-                    activeTrackColor: const Color(0xFF0066FF),
-                    onChanged: (val) {
-                      setState(() {
-                        _syncHealthConnect = val;
-                      });
-                    },
+                  onTap: () => _showUnavailable(
+                    'Language Options',
+                    'English is currently the only supported language.',
                   ),
                 ),
               ],
@@ -354,21 +218,30 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFF607D8B),
                   icon: Icons.share_rounded,
                   title: 'Share with friends',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'Share with friends',
+                    'Sharing requires a published app store link.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFF607D8B),
                   icon: Icons.star_rounded,
                   title: 'Rate us',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'Rate us',
+                    'Rating requires a published app store listing.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFF607D8B),
                   icon: Icons.edit_rounded,
                   title: 'Feedback',
-                  onTap: () {},
+                  onTap: () => _showUnavailable(
+                    'Feedback',
+                    'Feedback requires a configured support contact.',
+                  ),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
@@ -407,7 +280,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (!context.mounted) return;
                 Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
               },
-              icon: const Icon(Icons.restart_alt_rounded, color: Colors.redAccent, size: 18),
+              icon: const Icon(
+                Icons.restart_alt_rounded,
+                color: Colors.redAccent,
+                size: 18,
+              ),
               label: const Text(
                 'Reset Onboarding Data',
                 style: TextStyle(
@@ -448,11 +325,7 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            Icon(
-              Icons.block_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+            Icon(Icons.block_rounded, color: Colors.white, size: 20),
             SizedBox(width: 8),
             Text(
               'GO PREMIUM',
@@ -491,11 +364,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: iconBgColor,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 22,
-              ),
+              child: Icon(icon, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -546,7 +415,10 @@ class GoogleLogoPainter extends CustomPainter {
     final radius = size.width / 2;
     final strokeWidth = size.width * 0.22;
 
-    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: radius - strokeWidth / 2);
+    final rect = Rect.fromCircle(
+      center: Offset(cx, cy),
+      radius: radius - strokeWidth / 2,
+    );
 
     final redPaint = Paint()
       ..color = const Color(0xFFEA4335)
