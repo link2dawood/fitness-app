@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../../core/settings/general_settings.dart';
 import '../../onboarding/widgets/ruler_picker.dart';
 import 'history_calendar_view.dart';
 
@@ -16,9 +17,7 @@ class ReportPage extends StatefulWidget {
 
 class _ReportPageState extends State<ReportPage> {
   // Sample weight data points (day-of-month → weight in lbs)
-  final List<_WeightPoint> _weightData = [
-    const _WeightPoint(6, 106.7),
-  ];
+  final List<_WeightPoint> _weightData = [const _WeightPoint(6, 106.7)];
 
   // Stats
   final int _workoutCount = 0;
@@ -46,9 +45,23 @@ class _ReportPageState extends State<ReportPage> {
   @override
   void initState() {
     super.initState();
+    _useLbs = GeneralSettings.instance.weightImperial;
+    GeneralSettings.instance.addListener(_onUnitsChanged);
     _today = DateTime.now();
     final daysFromSunday = _today.weekday % 7;
     _weekStart = _today.subtract(Duration(days: daysFromSunday));
+  }
+
+  void _onUnitsChanged() {
+    if (mounted) {
+      setState(() => _useLbs = GeneralSettings.instance.weightImperial);
+    }
+  }
+
+  @override
+  void dispose() {
+    GeneralSettings.instance.removeListener(_onUnitsChanged);
+    super.dispose();
   }
 
   // ─── Weight Logger Bottom Sheet ─────────────────────────────────────────────
@@ -64,8 +77,18 @@ class _ReportPageState extends State<ReportPage> {
 
     String dateLabel() {
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       return '${months[_today.month - 1]} ${_today.day}, ${_today.year}';
     }
@@ -77,8 +100,9 @@ class _ReportPageState extends State<ReportPage> {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheet) {
-            final displayWeight =
-                localUseLbs ? pickedWeightLbs : pickedWeightLbs / 2.20462;
+            final displayWeight = localUseLbs
+                ? pickedWeightLbs
+                : pickedWeightLbs / 2.20462;
 
             return Container(
               decoration: const BoxDecoration(
@@ -114,7 +138,10 @@ class _ReportPageState extends State<ReportPage> {
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF3F4F6),
                           borderRadius: BorderRadius.circular(20),
@@ -245,7 +272,10 @@ class _ReportPageState extends State<ReportPage> {
                             setState(() {
                               _currentWeightLbs = pickedWeightLbs;
                               _useLbs = localUseLbs;
-                              _updateWeightDataPoint(_today.day, pickedWeightLbs);
+                              _updateWeightDataPoint(
+                                _today.day,
+                                pickedWeightLbs,
+                              );
                             });
                             Navigator.of(ctx).pop();
                           },
@@ -300,7 +330,7 @@ class _ReportPageState extends State<ReportPage> {
     final vm = context.read<HomeViewModel>();
     final initialHeightCm = vm.profile?.heightCm ?? 170;
 
-    bool localUseFt = true;
+    bool localUseFt = GeneralSettings.instance.heightImperial;
     int pickedHeightCm = initialHeightCm;
 
     await showModalBottomSheet(
@@ -659,11 +689,23 @@ class _ReportPageState extends State<ReportPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildStatItem(icon: _medalIcon(), value: '$_workoutCount', label: 'Workout'),
+            _buildStatItem(
+              icon: _medalIcon(),
+              value: '$_workoutCount',
+              label: 'Workout',
+            ),
             _buildDivider(),
-            _buildStatItem(icon: _fireIcon(), value: '$_kcalBurned', label: 'Kcal'),
+            _buildStatItem(
+              icon: _fireIcon(),
+              value: '$_kcalBurned',
+              label: 'Kcal',
+            ),
             _buildDivider(),
-            _buildStatItem(icon: _clockIcon(), value: '$_minutesTrained', label: 'Minute'),
+            _buildStatItem(
+              icon: _clockIcon(),
+              value: '$_minutesTrained',
+              label: 'Minute',
+            ),
           ],
         ),
       ),
@@ -753,7 +795,8 @@ class _ReportPageState extends State<ReportPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (i) {
                 final date = _weekStart.add(Duration(days: i));
-                final isToday = date.day == _today.day &&
+                final isToday =
+                    date.day == _today.day &&
                     date.month == _today.month &&
                     date.year == _today.year;
 
@@ -835,7 +878,9 @@ class _ReportPageState extends State<ReportPage> {
   // ─── Weight Card ────────────────────────────────────────────────────────────
 
   Widget _buildWeightCard() {
-    final currentDisplay = _useLbs ? _currentWeightLbs : (_currentWeightLbs / 2.20462);
+    final currentDisplay = _useLbs
+        ? _currentWeightLbs
+        : (_currentWeightLbs / 2.20462);
     final unitLabel = _useLbs ? 'lbs' : 'kg';
 
     final heaviestLbs = _weightData.isEmpty
@@ -901,7 +946,10 @@ class _ReportPageState extends State<ReportPage> {
                       children: [
                         const Text(
                           'Heaviest ',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF9CA3AF),
+                          ),
                         ),
                         Text(
                           heaviestDisplay.toStringAsFixed(1),
@@ -918,7 +966,10 @@ class _ReportPageState extends State<ReportPage> {
                       children: [
                         const Text(
                           'Lightest   ',
-                          style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF9CA3AF),
+                          ),
                         ),
                         Text(
                           lightestDisplay.toStringAsFixed(1),
@@ -953,10 +1004,12 @@ class _ReportPageState extends State<ReportPage> {
               height: 140,
               child: _WeightChart(
                 data: _weightData
-                    .map((e) => _WeightPoint(
-                          e.day,
-                          _useLbs ? e.value : e.value / 2.20462,
-                        ))
+                    .map(
+                      (e) => _WeightPoint(
+                        e.day,
+                        _useLbs ? e.value : e.value / 2.20462,
+                      ),
+                    )
                     .toList(),
                 currentValue: currentDisplay,
                 todayDay: _today.day,
@@ -1154,27 +1207,37 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Widget _medalIcon() => SizedBox(
-        width: 38,
-        height: 38,
-        child: CustomPaint(painter: _MedalIconPainter()),
-      );
+    width: 38,
+    height: 38,
+    child: CustomPaint(painter: _MedalIconPainter()),
+  );
 
   Widget _fireIcon() => SizedBox(
-        width: 38,
-        height: 38,
-        child: CustomPaint(painter: _FlameIconPainter()),
-      );
+    width: 38,
+    height: 38,
+    child: CustomPaint(painter: _FlameIconPainter()),
+  );
 
   Widget _clockIcon() => SizedBox(
-        width: 38,
-        height: 38,
-        child: CustomPaint(painter: _ClockIconPainter()),
-      );
+    width: 38,
+    height: 38,
+    child: CustomPaint(painter: _ClockIconPainter()),
+  );
 
   String _monthName(int month) {
     const names = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return names[month - 1];
   }
@@ -1238,7 +1301,9 @@ class _WeightChartPainter extends CustomPainter {
       fontWeight: FontWeight.w500,
     );
 
-    final allValues = data.isEmpty ? [currentValue] : data.map((e) => e.value).toList();
+    final allValues = data.isEmpty
+        ? [currentValue]
+        : data.map((e) => e.value).toList();
     final minDataVal = allValues.reduce(math.min);
     final maxDataVal = allValues.reduce(math.max);
     final span = maxDataVal - minDataVal;
@@ -1314,7 +1379,10 @@ class _WeightChartPainter extends CustomPainter {
       final points = <Offset>[];
       for (final pt in sortedData) {
         if (pt.day < startDay || pt.day > endDay) continue;
-        final xFrac = ((pt.day - startDay) / (endDay - startDay)).clamp(0.0, 1.0);
+        final xFrac = ((pt.day - startDay) / (endDay - startDay)).clamp(
+          0.0,
+          1.0,
+        );
         final yFrac = ((pt.value - minVal) / (maxVal - minVal)).clamp(0.0, 1.0);
         final x = leftPad + xFrac * chartW;
         final y = topPad + chartH * (1.0 - yFrac);

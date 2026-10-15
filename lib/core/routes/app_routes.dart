@@ -19,6 +19,9 @@ import '../../views/pro/pro_plan_view.dart';
 import '../../views/search/search_view.dart';
 import '../../views/settings/workout_settings_view.dart';
 import '../../views/settings/gender_settings_view.dart';
+import '../../views/settings/general_settings_view.dart';
+import '../../views/settings/reminder_view.dart';
+import '../../views/settings/voice_options_view.dart';
 import '../../views/splash/splash_view.dart';
 
 class AppRoutes {
@@ -38,6 +41,9 @@ class AppRoutes {
   static const String keepFitMore = '/keep-fit-more';
   static const String workoutSettings = '/workout-settings';
   static const String genderSettings = '/gender-settings';
+  static const String generalSettings = '/general-settings';
+  static const String reminders = '/reminders';
+  static const String voiceOptions = '/voice-options';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -83,6 +89,12 @@ class AppRoutes {
         return _fade(settings, const WorkoutSettingsView());
       case genderSettings:
         return _fade(settings, const GenderSettingsView());
+      case generalSettings:
+        return _fade(settings, const GeneralSettingsView());
+      case reminders:
+        return _fade(settings, const ReminderView());
+      case voiceOptions:
+        return _fade(settings, const VoiceOptionsView());
       case splash:
       default:
         return _fade(

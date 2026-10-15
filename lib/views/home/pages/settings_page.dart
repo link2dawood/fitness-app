@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../settings/feature_suggestions_sheet.dart';
+import '../../settings/language_options_dialog.dart';
+import '../../../core/settings/general_settings.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -156,40 +159,33 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFF2196F3),
                   icon: Icons.settings_rounded,
                   title: 'General Settings',
-                  onTap: () => _showUnavailable(
-                    'General Settings',
-                    'General preferences are not available yet.',
-                  ),
+                  onTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(AppRoutes.generalSettings),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFFFFA000),
                   icon: Icons.mic_rounded,
                   title: 'Voice Options (TTS)',
-                  onTap: () => _showUnavailable(
-                    'Voice Options (TTS)',
-                    'Voice guidance is not available yet.',
-                  ),
+                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.voiceOptions),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
                   iconBgColor: const Color(0xFF00BCD4),
                   icon: Icons.chat_bubble_rounded,
                   title: 'Suggest Other Features',
-                  onTap: () => _showUnavailable(
-                    'Suggest Other Features',
-                    'Feature suggestions require a configured support contact.',
-                  ),
+                  onTap: () => showFeatureSuggestions(context),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
-                _buildSettingTile(
-                  iconBgColor: const Color(0xFF7E57C2),
-                  icon: Icons.public_rounded,
-                  title: 'Language Options',
-                  subtitle: 'Default',
-                  onTap: () => _showUnavailable(
-                    'Language Options',
-                    'English is currently the only supported language.',
+                ListenableBuilder(
+                  listenable: GeneralSettings.instance,
+                  builder: (context, _) => _buildSettingTile(
+                    iconBgColor: const Color(0xFF7E57C2),
+                    icon: Icons.public_rounded,
+                    title: 'Language Options',
+                    subtitle: GeneralSettings.instance.language.label,
+                    onTap: () => showLanguageOptions(context),
                   ),
                 ),
               ],

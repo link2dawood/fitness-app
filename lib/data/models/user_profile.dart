@@ -70,12 +70,15 @@ class UserProfile {
     this.motivation,
     this.level,
     this.activityLevel,
-    this.age = 25,
+    int age = 25,
+    this.dateOfBirth,
     this.heightCm = 170,
     this.weightKg = 70,
     this.workoutDaysPerWeek = 4,
     this.firstDayOfWeek = 'SUNDAY',
-  });
+    // Preserve the public age parameter while deriving age from DOB when set.
+    // ignore: prefer_initializing_formals
+  }) : _age = age;
 
   final Gender? gender;
   final Set<FocusArea> focusAreas;
@@ -83,7 +86,19 @@ class UserProfile {
   final Motivation? motivation;
   final FitnessLevel? level;
   final ActivityLevel? activityLevel;
-  final int age;
+  final int _age;
+  final DateTime? dateOfBirth;
+
+  int get age {
+    final birth = dateOfBirth;
+    if (birth == null) return _age;
+    final today = DateTime.now();
+    final birthdayPending =
+        today.month < birth.month ||
+        (today.month == birth.month && today.day < birth.day);
+    return today.year - birth.year - (birthdayPending ? 1 : 0);
+  }
+
   final int heightCm;
   final int weightKg;
   final int workoutDaysPerWeek;
@@ -103,6 +118,7 @@ class UserProfile {
     FitnessLevel? level,
     ActivityLevel? activityLevel,
     int? age,
+    DateTime? dateOfBirth,
     int? heightCm,
     int? weightKg,
     int? workoutDaysPerWeek,
@@ -116,6 +132,7 @@ class UserProfile {
       level: level ?? this.level,
       activityLevel: activityLevel ?? this.activityLevel,
       age: age ?? this.age,
+      dateOfBirth: dateOfBirth ?? (age == null ? this.dateOfBirth : null),
       heightCm: heightCm ?? this.heightCm,
       weightKg: weightKg ?? this.weightKg,
       workoutDaysPerWeek: workoutDaysPerWeek ?? this.workoutDaysPerWeek,
@@ -124,18 +141,19 @@ class UserProfile {
   }
 
   Map<String, dynamic> toJson() => {
-        'gender': gender?.name,
-        'focusAreas': focusAreas.map((e) => e.name).toList(),
-        'goal': goal?.name,
-        'motivation': motivation?.name,
-        'level': level?.name,
-        'activityLevel': activityLevel?.name,
-        'age': age,
-        'heightCm': heightCm,
-        'weightKg': weightKg,
-        'workoutDaysPerWeek': workoutDaysPerWeek,
-        'firstDayOfWeek': firstDayOfWeek,
-      };
+    'gender': gender?.name,
+    'focusAreas': focusAreas.map((e) => e.name).toList(),
+    'goal': goal?.name,
+    'motivation': motivation?.name,
+    'level': level?.name,
+    'activityLevel': activityLevel?.name,
+    'age': age,
+    'dateOfBirth': dateOfBirth?.toIso8601String(),
+    'heightCm': heightCm,
+    'weightKg': weightKg,
+    'workoutDaysPerWeek': workoutDaysPerWeek,
+    'firstDayOfWeek': firstDayOfWeek,
+  };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
     T? parse<T extends Enum>(List<T> values, String? name) {
@@ -157,8 +175,12 @@ class UserProfile {
       goal: parse(FitnessGoal.values, json['goal'] as String?),
       motivation: parse(Motivation.values, json['motivation'] as String?),
       level: parse(FitnessLevel.values, json['level'] as String?),
-      activityLevel: parse(ActivityLevel.values, json['activityLevel'] as String?),
+      activityLevel: parse(
+        ActivityLevel.values,
+        json['activityLevel'] as String?,
+      ),
       age: json['age'] as int? ?? 25,
+      dateOfBirth: DateTime.tryParse(json['dateOfBirth'] as String? ?? ''),
       heightCm: json['heightCm'] as int? ?? 170,
       weightKg: json['weightKg'] as int? ?? 70,
       workoutDaysPerWeek: json['workoutDaysPerWeek'] as int? ?? 4,

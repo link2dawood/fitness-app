@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/settings/general_settings.dart';
 import '../../../viewmodels/onboarding_viewmodel.dart';
 import '../widgets/step_scaffold.dart';
 import '../widgets/ruler_picker.dart';
@@ -32,8 +33,8 @@ class BodyMetricsStep extends StatefulWidget {
 }
 
 class _BodyMetricsStepState extends State<BodyMetricsStep> {
-  bool _heightImperial = false;
-  bool _weightImperial = false;
+  bool _heightImperial = GeneralSettings.instance.heightImperial;
+  bool _weightImperial = GeneralSettings.instance.weightImperial;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +104,9 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
             ),
             const SizedBox(height: 20),
             _ValueDisplay(
-              value: _heightImperial ? "${ftIn.feet}' ${ftIn.inches}\"" : '${p.heightCm}',
+              value: _heightImperial
+                  ? "${ftIn.feet}' ${ftIn.inches}\""
+                  : '${p.heightCm}',
               unit: _heightImperial ? '' : 'cm',
             ),
             const SizedBox(height: 20),
@@ -122,19 +125,13 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
                     visualTicksPerStep: 1,
                     onChanged: vm.updateHeight,
                   ),
-            
+
             const SizedBox(height: 50),
 
             // ── Age ──────────────────────────────────────────────────────────
-            _HeaderRow(
-              title: 'Age',
-              toggle: const SizedBox(),
-            ),
+            _HeaderRow(title: 'Age', toggle: const SizedBox()),
             const SizedBox(height: 20),
-            _ValueDisplay(
-              value: '${p.age}',
-              unit: 'years',
-            ),
+            _ValueDisplay(value: '${p.age}', unit: 'years'),
             const SizedBox(height: 20),
             RulerPicker(
               value: p.age,
