@@ -11,6 +11,7 @@ import '../../views/home/pages/build_muscle_more_page.dart';
 import '../../views/home/pages/burn_fat_more_page.dart';
 import '../../views/home/pages/just_for_you_page.dart';
 import '../../views/home/pages/keep_fit_more_page.dart';
+import '../../views/home/pages/custom_workout_page.dart';
 import '../../views/home/pages/stretch_warm_up_page.dart';
 import '../../views/onboarding/onboarding_view.dart';
 import '../../views/plan/plan_generation_view.dart';
@@ -38,6 +39,7 @@ class AppRoutes {
   static const String justForYou = '/just-for-you';
   static const String buildMuscleMore = '/build-muscle-more';
   static const String burnFatMore = '/burn-fat-more';
+  static const String customWorkout = '/custom-workout';
   static const String keepFitMore = '/keep-fit-more';
   static const String workoutSettings = '/workout-settings';
   static const String genderSettings = '/gender-settings';
@@ -83,6 +85,8 @@ class AppRoutes {
         return _fade(settings, const BuildMuscleMorePage());
       case burnFatMore:
         return _fade(settings, const BurnFatMorePage());
+      case customWorkout:
+        return _fade(settings, const CustomWorkoutPage());
       case keepFitMore:
         return _fade(settings, const KeepFitMorePage());
       case workoutSettings:
