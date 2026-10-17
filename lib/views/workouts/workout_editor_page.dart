@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../data/models/exercise.dart';
 import '../../data/repositories/custom_workout_repository.dart';
 import '../../widgets/exercises/exercise_avatar.dart';
 import 'exercise_picker.dart';
@@ -359,8 +360,8 @@ class _WorkoutEditorPageState extends State<WorkoutEditorPage> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Choose from 11 original animated demonstrations.',
+                    Text(
+                      'Choose from ${exerciseCatalog.length} original animated demonstrations.',
                       textAlign: TextAlign.center,
                     ),
                   ],

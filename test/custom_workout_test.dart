@@ -53,16 +53,87 @@ void main() {
   test(
     'Every starter exercise has a unique original motion and default target',
     () {
-      expect(exerciseCatalog.length, 11);
-      expect(exerciseCatalog.map((exercise) => exercise.id).toSet().length, 11);
+      expect(exerciseCatalog.length, 48);
+      expect(exerciseCatalog.map((exercise) => exercise.id).toSet().length, 48);
       expect(
         exerciseCatalog.map((exercise) => exercise.motion).toSet().length,
-        11,
+        48,
       );
       expect(
         exerciseCatalog.where((exercise) => exercise.recommended).length,
         5,
       );
+    },
+  );
+
+  test(
+    'New video exercises retain their defaults when saved together',
+    () async {
+      final added = exerciseCatalog.skip(11).take(16).toList();
+      expect(added.length, 16);
+      expect(added.where((e) => e.timed).length, 6);
+      for (final exercise in added) {
+        expect(exercise.target, exercise.timed ? 20 : 10);
+        expect(exercise.description, isNotEmpty);
+      }
+      final now = DateTime.now().toUtc();
+      final workout = CustomWorkout(
+        id: 'video-batch',
+        name: 'Video exercises',
+        difficulty: 'Beginner',
+        createdAt: now,
+        updatedAt: now,
+        entries: [
+          for (final e in added)
+            WorkoutEntry(id: e.id, exerciseId: e.id, target: e.target),
+        ],
+      );
+      final repo = CustomWorkoutRepository();
+      await repo.save(workout);
+      final saved = (await repo.load()).single;
+      expect(saved.entries.map((e) => e.exerciseId), added.map((e) => e.id));
+      expect(saved.entries.map((e) => e.target), added.map((e) => e.target));
+      expect(
+        saved.entries.map((e) => e.exercise.name),
+        added.map((e) => e.name),
+      );
+    },
+  );
+
+  test(
+    'Second video batch preserves side and timed variants in storage',
+    () async {
+      final batch = exerciseCatalog.skip(27).toList();
+      expect(batch.length, 21);
+      expect(batch.where((e) => e.timed).length, 6);
+      for (final e in batch) {
+        expect(e.target, e.timed ? 20 : 10);
+      }
+      expect(exerciseById('backward_lunge').timed, isFalse);
+      expect(exerciseById('backward_lunge_timed').timed, isTrue);
+      expect(exerciseById('butt_bridge').timed, isFalse);
+      expect(exerciseById('butt_bridge_timed').timed, isTrue);
+      final now = DateTime.now().toUtc();
+      final repo = CustomWorkoutRepository();
+      await repo.save(
+        CustomWorkout(
+          id: 'second-video',
+          name: 'Second batch',
+          difficulty: 'Beginner',
+          createdAt: now,
+          updatedAt: now,
+          entries: [
+            for (final e in batch)
+              WorkoutEntry(id: e.id, exerciseId: e.id, target: e.target),
+          ],
+        ),
+      );
+      final restored = (await repo.load()).single;
+      expect(
+        restored.entries.map((e) => e.exercise.id),
+        batch.map((e) => e.id),
+      );
+      expect(restored.entries.map((e) => e.target), batch.map((e) => e.target));
     },
   );
 
@@ -141,12 +212,12 @@ void main() {
     );
     await tester.tap(find.text('Open picker'));
     await tester.pumpAndSettle();
-    expect(find.text('All Areas (11)'), findsOneWidget);
+    expect(find.text('All Areas (48)'), findsOneWidget);
     await tester.tap(find.byTooltip('Filter body area'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Abs'));
     await tester.pumpAndSettle();
-    expect(find.text('Abs (2)'), findsOneWidget);
+    expect(find.text('Abs (7)'), findsOneWidget);
     await tester.tap(find.byTooltip('Filter body area'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('All Areas'));
