@@ -29,6 +29,24 @@ class OnboardingRepository {
     return UserProfile.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   }
 
+  Future<UserProfile> saveTrainingPreferences(int days, String firstDay) async {
+    if (days < 1 || days > 7 || !['SUNDAY', 'MONDAY'].contains(firstDay)) {
+      throw ArgumentError('Invalid training preferences');
+    }
+    // Merge the latest persisted profile so editing a goal cannot overwrite
+    // demographic edits made in another screen, or mark onboarding complete.
+    final current = await loadProfile() ?? const UserProfile();
+    final next = current.copyWith(
+      workoutDaysPerWeek: days,
+      firstDayOfWeek: firstDay,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    if (!await prefs.setString(_profileKey, jsonEncode(next.toJson()))) {
+      throw StateError('Could not save training preferences');
+    }
+    return next;
+  }
+
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_profileKey);

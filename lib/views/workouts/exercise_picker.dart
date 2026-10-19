@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/exercise.dart';
+import 'exercise_filters.dart';
+export 'exercise_detail.dart' show showExercisePreview;
+import 'exercise_detail.dart';
 import '../../widgets/exercises/exercise_avatar.dart';
 
 Future<List<ExerciseDefinition>?> pickExercises(BuildContext context) =>
@@ -15,59 +18,6 @@ Future<List<ExerciseDefinition>?> pickExercises(BuildContext context) =>
       builder: (_) => const _ExercisePicker(),
     );
 
-Future<void> showExercisePreview(
-  BuildContext context,
-  ExerciseDefinition exercise,
-) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
-  showDragHandle: true,
-  backgroundColor: Colors.white,
-  builder: (ctx) => SafeArea(
-    child: SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            exercise.name,
-            style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w800),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: 280,
-            height: 280,
-            child: ExerciseAvatar(exercise: exercise),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '${exercise.area.label} • ${exercise.timed ? '${exercise.target} seconds' : '${exercise.target} reps'}',
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            exercise.description,
-            textAlign: TextAlign.center,
-            style: const TextStyle(height: 1.5),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Done'),
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-);
-
 class _ExercisePicker extends StatefulWidget {
   const _ExercisePicker();
   @override
@@ -77,7 +27,7 @@ class _ExercisePicker extends StatefulWidget {
 class _ExercisePickerState extends State<_ExercisePicker> {
   final _search = TextEditingController();
   final _selected = <String>{};
-  ExerciseArea? _area;
+  ExerciseFilters _filters = ExerciseFilters();
   @override
   void dispose() {
     _search.dispose();
@@ -90,7 +40,7 @@ class _ExercisePickerState extends State<_ExercisePicker> {
     final filtered = exerciseCatalog
         .where(
           (exercise) =>
-              (_area == null || exercise.area == _area) &&
+              _filters.matches(exercise) &&
               ('${exercise.name} ${exercise.area.label}'.toLowerCase().contains(
                 query,
               )),
@@ -141,31 +91,30 @@ class _ExercisePickerState extends State<_ExercisePicker> {
                   ),
                 ],
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: PopupMenuButton<String>(
-                  tooltip: 'Filter body area',
-                  onSelected: (value) => setState(
-                    () => _area = value == 'all'
-                        ? null
-                        : ExerciseArea.values.firstWhere(
-                            (area) => area.name == value,
-                          ),
-                  ),
-                  itemBuilder: (_) => [
-                    const PopupMenuItem(value: 'all', child: Text('All Areas')),
-                    for (final area in ExerciseArea.values)
-                      PopupMenuItem(value: area.name, child: Text(area.label)),
-                  ],
-                  child: Chip(
-                    avatar: const Icon(Icons.filter_alt, size: 18),
-                    label: Text(
-                      '${_area?.label ?? 'All Areas'} (${filtered.length})',
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${_filters.count == 0 ? 'All Exercises' : 'Filtered'} (${filtered.length})',
                     ),
-                    side: BorderSide.none,
-                    backgroundColor: AppColors.surface,
                   ),
-                ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      final result = await showExerciseFilters(
+                        context,
+                        _filters,
+                        query: query,
+                      );
+                      if (result != null && mounted) {
+                        setState(() => _filters = result);
+                      }
+                    },
+                    icon: const Icon(Icons.tune),
+                    label: Text(
+                      'Filters${_filters.count == 0 ? '' : ' (${_filters.count})'}',
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               TextField(
@@ -193,7 +142,9 @@ class _ExercisePickerState extends State<_ExercisePicker> {
               Expanded(
                 child: rows.isEmpty
                     ? const Center(
-                        child: Text('No exercises match your search.'),
+                        child: Text(
+                          'No exercises match. Try changing your search or filters.',
+                        ),
                       )
                     : ListView.builder(
                         itemCount: rows.length,
@@ -247,10 +198,11 @@ class _ExercisePickerState extends State<_ExercisePicker> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            onTap: toggle,
+                            onTap: () => showExercisePreview(context, exercise),
                             onLongPress: () =>
                                 showExercisePreview(context, exercise),
                             trailing: Checkbox(
+                              key: ValueKey('select_${exercise.id}'),
                               value: _selected.contains(exercise.id),
                               activeColor: AppColors.primary,
                               onChanged: (_) => toggle(),

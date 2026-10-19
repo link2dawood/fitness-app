@@ -10,6 +10,7 @@ import '../../views/home/home_view.dart';
 import '../../views/home/pages/build_muscle_more_page.dart';
 import '../../views/home/pages/burn_fat_more_page.dart';
 import '../../views/home/pages/just_for_you_page.dart';
+import '../../views/home/pages/challenge_page.dart';
 import '../../views/home/pages/keep_fit_more_page.dart';
 import '../../views/home/pages/custom_workout_page.dart';
 import '../../views/home/pages/stretch_warm_up_page.dart';
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String pro = '/pro';
   static const String search = '/search';
+  static const String challenge = '/training-challenges';
   static const String stretchWarmUp = '/stretch-warm-up';
   static const String justForYou = '/just-for-you';
   static const String buildMuscleMore = '/build-muscle-more';
@@ -75,12 +77,20 @@ class AppRoutes {
         );
       case pro:
         return _fade(settings, const ProPlanView());
+      case challenge:
+        return _fade(
+          settings,
+          ChallengePage(profile: settings.arguments as UserProfile?),
+        );
       case search:
         return _fade(settings, const SearchView());
       case stretchWarmUp:
         return _fade(settings, const StretchWarmUpPage());
       case justForYou:
-        return _fade(settings, const JustForYouPage());
+        return _fade(
+          settings,
+          JustForYouPage(profile: settings.arguments as UserProfile?),
+        );
       case buildMuscleMore:
         return _fade(settings, const BuildMuscleMorePage());
       case burnFatMore:

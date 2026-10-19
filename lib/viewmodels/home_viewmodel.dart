@@ -1,10 +1,20 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/models/user_profile.dart';
+import '../data/repositories/training_history_repository.dart';
 import '../data/repositories/onboarding_repository.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  HomeViewModel(this._repository);
+  HomeViewModel(this._repository) {
+    TrainingHistoryRepository.instance.addListener(_historyChanged);
+  }
+  String? historyError;
+  void _historyChanged() => notifyListeners();
+  @override
+  void dispose() {
+    TrainingHistoryRepository.instance.removeListener(_historyChanged);
+    super.dispose();
+  }
 
   final OnboardingRepository _repository;
 
@@ -46,6 +56,13 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> load() async {
     _profile = await _repository.loadProfile();
+    try {
+      await TrainingHistoryRepository.instance.load();
+      historyError = null;
+    } catch (_) {
+      historyError =
+          'Could not load training history. Retry before starting a session.';
+    }
     _isLoading = false;
     notifyListeners();
   }
@@ -61,6 +78,12 @@ class HomeViewModel extends ChangeNotifier {
     final current = _profile ?? const UserProfile();
     _profile = current.copyWith(heightCm: heightCm);
     await _repository.saveProfile(_profile!);
+    notifyListeners();
+  }
+
+  Future<void> updateTrainingPreferences(int days, String firstDay) async {
+    final saved = await _repository.saveTrainingPreferences(days, firstDay);
+    _profile = saved;
     notifyListeners();
   }
 

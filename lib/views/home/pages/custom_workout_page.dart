@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/training_workout.dart';
+import '../../../data/models/exercise.dart';
+import '../../workouts/training_workout_page.dart';
 import '../../../data/repositories/custom_workout_repository.dart';
 import '../../../widgets/exercises/exercise_avatar.dart';
 import '../../workouts/workout_editor_page.dart';
@@ -197,10 +200,44 @@ class _CustomWorkoutPageState extends State<CustomWorkoutPage> {
                     '${workout.difficulty} • ${workout.entries.length} exercises',
                   ),
                   onTap: _busy ? null : () => _edit(workout),
-                  trailing: IconButton(
-                    tooltip: 'Delete ${workout.name}',
-                    onPressed: _busy ? null : () => _delete(workout),
-                    icon: const Icon(Icons.delete_outline),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Start ${workout.name}',
+                        icon: const Icon(Icons.play_arrow),
+                        onPressed: _busy || workout.entries.isEmpty
+                            ? null
+                            : () => openTrainingWorkout(
+                                context,
+                                TrainingWorkout(
+                                  id: 'custom_${workout.id}',
+                                  title: workout.name,
+                                  difficulty: workout.difficulty == 'Advanced'
+                                      ? ExerciseDifficulty.hard
+                                      : workout.difficulty == 'Intermediate'
+                                      ? ExerciseDifficulty.medium
+                                      : ExerciseDifficulty.easy,
+                                  type: ExerciseType.training,
+                                  image: 'assets/images/workouts/abs.jpg',
+                                  exerciseIds: workout.entries
+                                      .map((e) => e.exerciseId)
+                                      .toList(),
+                                  targets: workout.entries
+                                      .map((e) => e.target)
+                                      .toList(),
+                                  restSeconds: workout.entries
+                                      .map((e) => e.restSeconds)
+                                      .toList(),
+                                ),
+                              ),
+                      ),
+                      IconButton(
+                        tooltip: 'Delete ${workout.name}',
+                        onPressed: _busy ? null : () => _delete(workout),
+                        icon: const Icon(Icons.delete_outline),
+                      ),
+                    ],
                   ),
                 ),
               );

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../viewmodels/home_viewmodel.dart';
+import '../../core/theme/app_colors.dart';
 import 'pages/discover_page.dart';
 import 'pages/report_page.dart';
 import 'pages/settings_page.dart';
@@ -24,10 +25,7 @@ class HomeView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: IndexedStack(
-        index: vm.currentTab,
-        children: pages,
-      ),
+      body: IndexedStack(index: vm.currentTab, children: pages),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -86,35 +84,54 @@ class HomeView extends StatelessWidget {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    const activeBlue = Color(0xFF0062FF);
-    const inactiveGrey = Color(0xFF9CA3AF);
+    const activeAccent = AppColors.primary;
+    const inactiveGrey = AppColors.textSecondary;
 
-    return InkWell(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 24,
-              color: isSelected ? activeBlue : inactiveGrey,
-            ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? activeBlue : inactiveGrey,
+    void activate() {
+      HapticFeedback.selectionClick();
+      onTap();
+    }
+
+    return Expanded(
+      child: Semantics(
+        container: true,
+        button: true,
+        selected: isSelected,
+        label: '$label tab',
+        onTap: activate,
+        child: ExcludeSemantics(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: InkWell(
+              onTap: activate,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 24,
+                      color: isSelected ? activeAccent : inactiveGrey,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
+                        color: isSelected ? activeAccent : inactiveGrey,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

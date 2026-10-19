@@ -21,11 +21,33 @@ class AppTheme {
           statusBarIconBrightness: Brightness.dark,
         ),
       ),
-      colorScheme: const ColorScheme.light(
+      colorScheme: ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: AppColors.onPrimary,
+        primaryContainer: AppColors.primary.withValues(alpha: .15),
+        onPrimaryContainer: AppColors.textPrimary,
+        secondary: AppColors.primary,
+        onSecondary: AppColors.onPrimary,
+        secondaryContainer: AppColors.primary.withValues(alpha: .15),
+        onSecondaryContainer: AppColors.textPrimary,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: AppColors.surface,
+        selectedColor: AppColors.primary.withValues(alpha: .15),
+        secondarySelectedColor: AppColors.primary.withValues(alpha: .15),
+        checkmarkColor: AppColors.primary,
+        shape: const StadiumBorder(),
+        side: const BorderSide(color: AppColors.border),
+        labelStyle: const TextStyle(color: AppColors.textPrimary),
+        secondaryLabelStyle: const TextStyle(color: AppColors.textPrimary),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          tapTargetSize: MaterialTapTargetSize.padded,
+        ),
       ),
       textTheme: base.textTheme.apply(
         bodyColor: AppColors.textPrimary,
