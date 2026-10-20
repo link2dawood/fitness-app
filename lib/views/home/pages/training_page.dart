@@ -15,6 +15,7 @@ import '../../settings/feature_suggestions_sheet.dart';
 import 'training_collection_page.dart';
 import '../../../widgets/training_feature_cards.dart';
 import '../../workouts/training_workout_page.dart';
+import '../../workouts/challenge_day_page.dart';
 
 class TrainingPage extends StatefulWidget {
   const TrainingPage({super.key});
@@ -315,6 +316,16 @@ class _TrainingPageState extends State<TrainingPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 14),
+                        child: SizedBox(
+                          width: (MediaQuery.sizeOf(context).width - 56).clamp(
+                            240.0,
+                            320.0,
+                          ),
+                          child: const ReferenceChallengeCard(),
+                        ),
+                      ),
                       if (recommended.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(right: 14),

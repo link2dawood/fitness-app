@@ -20,7 +20,19 @@ Future<void> showExercisePreview(
 );
 
 class ExerciseDetailCard extends StatefulWidget {
-  const ExerciseDetailCard({super.key, required this.exercise});
+  const ExerciseDetailCard({
+    super.key,
+    required this.exercise,
+    this.avatar,
+    this.footer,
+    this.headerAction,
+    this.targetControls,
+    this.onClose,
+    this.accent = AppColors.primary,
+  });
+  final Widget? avatar, footer, headerAction, targetControls;
+  final Color accent;
+  final VoidCallback? onClose;
   final ExerciseDefinition exercise;
   @override
   State<ExerciseDetailCard> createState() => _ExerciseDetailCardState();
@@ -33,8 +45,8 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
     padding: const EdgeInsets.only(top: 24, bottom: 12),
     child: Text(
       text,
-      style: const TextStyle(
-        color: AppColors.primary,
+      style: TextStyle(
+        color: widget.accent,
         fontSize: 16,
         fontWeight: FontWeight.w800,
       ),
@@ -92,9 +104,10 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                       ),
                     ),
                   ),
+                  if (widget.headerAction != null) widget.headerAction!,
                   IconButton(
                     tooltip: 'Close exercise details',
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: widget.onClose ?? () => Navigator.pop(context),
                     icon: const Icon(Icons.cancel, color: Colors.grey),
                   ),
                 ],
@@ -117,7 +130,9 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                                 child: SizedBox(
                                   width: 260,
                                   height: 260,
-                                  child: ExerciseAvatar(exercise: exercise),
+                                  child:
+                                      widget.avatar ??
+                                      ExerciseAvatar(exercise: exercise),
                                 ),
                               )
                             : view == 1
@@ -156,7 +171,7 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                                   ),
                                   selected: view == index,
                                   showCheckmark: false,
-                                  selectedColor: AppColors.primary,
+                                  selectedColor: widget.accent,
                                   onSelected: (_) =>
                                       setState(() => view = index),
                                 ),
@@ -166,15 +181,15 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 24),
-                        child: Row(
+                        child: Wrap(
+                          spacing: 16,
+                          runSpacing: 8,
                           children: [
-                            Expanded(
-                              child: Text(
-                                exercise.timed ? 'DURATION' : 'REPEATS',
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                            Text(
+                              exercise.timed ? 'DURATION' : 'REPEATS',
+                              style: TextStyle(
+                                color: widget.accent,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                             Text(
@@ -188,6 +203,7 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                           ],
                         ),
                       ),
+                      if (widget.targetControls != null) widget.targetControls!,
                       heading('INSTRUCTIONS'),
                       paragraph(guidance.setup),
                       paragraph(guidance.movement),
@@ -216,18 +232,19 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                 ),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
+              widget.footer ??
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: widget.accent,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: widget.onClose ?? () => Navigator.pop(context),
+                      child: const Text('Done'),
+                    ),
                   ),
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Done'),
-                ),
-              ),
             ],
           ),
         ),

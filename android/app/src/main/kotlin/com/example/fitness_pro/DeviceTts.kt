@@ -3,6 +3,7 @@ package com.example.fitness_pro
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
@@ -135,6 +136,14 @@ class DeviceTts(private val activity: Activity) : MethodChannel.MethodCallHandle
         try {
             when (call.method) {
                 "getState" -> result.success(state(engine))
+                "speak" -> {
+                    val text = call.argument<String>("text")?.trim().orEmpty()
+                    if (text.isEmpty()) { result.error("invalid_text", "Speech text is empty.", null); return }
+                    val params = Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, (call.argument<Double>("volume") ?: 0.8).coerceIn(0.0, 1.0).toFloat()) }
+                    if (engine.speak(text, TextToSpeech.QUEUE_FLUSH, params, "workout-coaching") == TextToSpeech.ERROR) {
+                        result.error("speak_failed", "Could not speak this workout cue.", null)
+                    } else result.success(null)
+                }
                 "testVoice" -> {
                     if (engine.speak("Get ready for your workout. Let's make today a great day!", TextToSpeech.QUEUE_FLUSH, null, "voice-preview") == TextToSpeech.ERROR) {
                         result.error("speak_failed", "Could not play this voice. Download the language data or select another engine.", null)
