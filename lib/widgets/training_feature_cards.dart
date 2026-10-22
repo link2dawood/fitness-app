@@ -127,36 +127,41 @@ class TrainingChallengeCard extends StatelessWidget {
               ],
             ),
           const SizedBox(height: 20),
-          LayoutBuilder(
-            builder: (context, box) => Wrap(
-              spacing: 12,
-              runSpacing: 14,
+          for (var row = 0; row < (large ? 4 : 2); row++) ...[
+            if (row > 0) const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final item in <(IconData, String, String)>[
-                  (
-                    Icons.schedule,
-                    '~${workout.estimatedMinutes} min',
-                    'Workout time',
+                for (var column = 0; column < (large ? 1 : 2); column++) ...[
+                  if (column > 0) const SizedBox(width: 12),
+                  Expanded(
+                    child: switch (row * (large ? 1 : 2) + column) {
+                      0 => stat(
+                        Icons.schedule,
+                        '~${workout.estimatedMinutes} min',
+                        'Workout time',
+                      ),
+                      1 => stat(
+                        Icons.bar_chart,
+                        workout.difficulty.label,
+                        'Level',
+                      ),
+                      2 => stat(
+                        Icons.track_changes,
+                        workout.focus.map((f) => f.label).take(2).join(' & '),
+                        'Target area',
+                      ),
+                      _ => stat(
+                        Icons.fitness_center,
+                        equipment.isEmpty ? 'No equipment' : equipment,
+                        'Equipment',
+                      ),
+                    },
                   ),
-                  (Icons.bar_chart, workout.difficulty.label, 'Level'),
-                  (
-                    Icons.track_changes,
-                    workout.focus.map((f) => f.label).take(2).join(' & '),
-                    'Target area',
-                  ),
-                  (
-                    Icons.fitness_center,
-                    equipment.isEmpty ? 'No equipment' : equipment,
-                    'Equipment',
-                  ),
-                ])
-                  SizedBox(
-                    width: large ? box.maxWidth : (box.maxWidth - 12) / 2,
-                    child: stat(item.$1, item.$2, item.$3),
-                  ),
+                ],
               ],
             ),
-          ),
+          ],
           const SizedBox(height: 16),
           Text(
             '${workout.exerciseIds.length} exercises with animated demonstrations',

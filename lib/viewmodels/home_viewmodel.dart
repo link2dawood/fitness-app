@@ -67,17 +67,15 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateWeight(int weightKg) async {
-    final current = _profile ?? const UserProfile();
-    _profile = current.copyWith(weightKg: weightKg);
-    await _repository.saveProfile(_profile!);
+  Future<void> updateWeight(num weightKg) async {
+    final next = await _repository.saveMeasurements(weightKg: weightKg);
+    _profile = next;
     notifyListeners();
   }
 
   Future<void> updateHeight(int heightCm) async {
-    final current = _profile ?? const UserProfile();
-    _profile = current.copyWith(heightCm: heightCm);
-    await _repository.saveProfile(_profile!);
+    final next = await _repository.saveMeasurements(heightCm: heightCm);
+    _profile = next;
     notifyListeners();
   }
 

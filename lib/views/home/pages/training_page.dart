@@ -135,16 +135,18 @@ class _TrainingPageState extends State<TrainingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 12,
-                runSpacing: 8,
+              Row(
                 children: [
-                  const Text(
-                    'HOME WORKOUT',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+                  const Expanded(
+                    child: Text(
+                      'HOME WORKOUT',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
+                  const SizedBox(width: 12),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -191,29 +193,36 @@ class _TrainingPageState extends State<TrainingPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Wrap(
-                        spacing: 16,
-                        runSpacing: 8,
+                      Row(
                         children: [
-                          const Text(
-                            'Weekly Goal',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
+                          Expanded(
+                            child: Wrap(
+                              spacing: 16,
+                              runSpacing: 8,
+                              children: [
+                                const Text(
+                                  'Weekly Goal',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                Text(
+                                  vm.isLoading
+                                      ? 'Loading…'
+                                      : vm.historyError != null
+                                      ? 'History unavailable'
+                                      : '${history.weeklyDays(now, sundayFirst: sunday)}/${vm.profile?.workoutDaysPerWeek ?? 4}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            vm.isLoading
-                                ? 'Loading…'
-                                : vm.historyError != null
-                                ? 'History unavailable'
-                                : '${history.weeklyDays(now, sundayFirst: sunday)}/${vm.profile?.workoutDaysPerWeek ?? 4}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                          const SizedBox(width: 12),
                           IconButton(
                             tooltip: 'Edit weekly goal',
                             onPressed: vm.isLoading
@@ -292,16 +301,19 @@ class _TrainingPageState extends State<TrainingPage> {
                             ),
                         ],
                       ),
-                      TextButton.icon(
-                        onPressed: vm.isLoading || vm.historyError != null
-                            ? null
-                            : () => showTrainingHistory(
-                                context,
-                                today,
-                                firstDay: firstDay,
-                              ),
-                        icon: const Icon(Icons.history),
-                        label: const Text('Workout history'),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: vm.isLoading || vm.historyError != null
+                              ? null
+                              : () => showTrainingHistory(
+                                  context,
+                                  today,
+                                  firstDay: firstDay,
+                                ),
+                          icon: const Icon(Icons.history),
+                          label: const Text('Workout history'),
+                        ),
                       ),
                     ],
                   ),
@@ -313,48 +325,48 @@ class _TrainingPageState extends State<TrainingPage> {
                 clipBehavior: Clip.none,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 14),
-                        child: SizedBox(
-                          width: (MediaQuery.sizeOf(context).width - 56).clamp(
-                            240.0,
-                            320.0,
-                          ),
-                          child: const ReferenceChallengeCard(),
-                        ),
-                      ),
-                      if (recommended.isNotEmpty)
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                         Padding(
                           padding: const EdgeInsets.only(right: 14),
                           child: SizedBox(
                             width: (MediaQuery.sizeOf(context).width - 56)
                                 .clamp(240.0, 320.0),
-                            child: TrainingChallengeCard(
-                              workout: recommended.first,
-                              customized: true,
-                            ),
+                            child: const ReferenceChallengeCard(),
                           ),
                         ),
-                      for (final (index, workout) in challenges.indexed)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 14),
-                          child: SizedBox(
-                            width: (MediaQuery.sizeOf(context).width - 56)
-                                .clamp(240.0, 320.0),
-                            child: TrainingChallengeCard(
-                              workout: workout,
-                              color: [
-                                const Color(0xFF00ACC1),
-                                const Color(0xFF7E22CE),
-                                trainingCardBlue,
-                              ][index % 3],
+                        if (recommended.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 14),
+                            child: SizedBox(
+                              width: (MediaQuery.sizeOf(context).width - 56)
+                                  .clamp(240.0, 320.0),
+                              child: TrainingChallengeCard(
+                                workout: recommended.first,
+                                customized: true,
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                        for (final (index, workout) in challenges.indexed)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 14),
+                            child: SizedBox(
+                              width: (MediaQuery.sizeOf(context).width - 56)
+                                  .clamp(240.0, 320.0),
+                              child: TrainingChallengeCard(
+                                workout: workout,
+                                color: [
+                                  const Color(0xFF00ACC1),
+                                  const Color(0xFF7E22CE),
+                                  trainingCardBlue,
+                                ][index % 3],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -482,21 +494,27 @@ class _TrainingPageState extends State<TrainingPage> {
                 ],
               ),
               _routines(goalWorkouts(goal).take(3)),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  goal == 'Burn Fat'
-                      ? AppRoutes.burnFatMore
-                      : goal == 'Build Muscle'
-                      ? AppRoutes.buildMuscleMore
-                      : AppRoutes.keepFitMore,
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    goal == 'Burn Fat'
+                        ? AppRoutes.burnFatMore
+                        : goal == 'Build Muscle'
+                        ? AppRoutes.buildMuscleMore
+                        : AppRoutes.keepFitMore,
+                  ),
+                  child: Text('More $goal workouts'),
                 ),
-                child: Text('More $goal workouts'),
               ),
-              TextButton.icon(
-                onPressed: () => showFeatureSuggestions(context),
-                icon: const Icon(Icons.feedback_outlined),
-                label: const Text('Tell us what you need'),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => showFeatureSuggestions(context),
+                  icon: const Icon(Icons.feedback_outlined),
+                  label: const Text('Tell us what you need'),
+                ),
               ),
               const SizedBox(height: 16),
               TrainingPhotoCard(

@@ -1,7 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../../data/models/training_recommendations.dart';
+import '../../../data/models/user_profile.dart';
+import '../../../data/repositories/onboarding_repository.dart';
+import '../../../viewmodels/home_viewmodel.dart';
 
 import '../../../core/routes/app_routes.dart';
+import '../../../data/models/discover_catalog.dart';
+import '../../workouts/training_workout_page.dart';
+import '../../workouts/training_history_sheet.dart';
+import 'training_collection_page.dart';
+
+void openDiscoverCollection(BuildContext context, String id) {
+  final collection = DiscoverCatalog.collection(id);
+  Navigator.of(context).push<void>(
+    MaterialPageRoute(
+      settings: RouteSettings(name: '/discover/collection/$id'),
+      builder: (_) => TrainingCollectionPage(
+        title: collection.title,
+        workouts: collection.workouts,
+      ),
+    ),
+  );
+}
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({super.key});
@@ -19,17 +41,21 @@ class DiscoverPage extends StatelessWidget {
             backgroundColor: Colors.white,
             elevation: 0,
             titleSpacing: 20,
-            title: const Text(
-              'DISCOVER',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.2,
-                color: Color(0xFF111827),
+            title: const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'DISCOVER',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.2,
+                  color: Color(0xFF111827),
+                ),
               ),
             ),
             actions: [
               IconButton(
+                tooltip: 'Search workouts',
                 icon: const Icon(
                   Icons.search_rounded,
                   color: Color(0xFF111827),
@@ -41,12 +67,13 @@ class DiscoverPage extends StatelessWidget {
                 },
               ),
               IconButton(
+                tooltip: 'Workout history',
                 icon: const Icon(
                   Icons.history_rounded,
                   color: Color(0xFF111827),
                   size: 26,
                 ),
-                onPressed: () {},
+                onPressed: () => showPersistedTrainingHistory(context),
               ),
               const SizedBox(width: 4),
             ],
@@ -63,20 +90,7 @@ class DiscoverPage extends StatelessWidget {
 
                 const SizedBox(height: 28),
 
-                // ── 2. Picks For You ────────────────────────────────────
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    'Picks for you',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                _PicksForYouList(),
+                const _DiscoverPicksSection(key: ValueKey('picks-section')),
 
                 const SizedBox(height: 28),
 
@@ -195,991 +209,642 @@ class DiscoverPage extends StatelessWidget {
   }
 }
 
-// ── Hero Banner ─────────────────────────────────────────────────────────────
+// One semantic action and one keyboard focus target per card.
+class _DiscoverAction extends StatefulWidget {
+  const _DiscoverAction({
+    super.key,
+    required this.label,
+    required this.onTap,
+    required this.child,
+    this.radius = 16,
+  });
+  final String label;
+  final VoidCallback onTap;
+  final Widget child;
+  final double radius;
+  @override
+  State<_DiscoverAction> createState() => _DiscoverActionState();
+}
+
+class _DiscoverActionState extends State<_DiscoverAction> {
+  bool focused = false;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    button: true,
+    focusable: true,
+    focused: focused,
+    label: widget.label,
+    onTap: widget.onTap,
+    child: ExcludeSemantics(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(widget.radius),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          excludeFromSemantics: true,
+          onTap: widget.onTap,
+          onFocusChange: (value) => setState(() => focused = value),
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(widget.radius),
+              border: focused
+                  ? Border.all(color: const Color(0xFF0062FF), width: 3)
+                  : null,
+            ),
+            child: widget.child,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+// Horizontal content has natural height, including at large text sizes.
+class _DiscoverCarousel extends StatelessWidget {
+  const _DiscoverCarousel({required this.children});
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    physics: const BouncingScrollPhysics(),
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) const SizedBox(width: 14),
+          children[i],
+        ],
+      ],
+    ),
+  );
+}
+
+class _DiscoverPhotoAction extends StatelessWidget {
+  const _DiscoverPhotoAction({
+    required this.actionKey,
+    required this.image,
+    required this.label,
+    required this.onTap,
+    required this.child,
+    required this.minHeight,
+  });
+  final Key actionKey;
+  final String image, label;
+  final VoidCallback onTap;
+  final Widget child;
+  final double minHeight;
+  @override
+  Widget build(BuildContext context) => _DiscoverAction(
+    key: actionKey,
+    label: label,
+    onTap: onTap,
+    radius: 20,
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            image,
+            fit: BoxFit.cover,
+            excludeFromSemantics: true,
+          ),
+        ),
+        const Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x33000000), Color(0xDD000000)],
+              ),
+            ),
+          ),
+        ),
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: minHeight),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: SizedBox(width: double.infinity, child: child),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class _HeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final workout = DiscoverCatalog.workout(DiscoverCatalog.heroWorkoutId);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () => HapticFeedback.selectionClick(),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              Image.asset(
-                'assets/images/workouts/hiit_fat_burning.jpg',
-                width: double.infinity,
-                height: 220,
-                fit: BoxFit.cover,
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withValues(alpha: 0.75),
-                      ],
-                      stops: const [0.3, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-              const Positioned(
-                left: 18,
-                right: 18,
-                bottom: 18,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Get Rid of Man\nBoobs HIIT',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Target your chest fat with high intensity workout.\nNo embarrassing man boobs when taking T-shirt...',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Picks For You ─────────────────────────────────────────────────────────
-class _PicksForYouList extends StatelessWidget {
-  static const List<List<Map<String, String>>> _groups = [
-    [
-      {
-        'title': 'Get Rid of Man Boobs HIIT',
-        'subtitle': '17 min \u2022 Beginner',
-        'image': 'assets/images/workouts/hiit_fat_burning.jpg',
-      },
-      {
-        'title': 'Killer Core HIIT Beginner',
-        'subtitle': '20 min \u2022 Beginner',
-        'image': 'assets/images/workouts/abs.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Build Wider Shoulders',
-        'subtitle': '17 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/shoulder_tension_relief.jpg',
-      },
-      {
-        'title': 'HIIT Intermediate',
-        'subtitle': '19 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/squat.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Last Longer in Bed',
-        'subtitle': '13 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/full_body_muscle_growth.jpg',
-      },
-      {
-        'title': 'Ripped V-Cut Abs Sculpting',
-        'subtitle': '16 min \u2022 Beginner',
-        'image': 'assets/images/workouts/dumbbell_abs_shaper.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Fat Burning HIIT',
-        'subtitle': '14 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/belly_fat_burn.jpg',
-      },
-    ],
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    final cardW = screenW - 56.0;
-
-    return SizedBox(
-      height: 190,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _groups.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, gi) {
-          final group = _groups[gi];
-          return Container(
-            width: cardW,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 14,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(group.length, (i) {
-                return Column(
-                  children: [
-                    _PicksItem(
-                      title: group[i]['title']!,
-                      subtitle: group[i]['subtitle']!,
-                      imagePath: group[i]['image']!,
-                    ),
-                    if (i < group.length - 1)
-                      const Divider(
-                        height: 1,
-                        indent: 16,
-                        endIndent: 16,
-                        color: Color(0xFFF3F4F6),
-                      ),
-                  ],
-                );
-              }),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _PicksItem extends StatelessWidget {
-  const _PicksItem({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-  });
-
-  final String title;
-  final String subtitle;
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                imagePath,
-                width: 80,
-                height: 64,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Stay Active Promo Banner ──────────────────────────────────────────────
-class _PromoBanner extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () => HapticFeedback.selectionClick(),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              Image.asset(
-                'assets/images/workouts/stretch_warmup.jpg',
-                width: double.infinity,
-                height: 170,
-                fit: BoxFit.cover,
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.45),
-                  ),
-                ),
-              ),
-              const Positioned(
-                left: 20,
-                bottom: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Stay active,\nstay in shape',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        height: 1.2,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      '5 workouts',
-                      style: TextStyle(fontSize: 13, color: Colors.white70),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── For Beginners ────────────────────────────────────────────────────────
-class _BeginnersList extends StatelessWidget {
-  static const List<Map<String, String>> _items = [
-    {
-      'title': 'Arm Workout\n(No Push-Ups!)',
-      'image': 'assets/images/workouts/discover_arm_workout.jpg',
-    },
-    {
-      'title': 'Abs Workout\n(No Crunch!)',
-      'image': 'assets/images/workouts/discover_abs_outdoor.jpg',
-    },
-    {
-      'title': 'Build Wider\nShoulders',
-      'image': 'assets/images/workouts/shoulder_tension_relief.jpg',
-    },
-    {
-      'title': 'Leg Workout\n(No Jumping!)',
-      'image': 'assets/images/workouts/lower_body.jpg',
-    },
-    {
-      'title': 'Beginner\nBack Builder',
-      'image': 'assets/images/workouts/beginner_back_builder.jpg',
-    },
-    {
-      'title': 'Beginner\nChest Workout',
-      'image': 'assets/images/workouts/beginner_chest_workout.jpg',
-    },
-    {
-      'title': 'Beginner\nPush-Up',
-      'image': 'assets/images/workouts/shredded_arms.jpg',
-    },
-    {
-      'title': 'Beginner Core\nWorkout',
-      'image': 'assets/images/workouts/discover_12min_classic.jpg',
-    },
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 170,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _items.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, i) => _BegOverlayCard(
-          title: _items[i]['title']!,
-          imagePath: _items[i]['image']!,
-        ),
-      ),
-    );
-  }
-}
-
-class _BegOverlayCard extends StatelessWidget {
-  const _BegOverlayCard({required this.title, required this.imagePath});
-
-  final String title;
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          width: 130,
-          height: 170,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset(imagePath, fit: BoxFit.cover),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.72),
-                    ],
-                    stops: const [0.45, 1.0],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 10,
-                right: 10,
-                bottom: 10,
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    height: 1.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Fast Workout ──────────────────────────────────────────────────────────
-class _FastWorkoutList extends StatelessWidget {
-  static const List<List<Map<String, String>>> _groups = [
-    [
-      {
-        'title': 'Before Workout Warm-Up',
-        'subtitle': '5 min \u2022 Beginner',
-        'image': 'assets/images/workouts/discover_warmup_lunge.jpg',
-      },
-      {
-        'title': '12 Min Classic',
-        'subtitle': '12 min \u2022 Beginner',
-        'image': 'assets/images/workouts/discover_12min_classic.jpg',
-      },
-    ],
-    [
-      {
-        'title': '6 Min Tabata',
-        'subtitle': '6 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/squat.jpg',
-      },
-      {
-        'title': '3 Exercises Lose Belly Fat',
-        'subtitle': '9 min \u2022 Beginner',
-        'image': 'assets/images/workouts/belly_fat_burn.jpg',
-      },
-    ],
-    [
-      {
-        'title': '7 Min HIIT No Equipment',
-        'subtitle': '7 min \u2022 Beginner',
-        'image': 'assets/images/workouts/hiit_fat_burning.jpg',
-      },
-      {
-        'title': 'Quick Abs Blast',
-        'subtitle': '8 min \u2022 Intermediate',
-        'image': 'assets/images/workouts/abs.jpg',
-      },
-    ],
-    [
-      {
-        'title': '7 Min HIIT Fat Burning',
-        'subtitle': '8 min \u2022 Beginner',
-        'image': 'assets/images/workouts/hiit_fat_burning.jpg',
-      },
-      {
-        'title': '10 Min Abs Workout',
-        'subtitle': '9 min \u2022 Beginner',
-        'image': 'assets/images/workouts/abs.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Express Full Body',
-        'subtitle': '10 min \u2022 Beginner',
-        'image': 'assets/images/workouts/full_body_muscle_growth.jpg',
-      },
-    ],
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final screenW = MediaQuery.of(context).size.width;
-    final cardW = screenW - 56.0;
-
-    return SizedBox(
-      height: 190,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _groups.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, gi) {
-          final group = _groups[gi];
-          return Container(
-            width: cardW,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 14,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(group.length, (i) {
-                return Column(
-                  children: [
-                    _FastWorkoutItem(
-                      title: group[i]['title']!,
-                      subtitle: group[i]['subtitle']!,
-                      imagePath: group[i]['image']!,
-                    ),
-                    if (i < group.length - 1)
-                      const Divider(
-                        height: 1,
-                        indent: 16,
-                        endIndent: 16,
-                        color: Color(0xFFF3F4F6),
-                      ),
-                  ],
-                );
-              }),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _FastWorkoutItem extends StatelessWidget {
-  const _FastWorkoutItem({
-    required this.title,
-    required this.subtitle,
-    required this.imagePath,
-  });
-
-  final String title;
-  final String subtitle;
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                imagePath,
-                width: 80,
-                height: 64,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
-                      height: 1.3,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Challenge ─────────────────────────────────────────────────────────────
-class _ChallengeList extends StatelessWidget {
-  static const List<Map<String, String>> _items = [
-    {
-      'title': 'Killer Core HIIT\nAdvanced',
-      'image': 'assets/images/workouts/discover_killer_core.jpg',
-    },
-    {
-      'title': 'Brutal Ladder HIIT',
-      'image': 'assets/images/workouts/discover_brutal_hiit.jpg',
-    },
-    {
-      'title': 'Build Wider\nShoulders',
-      'image': 'assets/images/workouts/shoulder_tension_relief.jpg',
-    },
-    {'title': 'Plank Challenge', 'image': 'assets/images/workouts/abs.jpg'},
-    {
-      'title': 'Killer Chest Workout',
-      'image': 'assets/images/workouts/beginner_chest_workout.jpg',
-    },
-    {
-      'title': 'Mass Builder',
-      'image': 'assets/images/workouts/massive_body.jpg',
-    },
-    {
-      'title': 'Shred Arms',
-      'image': 'assets/images/workouts/discover_arm_workout.jpg',
-    },
-    {
-      'title': 'Belly Fat Burner\nHIIT Advanced',
-      'image': 'assets/images/workouts/belly_fat_burn.jpg',
-    },
-    {
-      'title': 'Body Calorie\nBurner',
-      'image': 'assets/images/workouts/full_body_muscle_growth.jpg',
-    },
-    {
-      'title': 'Burn 100 Calories',
-      'image': 'assets/images/workouts/discover_brutal_hiit.jpg',
-    },
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 170,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _items.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (context, i) => _ChallengeCard(
-          title: _items[i]['title']!,
-          imagePath: _items[i]['image']!,
-        ),
-      ),
-    );
-  }
-}
-
-class _ChallengeCard extends StatelessWidget {
-  const _ChallengeCard({required this.title, required this.imagePath});
-
-  final String title;
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: SizedBox(
-          width: 150,
-          height: 170,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Image.asset(imagePath, fit: BoxFit.cover),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.78),
-                    ],
-                    stops: const [0.4, 1.0],
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 10,
-                right: 10,
-                bottom: 12,
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    height: 1.25,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── With Equipment ───────────────────────────────────────────────────────
-class _WithEquipmentCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: () => HapticFeedback.selectionClick(),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              Image.asset(
-                'assets/images/workouts/massive_body.jpg',
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.25),
-                        Colors.black.withValues(alpha: 0.85),
-                      ],
-                      stops: const [0.3, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 18,
-                right: 18,
-                bottom: 18,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Boost your results with added\nresistance for faster, better\ngains.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                          height: 1.35,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 8,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text(
-                            "Let's Go!",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          SizedBox(width: 4),
-                          Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 16,
-                            color: Color(0xFF111827),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Stretch ───────────────────────────────────────────────────────────────
-class _StretchGrid extends StatelessWidget {
-  static const List<List<Map<String, String>>> _groups = [
-    [
-      {
-        'title': 'Neck & Shoulder\nTension Relief',
-        'image': 'assets/images/workouts/neck_shoulder_tension_relief.jpg',
-      },
-      {
-        'title': 'Knee Pain Relief',
-        'image': 'assets/images/workouts/knee_pain_relief.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Upper Body Stretching',
-        'image': 'assets/images/workouts/upper_body_stretching.jpg',
-      },
-      {
-        'title': 'Lower Back Pain\nRelief',
-        'image': 'assets/images/workouts/stretch_sleepy.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Lower Body Stretching',
-        'image': 'assets/images/workouts/lower_body.jpg',
-      },
-      {
-        'title': 'Back Stretching',
-        'image': 'assets/images/workouts/back_builder.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Full Body Stretching',
-        'image': 'assets/images/workouts/stretch_shoulder.jpg',
-      },
-      {
-        'title': 'Shoulder Tension\nRelief',
-        'image': 'assets/images/workouts/shoulder_tension_relief.jpg',
-      },
-    ],
-    [
-      {
-        'title': 'Morning Warm-Up',
-        'image': 'assets/images/workouts/stretch_warmup.jpg',
-      },
-      {
-        'title': 'Sleepy Time\nStretching',
-        'image': 'assets/images/workouts/back_sb.jpg',
-      },
-    ],
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 330,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _groups.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 14),
-        itemBuilder: (context, gi) {
-          final group = _groups[gi];
-          return Column(
-            children: [
-              for (int i = 0; i < group.length; i++) ...[
-                _StretchCard(
-                  title: group[i]['title']!,
-                  imagePath: group[i]['image']!,
-                ),
-                if (i < group.length - 1) const SizedBox(height: 14),
-              ],
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _StretchCard extends StatelessWidget {
-  const _StretchCard({required this.title, required this.imagePath});
-
-  final String title;
-  final String imagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
-      child: SizedBox(
-        width: 165,
+      child: _DiscoverPhotoAction(
+        actionKey: const ValueKey('discover-hero'),
+        image: 'assets/images/workouts/hiit_fat_burning.jpg',
+        label: 'Open workout: ${workout.title}. ${workout.summary}',
+        onTap: () => openTrainingWorkout(context, workout),
+        minHeight: 220,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                imagePath,
-                width: 165,
-                height: 105,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 165,
-                  height: 105,
-                  color: const Color(0xFFF1F5F9),
-                  child: const Icon(Icons.fitness_center, color: Colors.grey),
-                ),
+            Text(
+              workout.title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                height: 1.2,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              title,
+              workout.summary,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WorkoutPairCarousel extends StatelessWidget {
+  const _WorkoutPairCarousel({required this.groups});
+  final List<List<DiscoverWorkoutCard>> groups;
+  @override
+  Widget build(BuildContext context) => _DiscoverCarousel(
+    children: [
+      for (final group in groups)
+        SizedBox(
+          width: (MediaQuery.sizeOf(context).width - 56).clamp(240.0, 420.0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFF3F4F6)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < group.length; i++) ...[
+                  if (i > 0)
+                    const Divider(
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                      color: Color(0xFFF3F4F6),
+                    ),
+                  _WorkoutListCard(card: group[i]),
+                ],
+              ],
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+class _WorkoutListCard extends StatelessWidget {
+  const _WorkoutListCard({required this.card});
+  final DiscoverWorkoutCard card;
+  @override
+  Widget build(BuildContext context) {
+    final workout = card.workout;
+    final image = ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.asset(
+        card.image,
+        width: 80,
+        height: 64,
+        fit: BoxFit.cover,
+        excludeFromSemantics: true,
+      ),
+    );
+    final text = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          workout.title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF111827),
+            height: 1.3,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          workout.durationAndLevel,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+        ),
+      ],
+    );
+    return _DiscoverAction(
+      key: ValueKey('discover-workout-${card.workoutId}'),
+      label: 'Open workout: ${workout.title}. ${workout.summary}',
+      onTap: () => openTrainingWorkout(context, workout),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: MediaQuery.textScalerOf(context).scale(14) > 20
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [image, const SizedBox(height: 12), text],
+              )
+            : Row(
+                children: [
+                  image,
+                  const SizedBox(width: 12),
+                  Expanded(child: text),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _DiscoverPicksSection extends StatefulWidget {
+  const _DiscoverPicksSection({super.key});
+  @override
+  State<_DiscoverPicksSection> createState() => _DiscoverPicksSectionState();
+}
+
+class _DiscoverPicksSectionState extends State<_DiscoverPicksSection>
+    with WidgetsBindingObserver {
+  Future<UserProfile?>? loading;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && loading != null) retry();
+  }
+
+  void retry() {
+    setState(() {
+      loading = OnboardingRepository().loadProfile();
+    });
+  }
+
+  Widget section(UserProfile? profile, {Widget? status}) {
+    final ranked = TrainingRecommendations.forProfile(profile).take(7).toList();
+    final personalized = ranked.isNotEmpty;
+    final cards = ranked
+        .map((w) => DiscoverWorkoutCard(w.id, w.image))
+        .toList();
+    final groups = personalized
+        ? <List<DiscoverWorkoutCard>>[
+            for (var i = 0; i < cards.length; i += 2)
+              cards.sublist(i, (i + 2).clamp(0, cards.length)),
+          ]
+        : DiscoverCatalog.picks;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                personalized ? 'Picks for you' : 'Featured workouts',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              if (!personalized && status == null) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  'Complete your fitness profile for personalized picks.',
+                ),
+              ],
+              if (status != null) ...[const SizedBox(height: 8), status],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        _WorkoutPairCarousel(groups: groups),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final home = context.watch<HomeViewModel?>();
+    if (home != null && !home.isLoading) {
+      return section(home.profile);
+    }
+    return FutureBuilder<UserProfile?>(
+      future: loading ??= OnboardingRepository().loadProfile(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return section(
+            null,
+            status: const LinearProgressIndicator(
+              semanticsLabel: 'Loading workout recommendations',
+            ),
+          );
+        }
+        if (snapshot.hasError) {
+          return section(
+            null,
+            status: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Personalized picks could not be loaded. Showing featured workouts.',
+                ),
+                TextButton(
+                  onPressed: retry,
+                  child: const Text('Retry personalized picks'),
+                ),
+              ],
+            ),
+          );
+        }
+        return section(snapshot.data);
+      },
+    );
+  }
+}
+
+class _FastWorkoutList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) =>
+      const _WorkoutPairCarousel(groups: DiscoverCatalog.fast);
+}
+
+class _PromoBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final collection = DiscoverCatalog.collection('stay_active');
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: _DiscoverPhotoAction(
+        actionKey: const ValueKey('discover-collection-stay_active'),
+        image: 'assets/images/workouts/stretch_warmup.jpg',
+        label:
+            'Open collection: ${collection.title}. ${collection.workouts.length} workouts',
+        onTap: () => openDiscoverCollection(context, collection.id),
+        minHeight: 170,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Stay active,\nstay in shape',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${collection.workouts.length} workouts',
+              style: const TextStyle(fontSize: 13, color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WorkoutPhotoCard extends StatelessWidget {
+  const _WorkoutPhotoCard({required this.card});
+  final DiscoverWorkoutCard card;
+  @override
+  Widget build(BuildContext context) {
+    final workout = card.workout;
+    return SizedBox(
+      width: MediaQuery.textScalerOf(context).scale(14) > 20 ? 220 : 150,
+      child: _DiscoverPhotoAction(
+        actionKey: ValueKey('discover-workout-${card.workoutId}'),
+        image: card.image,
+        label: 'Open workout: ${workout.title}. ${workout.summary}',
+        onTap: () => openTrainingWorkout(context, workout),
+        minHeight: 170,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              workout.title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                height: 1.25,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BeginnersList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => _DiscoverCarousel(
+    children: [
+      for (final card in DiscoverCatalog.beginners)
+        _WorkoutPhotoCard(card: card),
+    ],
+  );
+}
+
+class _ChallengeList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => _DiscoverCarousel(
+    children: [
+      for (final card in DiscoverCatalog.challenges)
+        _WorkoutPhotoCard(card: card),
+    ],
+  );
+}
+
+class _WithEquipmentCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final collection = DiscoverCatalog.collection('with_equipment');
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: _DiscoverPhotoAction(
+        actionKey: const ValueKey('discover-collection-with_equipment'),
+        image: 'assets/images/workouts/massive_body.jpg',
+        label:
+            'Open collection: ${collection.title}. ${collection.workouts.length} workouts',
+        onTap: () => openDiscoverCollection(context, collection.id),
+        minHeight: 200,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Boost your results with added resistance for faster, better gains.',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Text(
+                "Let's Go! →",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StretchGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => _DiscoverCarousel(
+    children: [
+      for (final group in DiscoverCatalog.stretch)
+        SizedBox(
+          width: MediaQuery.textScalerOf(context).scale(13) > 20 ? 220 : 165,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < group.length; i++) ...[
+                if (i > 0) const SizedBox(height: 14),
+                _StretchCard(card: group[i]),
+              ],
+            ],
+          ),
+        ),
+    ],
+  );
+}
+
+class _StretchCard extends StatelessWidget {
+  const _StretchCard({required this.card});
+  final DiscoverWorkoutCard card;
+  @override
+  Widget build(BuildContext context) {
+    final workout = card.workout;
+    return _DiscoverAction(
+      key: ValueKey('discover-workout-${card.workoutId}'),
+      label: 'Open workout: ${workout.title}. ${workout.summary}',
+      onTap: () => openTrainingWorkout(context, workout),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              card.image,
+              width: double.infinity,
+              height: 105,
+              fit: BoxFit.cover,
+              excludeFromSemantics: true,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              workout.title,
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
                 color: Color(0xFF111827),
                 height: 1.2,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ── Body focus grid ───────────────────────────────────────────────────────
 class _BodyFocusGrid extends StatelessWidget {
-  static const List<Map<String, String>> _items = [
-    {
-      'title': 'Chest',
-      'type': 'chest',
-    },
-    {
-      'title': 'Arm & Shoulder',
-      'type': 'arm',
-    },
-    {
-      'title': 'Butt & Leg',
-      'type': 'leg',
-    },
-    {
-      'title': 'Six pack',
-      'type': 'abs',
-    },
+  static const items = [
+    ('focus_chest', 'chest'),
+    ('focus_arm_shoulder', 'arm'),
+    ('focus_glutes_leg', 'leg'),
+    ('focus_abs', 'abs'),
   ];
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 14,
-          crossAxisSpacing: 14,
-          childAspectRatio: 1.3,
-        ),
-        itemCount: _items.length,
-        itemBuilder: (context, i) {
-          final item = _items[i];
-          return _BodyFocusCard(
-            title: item['title']!,
-            type: item['type']!,
-          );
-        },
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: LayoutBuilder(
+      builder: (context, box) {
+        final single =
+            box.maxWidth < 400 &&
+            MediaQuery.textScalerOf(context).scale(16) > 24;
+        final width = single ? box.maxWidth : (box.maxWidth - 14) / 2;
+        return Wrap(
+          spacing: 14,
+          runSpacing: 14,
+          children: [
+            for (final (id, type) in items)
+              SizedBox(
+                width: width,
+                child: _BodyFocusCard(collectionId: id, type: type),
+              ),
+          ],
+        );
+      },
+    ),
+  );
 }
 
 class _BodyFocusCard extends StatelessWidget {
-  const _BodyFocusCard({
-    required this.title,
-    required this.type,
-  });
-
-  final String title;
-  final String type;
-
+  const _BodyFocusCard({required this.collectionId, required this.type});
+  final String collectionId, type;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => HapticFeedback.selectionClick(),
+    final collection = DiscoverCatalog.collection(collectionId);
+    return _DiscoverAction(
+      key: ValueKey('discover-collection-$collectionId'),
+      label:
+          'Open collection: ${collection.title}. ${collection.workouts.length} workouts',
+      onTap: () => openDiscoverCollection(context, collectionId),
+      radius: 20,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -1187,37 +852,26 @@ class _BodyFocusCard extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF2C364F),
-              Color(0xFF1E2638),
-            ],
+            colors: [Color(0xFF2C364F), Color(0xFF1E2638)],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Center(
-                child: CustomPaint(
-                  size: const Size(60, 50),
-                  painter: MuscleSilhouettePainter(type: type),
-                ),
+            Center(
+              child: CustomPaint(
+                size: const Size(60, 50),
+                painter: MuscleSilhouettePainter(type: type),
               ),
             ),
+            const SizedBox(height: 12),
             Text(
-              title,
+              collection.title,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
-                letterSpacing: 0.1,
               ),
             ),
           ],

@@ -4,52 +4,107 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../../data/repositories/training_history_repository.dart';
+import '../../../data/models/training_calendar.dart';
+import '../../../core/widgets/date_rollover_builder.dart';
+import '../../../data/repositories/weight_history_repository.dart';
 import '../../../core/settings/general_settings.dart';
 import '../../onboarding/widgets/ruler_picker.dart';
 import 'history_calendar_view.dart';
+import '../widgets/bmi_scale_bar.dart';
 
 class ReportPage extends StatefulWidget {
-  const ReportPage({super.key});
+  const ReportPage({super.key, this.now});
+  final DateTime Function()? now;
 
   @override
   State<ReportPage> createState() => _ReportPageState();
 }
 
-class _ReportPageState extends State<ReportPage> {
-  // Sample weight data points (day-of-month → weight in lbs)
-  final List<_WeightPoint> _weightData = [const _WeightPoint(6, 106.7)];
+class _ReportPageState extends State<ReportPage> with WidgetsBindingObserver {
+  final _weights = WeightHistoryRepository.instance;
+  bool _loadingWeights = true;
+  bool _weightsFailed = false;
+  List<_WeightPoint> get _weightData => _weights.records
+      .where((e) => e.date.year == _now().year && e.date.month == _now().month)
+      .map((e) => _WeightPoint(e.date.day, e.kg * 2.20462))
+      .toList();
 
-  // Stats
-  final int _workoutCount = 0;
-  final int _kcalBurned = 0;
-  final int _minutesTrained = 0;
-  final int _dayStreak = 0;
-
-  // Weight
-  double _currentWeightLbs = 106.7;
-  bool _useLbs = true;
-
-  void _updateWeightDataPoint(int day, double lbs) {
-    final existing = _weightData.indexWhere((p) => p.day == day);
-    if (existing >= 0) {
-      _weightData[existing] = _WeightPoint(day, lbs);
-    } else {
-      _weightData.add(_WeightPoint(day, lbs));
+  Future<void> _loadWeights() async {
+    setState(() {
+      _loadingWeights = true;
+      _weightsFailed = false;
+    });
+    try {
+      await _weights.load();
+      if (mounted) setState(() => _loadingWeights = false);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loadingWeights = false;
+          _weightsFailed = true;
+        });
+      }
     }
   }
 
-  // Week strip – base Sunday of current week
-  late final DateTime _weekStart;
-  late final DateTime _today;
+  // Stats
+  final _history = TrainingHistoryRepository.instance;
+  bool _loadingHistory = true;
+  bool _historyFailed = false;
+  int _loadGeneration = 0;
+  bool get _historyReady => !_loadingHistory && !_historyFailed;
+  int get _seconds => _history.entries.fold(0, (sum, e) => sum + e.seconds);
+
+  Future<void> _loadHistory() async {
+    final generation = ++_loadGeneration;
+    setState(() {
+      _loadingHistory = true;
+      _historyFailed = false;
+    });
+    try {
+      await _history.load();
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() => _loadingHistory = false);
+    } catch (_) {
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _loadingHistory = false;
+        _historyFailed = true;
+      });
+    }
+  }
+
+  void _onHistoryChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadHistory();
+      _loadWeights();
+    }
+  }
+
+  // Weight
+  double _currentWeightLbs = 0;
+  bool _useLbs = true;
+
+  // Date retained for the weight logger; the history strip uses today's date.
+  DateTime _now() => widget.now?.call() ?? DateTime.now();
+  DateTime get _today => _now();
 
   @override
   void initState() {
     super.initState();
     _useLbs = GeneralSettings.instance.weightImperial;
     GeneralSettings.instance.addListener(_onUnitsChanged);
-    _today = DateTime.now();
-    final daysFromSunday = _today.weekday % 7;
-    _weekStart = _today.subtract(Duration(days: daysFromSunday));
+    WidgetsBinding.instance.addObserver(this);
+    _history.addListener(_onHistoryChanged);
+    _weights.addListener(_onHistoryChanged);
+    _loadWeights();
+    _loadHistory();
   }
 
   void _onUnitsChanged() {
@@ -60,6 +115,9 @@ class _ReportPageState extends State<ReportPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _history.removeListener(_onHistoryChanged);
+    _weights.removeListener(_onHistoryChanged);
     GeneralSettings.instance.removeListener(_onUnitsChanged);
     super.dispose();
   }
@@ -67,13 +125,18 @@ class _ReportPageState extends State<ReportPage> {
   // ─── Weight Logger Bottom Sheet ─────────────────────────────────────────────
 
   Future<void> _showWeightLogger() async {
-    final initialWeightLbs = _currentWeightLbs;
-    final initialUseLbs = _useLbs;
-    final initialWeightData = List<_WeightPoint>.from(_weightData);
+    final vm = context.read<HomeViewModel>();
+    final savedKg = _weights.records.isNotEmpty
+        ? _weights.records.last.kg
+        : vm.profile?.weightKg;
+    // A picker needs a starting position, but this draft is never report data.
+    _currentWeightLbs =
+        (savedKg != null && savedKg > 0 ? savedKg : 70) * 2.20462;
 
     bool localUseLbs = _useLbs;
     double pickedWeightLbs = _currentWeightLbs;
-    bool isSaved = false;
+    bool saving = false;
+    String? saveError;
 
     String dateLabel() {
       const months = [
@@ -98,508 +161,591 @@ class _ReportPageState extends State<ReportPage> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheet) {
-            final displayWeight = localUseLbs
-                ? pickedWeightLbs
-                : pickedWeightLbs / 2.20462;
+        return DateRolloverBuilder(
+          now: widget.now,
+          builder: (_) => StatefulBuilder(
+            builder: (ctx, setSheet) {
+              final displayWeight = localUseLbs
+                  ? pickedWeightLbs
+                  : pickedWeightLbs / 2.20462;
 
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Drag handle
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-
-                  // Title + date chip
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Weight',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF111827),
-                        ),
+              return SingleChildScrollView(
+                child: SafeArea(
+                  top: false,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(28),
                       ),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          dateLabel(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // kg / lbs toggle
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(30),
                     ),
-                    child: Row(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _unitBtn('kg', !localUseLbs, () {
-                          if (localUseLbs) {
-                            setSheet(() => localUseLbs = false);
-                            setState(() => _useLbs = false);
-                          }
-                        }),
-                        _unitBtn('lbs', localUseLbs, () {
-                          if (!localUseLbs) {
-                            setSheet(() => localUseLbs = true);
-                            setState(() => _useLbs = true);
-                          }
-                        }),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Weight value
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: displayWeight.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 52,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF111827),
-                            height: 1,
+                        // Drag handle
+                        Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE5E7EB),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        TextSpan(
-                          text: ' ${localUseLbs ? "lbs" : "kg"}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  const SizedBox(height: 20),
-
-                  // Clean Ruler picker using RulerPicker
-                  RulerPicker(
-                    key: ValueKey<bool>(localUseLbs),
-                    min: localUseLbs ? 66 : 30,
-                    max: localUseLbs ? 440 : 200,
-                    value: displayWeight.round(),
-                    decimalValue: displayWeight,
-                    stepWidth: 80.0,
-                    labelInterval: 1,
-                    visualTicksPerStep: 10,
-                    onChanged: (v) {},
-                    onDecimalChanged: (v) {
-                      final newLbs = localUseLbs ? v : v * 2.20462;
-                      pickedWeightLbs = newLbs;
-                      setSheet(() {});
-                      setState(() {
-                        _currentWeightLbs = newLbs;
-                        _updateWeightDataPoint(_today.day, newLbs);
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Cancel / Save
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(ctx).pop(),
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(30),
+                        // Title + date chip
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Weight',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF111827),
+                              ),
                             ),
-                            child: const Center(
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F4F6),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                               child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
+                                dateLabel(),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                   color: Color(0xFF374151),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // kg / lbs toggle
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _unitBtn('kg', !localUseLbs, () {
+                                if (localUseLbs) {
+                                  setSheet(() => localUseLbs = false);
+                                }
+                              }),
+                              _unitBtn('lbs', localUseLbs, () {
+                                if (!localUseLbs) {
+                                  setSheet(() => localUseLbs = true);
+                                }
+                              }),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            isSaved = true;
-                            setState(() {
-                              _currentWeightLbs = pickedWeightLbs;
-                              _useLbs = localUseLbs;
-                              _updateWeightDataPoint(
-                                _today.day,
-                                pickedWeightLbs,
-                              );
-                            });
-                            Navigator.of(ctx).pop();
+
+                        const SizedBox(height: 28),
+
+                        // Weight value
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: displayWeight.toStringAsFixed(1),
+                                style: const TextStyle(
+                                  fontSize: 52,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFF111827),
+                                  height: 1,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' ${localUseLbs ? "lbs" : "kg"}',
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF374151),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Clean Ruler picker using RulerPicker
+                        RulerPicker(
+                          key: ValueKey<bool>(localUseLbs),
+                          min: localUseLbs ? 66 : 30,
+                          max: localUseLbs ? 440 : 200,
+                          value: displayWeight.round(),
+                          decimalValue: displayWeight,
+                          stepWidth: 80.0,
+                          labelInterval: 1,
+                          visualTicksPerStep: 10,
+                          onChanged: (v) {},
+                          onDecimalChanged: (v) {
+                            if (saving) return;
+                            final newLbs = localUseLbs ? v : v * 2.20462;
+                            pickedWeightLbs = newLbs;
+                            setSheet(() {});
                           },
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0066FF),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Save',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        if (saveError != null) Text(saveError!),
+                        const Text(
+                          'Picker units only. Report uses General Settings.',
+                          textAlign: TextAlign.center,
+                        ),
+                        // Cancel / Save
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: saving
+                                    ? null
+                                    : () => Navigator.of(ctx).pop(),
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F4F6),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF374151),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: saving
+                                    ? null
+                                    : () async {
+                                        if (saving) return;
+                                        setSheet(() {
+                                          saving = true;
+                                          saveError = null;
+                                        });
+                                        bool historySaved = false;
+                                        try {
+                                          final kg = double.parse(
+                                            (pickedWeightLbs / 2.20462)
+                                                .toStringAsFixed(4),
+                                          );
+                                          await _weights.save(
+                                            WeightRecord(date: _now(), kg: kg),
+                                          );
+                                          historySaved = true;
+                                          await vm.updateWeight(kg);
+                                          if (!ctx.mounted) return;
+                                          Navigator.of(ctx).pop();
+                                        } catch (_) {
+                                          if (ctx.mounted) {
+                                            setSheet(() {
+                                              saving = false;
+                                              saveError = historySaved
+                                                  ? 'Weight log saved. Profile sync failed; tap Save to retry.'
+                                                  : 'Could not save weight. Please retry.';
+                                            });
+                                          }
+                                        }
+                                      },
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0066FF),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Save',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         );
       },
     );
-
-    if (!isSaved) {
-      setState(() {
-        _currentWeightLbs = initialWeightLbs;
-        _useLbs = initialUseLbs;
-        _weightData
-          ..clear()
-          ..addAll(initialWeightData);
-      });
-    } else {
-      if (mounted) {
-        final kg = (_currentWeightLbs / 2.20462).round();
-        context.read<HomeViewModel>().updateWeight(kg);
-      }
-    }
   }
 
   // ─── Height Picker Bottom Sheet (Matching Reference Screenshot) ───────────
 
   Future<void> _showHeightPicker() async {
     final vm = context.read<HomeViewModel>();
-    final initialHeightCm = vm.profile?.heightCm ?? 170;
+    final savedHeightCm = vm.profile?.heightCm;
+    final initialHeightCm = savedHeightCm != null && savedHeightCm > 0
+        ? savedHeightCm
+        : 170;
 
     bool localUseFt = GeneralSettings.instance.heightImperial;
     int pickedHeightCm = initialHeightCm;
+    bool saving = false;
+    String? saveError;
 
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheet) {
-            final totalInches = (pickedHeightCm / 2.54).round();
-            final ft = totalInches ~/ 12;
-            final inches = totalInches % 12;
+        return DateRolloverBuilder(
+          now: widget.now,
+          builder: (_) => StatefulBuilder(
+            builder: (ctx, setSheet) {
+              final totalInches = (pickedHeightCm / 2.54).round();
+              final ft = totalInches ~/ 12;
+              final inches = totalInches % 12;
 
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Title "Height"
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Height',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+              return SingleChildScrollView(
+                child: SafeArea(
+                  top: false,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(28),
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // cm / ft toggle pill
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _unitBtn('cm', !localUseFt, () {
-                          setSheet(() => localUseFt = false);
-                        }),
-                        _unitBtn('ft', localUseFt, () {
-                          setSheet(() => localUseFt = true);
-                        }),
+                        // Title "Height"
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Height',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF111827),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // cm / ft toggle pill
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _unitBtn('cm', !localUseFt, () {
+                                setSheet(() => localUseFt = false);
+                              }),
+                              _unitBtn('ft', localUseFt, () {
+                                setSheet(() => localUseFt = true);
+                              }),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Height Display (Big blue numbers)
+                        if (localUseFt)
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '$ft',
+                                  style: const TextStyle(
+                                    fontSize: 52,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF0066FF),
+                                    height: 1,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: ' ft ',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '$inches',
+                                  style: const TextStyle(
+                                    fontSize: 52,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF0066FF),
+                                    height: 1,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: ' in',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '$pickedHeightCm',
+                                  style: const TextStyle(
+                                    fontSize: 52,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF0066FF),
+                                    height: 1,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: ' cm',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF111827),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        const SizedBox(height: 20),
+
+                        // Height Ruler
+                        if (localUseFt)
+                          RulerPicker(
+                            key: const ValueKey<String>('height_ft_modal'),
+                            min: 3,
+                            max: 8,
+                            step: 1,
+                            labelInterval: 1,
+                            visualTicksPerStep: 12,
+                            stepWidth: 96.0,
+                            value: ft,
+                            decimalValue: ft + inches / 12.0,
+                            onChanged: (v) {},
+                            onDecimalChanged: (val) {
+                              if (saving) return;
+                              final inTotal = (val * 12.0).round();
+                              final newCm = (inTotal * 2.54).round();
+                              pickedHeightCm = newCm;
+                              setSheet(() {});
+                            },
+                          )
+                        else
+                          RulerPicker(
+                            key: const ValueKey<String>('height_cm_modal'),
+                            min: 100,
+                            max: 230,
+                            step: 10,
+                            labelInterval: 10,
+                            visualTicksPerStep: 10,
+                            stepWidth: 80.0,
+                            value: (pickedHeightCm / 10).round() * 10,
+                            decimalValue: pickedHeightCm.toDouble(),
+                            onChanged: (v) {},
+                            onDecimalChanged: (val) {
+                              if (saving) return;
+                              pickedHeightCm = val.round();
+                              setSheet(() {});
+                            },
+                          ),
+
+                        const SizedBox(height: 32),
+
+                        if (saveError != null) Text(saveError!),
+                        const Text(
+                          'Picker units only. Report uses General Settings.',
+                          textAlign: TextAlign.center,
+                        ),
+                        // Cancel / Save Buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: saving
+                                    ? null
+                                    : () => Navigator.of(ctx).pop(),
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3F4F6),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF111827),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: TextButton(
+                                onPressed: saving
+                                    ? null
+                                    : () async {
+                                        if (saving) return;
+                                        setSheet(() {
+                                          saving = true;
+                                          saveError = null;
+                                        });
+                                        try {
+                                          await vm.updateHeight(pickedHeightCm);
+                                          if (ctx.mounted) {
+                                            Navigator.of(ctx).pop();
+                                          }
+                                        } catch (_) {
+                                          if (ctx.mounted) {
+                                            setSheet(() {
+                                              saving = false;
+                                              saveError =
+                                                  'Could not save height. Please retry.';
+                                            });
+                                          }
+                                        }
+                                      },
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minHeight: 48,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0066FF),
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      'Save',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Height Display (Big blue numbers)
-                  if (localUseFt)
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '$ft',
-                            style: const TextStyle(
-                              fontSize: 52,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF0066FF),
-                              height: 1,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: ' ft ',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          TextSpan(
-                            text: '$inches',
-                            style: const TextStyle(
-                              fontSize: 52,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF0066FF),
-                              height: 1,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: ' in',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '$pickedHeightCm',
-                            style: const TextStyle(
-                              fontSize: 52,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF0066FF),
-                              height: 1,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: ' cm',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  const SizedBox(height: 20),
-
-                  // Height Ruler
-                  if (localUseFt)
-                    RulerPicker(
-                      key: const ValueKey<String>('height_ft_modal'),
-                      min: 3,
-                      max: 8,
-                      step: 1,
-                      labelInterval: 1,
-                      visualTicksPerStep: 12,
-                      stepWidth: 96.0,
-                      value: ft,
-                      decimalValue: ft + inches / 12.0,
-                      onChanged: (v) {},
-                      onDecimalChanged: (val) {
-                        final inTotal = (val * 12.0).round();
-                        final newCm = (inTotal * 2.54).round();
-                        pickedHeightCm = newCm;
-                        setSheet(() {});
-                      },
-                    )
-                  else
-                    RulerPicker(
-                      key: const ValueKey<String>('height_cm_modal'),
-                      min: 100,
-                      max: 230,
-                      step: 10,
-                      labelInterval: 10,
-                      visualTicksPerStep: 10,
-                      stepWidth: 80.0,
-                      value: (pickedHeightCm / 10).round() * 10,
-                      decimalValue: pickedHeightCm.toDouble(),
-                      onChanged: (v) {},
-                      onDecimalChanged: (val) {
-                        pickedHeightCm = val.round();
-                        setSheet(() {});
-                      },
-                    ),
-
-                  const SizedBox(height: 32),
-
-                  // Cancel / Save Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => Navigator.of(ctx).pop(),
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFF111827),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            await vm.updateHeight(pickedHeightCm);
-                            if (ctx.mounted) Navigator.of(ctx).pop();
-                          },
-                          child: Container(
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0066FF),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Save',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
+          ),
         );
       },
     );
   }
 
   // Unit toggle button helper
-  Widget _unitBtn(String label, bool active, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFF0066FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: active ? Colors.white : const Color(0xFF9CA3AF),
-          ),
-        ),
+  Widget _unitBtn(String label, bool active, VoidCallback onTap) => Semantics(
+    selected: active,
+    child: TextButton(
+      style: TextButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        backgroundColor: active ? const Color(0xFF0066FF) : Colors.transparent,
+        foregroundColor: active ? Colors.white : const Color(0xFF374151),
       ),
-    );
-  }
+      onPressed: onTap,
+      child: Text(label),
+    ),
+  );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      DateRolloverBuilder(now: widget.now, builder: _buildReport);
+
+  Widget _buildReport(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final profile = vm.profile;
 
-    final heightCm = profile?.heightCm ?? 170;
+    final heightCm = profile?.heightCm ?? 0;
     final totalInches = (heightCm / 2.54).round();
     final heightFt = totalInches ~/ 12;
     final heightIn = totalInches % 12;
 
-    final weightKg = _currentWeightLbs / 2.20462;
+    final weightKg =
+        !_loadingWeights && !_weightsFailed && _weights.records.isNotEmpty
+        ? _weights.records.last.kg
+        : profile?.weightKg;
+    final validWeight = weightKg != null && weightKg > 0;
     final heightM = heightCm / 100.0;
-    final bmi = (heightM > 0)
-        ? (weightKg / (heightM * heightM))
-        : (profile?.bmi ?? 15.8);
+    final bmi = validWeight && heightCm > 0
+        ? weightKg / (heightM * heightM)
+        : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F7),
@@ -648,17 +794,26 @@ class _ReportPageState extends State<ReportPage> {
               // ── Weight ───────────────────────────────────────────────
               _buildSectionHeader(
                 'Weight',
-                actionWidget: _blueButton('Log', _showWeightLogger),
+                actionWidget: _blueButton('Log', () {
+                  if (!_loadingWeights && !_weightsFailed) _showWeightLogger();
+                }),
               ),
               const SizedBox(height: 10),
-              _buildWeightCard(),
+              _buildWeightCard(validWeight ? weightKg.toDouble() : null),
 
               const SizedBox(height: 24),
 
               // ── BMI ──────────────────────────────────────────────────
               _buildSectionHeader('BMI'),
               const SizedBox(height: 10),
-              _buildBmiCard(bmi, heightFt, heightIn),
+              (_loadingWeights || _weightsFailed)
+                  ? _measurementEmpty('Load weight history to view BMI.')
+                  : bmi == null
+                  ? _measurementEmpty(
+                      'BMI unavailable. Add a saved weight and height.',
+                      onEdit: _showHeightPicker,
+                    )
+                  : _buildBmiCard(bmi, heightFt, heightIn, heightCm),
 
               const SizedBox(height: 24),
             ],
@@ -686,25 +841,50 @@ class _ReportPageState extends State<ReportPage> {
             ),
           ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Column(
           children: [
-            _buildStatItem(
-              icon: _medalIcon(),
-              value: '$_workoutCount',
-              label: 'Workout',
+            const Text('All-time completed workouts'),
+            if (_loadingHistory) const CircularProgressIndicator(),
+            if (_historyFailed) ...[
+              const Text('Could not load workout history.'),
+              TextButton(onPressed: _loadHistory, child: const Text('Retry')),
+            ],
+            if (_historyReady && _history.entries.isEmpty)
+              const Text('No completed workouts yet.'),
+            const SizedBox(height: 12),
+            Wrap(
+              alignment: WrapAlignment.spaceAround,
+              spacing: 20,
+              runSpacing: 16,
+              children: [
+                _buildStatItem(
+                  icon: _medalIcon(),
+                  value: _historyReady ? '${_history.entries.length}' : '—',
+                  label: 'Workout',
+                ),
+                _buildStatItem(icon: _fireIcon(), value: '—', label: 'Kcal'),
+                _buildStatItem(
+                  icon: _clockIcon(),
+                  value: _historyReady
+                      ? (_seconds / 60).toStringAsFixed(
+                          _seconds % 60 == 0 ? 0 : 1,
+                        )
+                      : '—',
+                  label: 'Minute',
+                ),
+              ],
             ),
-            _buildDivider(),
-            _buildStatItem(
-              icon: _fireIcon(),
-              value: '$_kcalBurned',
-              label: 'Kcal',
-            ),
-            _buildDivider(),
-            _buildStatItem(
-              icon: _clockIcon(),
-              value: '$_minutesTrained',
-              label: 'Minute',
+            const SizedBox(height: 12),
+            if (_historyReady)
+              Text(
+                'Recorded duration: ${_seconds ~/ 60} min ${_seconds % 60} sec',
+              ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Calories unavailable: not recorded for completed workouts.',
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
@@ -744,13 +924,22 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  Widget _buildDivider() =>
-      Container(width: 1, height: 50, color: const Color(0xFFF0F0F0));
-
   // ─── History Card ───────────────────────────────────────────────────────────
 
   Widget _buildHistoryCard() {
-    const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    final today = TrainingHistoryRepository.day(_now());
+    final firstDay =
+        context.read<HomeViewModel>().profile?.firstDayOfWeek ?? 'SUNDAY';
+    const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final dayLabels = TrainingCalendar.weekdays(
+      firstDay,
+    ).map((d) => labels[d - 1]).toList();
+    final dates = TrainingCalendar.week(today, firstDay);
+    final completed = _historyReady
+        ? _history.entries
+              .map((e) => TrainingHistoryRepository.day(e.finishedAt))
+              .toSet()
+        : <DateTime>{};
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -774,15 +963,16 @@ class _ReportPageState extends State<ReportPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: dayLabels.map((d) {
-                return SizedBox(
-                  width: 36,
-                  child: Center(
-                    child: Text(
-                      d,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFAAAAAA),
-                        fontWeight: FontWeight.w600,
+                return Expanded(
+                  child: SizedBox(
+                    child: Center(
+                      child: Text(
+                        d,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFAAAAAA),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -794,48 +984,61 @@ class _ReportPageState extends State<ReportPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(7, (i) {
-                final date = _weekStart.add(Duration(days: i));
-                final isToday =
-                    date.day == _today.day &&
-                    date.month == _today.month &&
-                    date.year == _today.year;
+                final date = dates[i];
+                final didComplete = completed.contains(date);
+                final isToday = date == today;
 
-                return SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Center(
-                    child: isToday
-                        ? Container(
-                            width: 34,
-                            height: 34,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: const Color(0xFF0066FF),
-                                width: 2,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${date.day}',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF111827),
+                return Expanded(
+                  child: Semantics(
+                    label:
+                        '${date.year}-${date.month}-${date.day}${didComplete ? ', workout completed' : ''}',
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: Center(
+                        child: (isToday || didComplete)
+                            ? Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: didComplete
+                                      ? const Color(0xFFDCEBFF)
+                                      : null,
+                                  border: Border.all(
+                                    color: const Color(0xFF0066FF),
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(
+                                      '${date.day}',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF111827),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${date.day}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: date.isBefore(today)
+                                        ? const Color(0xFF6B7280)
+                                        : const Color(0xFFBBBBBB),
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                        : Text(
-                            '${date.day}',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: date.isBefore(_today)
-                                  ? const Color(0xFF6B7280)
-                                  : const Color(0xFFBBBBBB),
-                            ),
-                          ),
+                      ),
+                    ),
                   ),
                 );
               }),
@@ -860,7 +1063,7 @@ class _ReportPageState extends State<ReportPage> {
                 const Text('🔥', style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 6),
                 Text(
-                  '$_dayStreak',
+                  _historyReady ? '${_history.streak(today)}' : '—',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -877,18 +1080,50 @@ class _ReportPageState extends State<ReportPage> {
 
   // ─── Weight Card ────────────────────────────────────────────────────────────
 
-  Widget _buildWeightCard() {
-    final currentDisplay = _useLbs
-        ? _currentWeightLbs
-        : (_currentWeightLbs / 2.20462);
+  Widget _measurementEmpty(
+    String message, {
+    VoidCallback? onEdit,
+    String actionLabel = 'Set height',
+  }) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          children: [
+            Text(message),
+            if (onEdit != null)
+              TextButton(onPressed: onEdit, child: Text(actionLabel)),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  Widget _buildWeightCard(double? savedKg) {
+    if (_loadingWeights) return _measurementEmpty('Loading weight history…');
+    if (_weightsFailed) {
+      return _measurementEmpty(
+        'Could not load weight history.',
+        onEdit: _loadWeights,
+        actionLabel: 'Retry',
+      );
+    }
+    if (savedKg == null) {
+      return _measurementEmpty(
+        'No saved weight yet. Tap Log to add your weight.',
+      );
+    }
+    final savedLbs = savedKg * 2.20462;
+    final currentDisplay = _useLbs ? savedLbs : savedKg;
     final unitLabel = _useLbs ? 'lbs' : 'kg';
 
-    final heaviestLbs = _weightData.isEmpty
-        ? _currentWeightLbs
-        : _weightData.map((e) => e.value).reduce(math.max);
-    final lightestLbs = _weightData.isEmpty
-        ? _currentWeightLbs
-        : _weightData.map((e) => e.value).reduce(math.min);
+    final heaviestLbs = _weights.records.isEmpty
+        ? savedLbs
+        : _weights.records.map((e) => e.kg * 2.20462).reduce(math.max);
+    final lightestLbs = _weights.records.isEmpty
+        ? savedLbs
+        : _weights.records.map((e) => e.kg * 2.20462).reduce(math.min);
 
     final heaviestDisplay = _useLbs ? heaviestLbs : (heaviestLbs / 2.20462);
     final lightestDisplay = _useLbs ? lightestLbs : (lightestLbs / 2.20462);
@@ -911,8 +1146,9 @@ class _ReportPageState extends State<ReportPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Wrap(
+              spacing: 20,
+              runSpacing: 12,
               children: [
                 // Current weight
                 Column(
@@ -937,12 +1173,12 @@ class _ReportPageState extends State<ReportPage> {
                     ),
                   ],
                 ),
-                const Spacer(),
                 // Heaviest / Lightest
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 4,
                       children: [
                         const Text(
                           'Heaviest ',
@@ -952,7 +1188,9 @@ class _ReportPageState extends State<ReportPage> {
                           ),
                         ),
                         Text(
-                          heaviestDisplay.toStringAsFixed(1),
+                          _weights.records.isEmpty
+                              ? '—'
+                              : heaviestDisplay.toStringAsFixed(1),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -962,7 +1200,8 @@ class _ReportPageState extends State<ReportPage> {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Row(
+                    Wrap(
+                      spacing: 4,
                       children: [
                         const Text(
                           'Lightest   ',
@@ -972,7 +1211,9 @@ class _ReportPageState extends State<ReportPage> {
                           ),
                         ),
                         Text(
-                          lightestDisplay.toStringAsFixed(1),
+                          _weights.records.isEmpty
+                              ? '—'
+                              : lightestDisplay.toStringAsFixed(1),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -999,22 +1240,33 @@ class _ReportPageState extends State<ReportPage> {
             ),
             const SizedBox(height: 8),
 
-            // Weight chart
-            SizedBox(
-              height: 140,
-              child: _WeightChart(
-                data: _weightData
-                    .map(
-                      (e) => _WeightPoint(
-                        e.day,
-                        _useLbs ? e.value : e.value / 2.20462,
-                      ),
-                    )
-                    .toList(),
-                currentValue: currentDisplay,
-                todayDay: _today.day,
+            // Profile weight has no recorded date; do not invent a chart point.
+            if (_weightData.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 36),
+                child: Center(child: Text('No logged weight history yet.')),
+              )
+            else
+              SizedBox(
+                height: 140,
+                child: Semantics(
+                  label:
+                      'Weight history. ${_weights.records.where((e) => e.date.year == _today.year && e.date.month == _today.month).map((e) => '${e.date.year}-${e.date.month}-${e.date.day}: ${(_useLbs ? e.kg * 2.20462 : e.kg).toStringAsFixed(1)} $unitLabel').join('; ')}',
+                  excludeSemantics: true,
+                  child: _WeightChart(
+                    data: _weightData
+                        .map(
+                          (e) => _WeightPoint(
+                            e.day,
+                            _useLbs ? e.value : e.value / 2.20462,
+                          ),
+                        )
+                        .toList(),
+                    currentValue: currentDisplay,
+                    todayDay: _today.day,
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -1023,7 +1275,7 @@ class _ReportPageState extends State<ReportPage> {
 
   // ─── BMI Card ───────────────────────────────────────────────────────────────
 
-  Widget _buildBmiCard(double bmi, int heightFt, int heightIn) {
+  Widget _buildBmiCard(double bmi, int heightFt, int heightIn, int heightCm) {
     final String bmiLabel;
     final Color bmiDotColor;
 
@@ -1065,8 +1317,10 @@ class _ReportPageState extends State<ReportPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   bmi.toStringAsFixed(1),
@@ -1076,8 +1330,9 @@ class _ReportPageState extends State<ReportPage> {
                     color: Color(0xFF111827),
                   ),
                 ),
-                const Spacer(),
-                Row(
+                Wrap(
+                  spacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Container(
                       width: 12,
@@ -1102,33 +1357,40 @@ class _ReportPageState extends State<ReportPage> {
             ),
 
             const SizedBox(height: 14),
-            _BmiScaleBar(bmi: bmi),
+            BmiScaleBar(bmi: bmi),
 
             const SizedBox(height: 18),
             const Divider(color: Color(0xFFF2F2F2), height: 1),
             const SizedBox(height: 14),
 
             // Height row with Edit icon opening Height Picker
-            GestureDetector(
-              onTap: _showHeightPicker,
-              behavior: HitTestBehavior.opaque,
+            TextButton(
+              key: const ValueKey('report-height-edit'),
+              onPressed: _showHeightPicker,
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
               child: Row(
                 children: [
-                  const Text(
-                    'Height',
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Color(0xFF9CA3AF),
-                      fontWeight: FontWeight.w500,
+                  const Expanded(
+                    child: Text(
+                      'Height',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF9CA3AF),
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    '$heightFt ft $heightIn in',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      GeneralSettings.instance.heightImperial
+                          ? '$heightFt ft $heightIn in'
+                          : '$heightCm cm',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -1158,18 +1420,22 @@ class _ReportPageState extends State<ReportPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF111827),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF111827),
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 16),
           if (actionLabel != null)
-            GestureDetector(
-              onTap: onAction,
+            TextButton(
+              key: ValueKey('report-action-$actionLabel'),
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: onAction,
               child: Text(
                 actionLabel,
                 style: const TextStyle(
@@ -1185,26 +1451,15 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  Widget _blueButton(String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0066FF),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _blueButton(String label, VoidCallback onTap) => FilledButton(
+    key: ValueKey('report-action-$label'),
+    style: FilledButton.styleFrom(
+      minimumSize: const Size(48, 48),
+      backgroundColor: const Color(0xFF0066FF),
+    ),
+    onPressed: onTap,
+    child: Text(label),
+  );
 
   Widget _medalIcon() => SizedBox(
     width: 38,
@@ -1433,107 +1688,6 @@ class _WeightChartPainter extends CustomPainter {
 }
 
 // ─── BMI Scale Bar ────────────────────────────────────────────────────────────
-
-class _BmiScaleBar extends StatelessWidget {
-  const _BmiScaleBar({required this.bmi});
-  final double bmi;
-
-  static const _labelStyle = TextStyle(
-    fontSize: 10,
-    color: Color(0xFF9CA3AF),
-    fontWeight: FontWeight.w500,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 28,
-          child: CustomPaint(
-            painter: _ScaleBarPainter(bmi: bmi),
-            child: const SizedBox.expand(),
-          ),
-        ),
-        const SizedBox(height: 6),
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('15', style: _labelStyle),
-            Text('16', style: _labelStyle),
-            Text('18.5', style: _labelStyle),
-            Text('25', style: _labelStyle),
-            Text('30', style: _labelStyle),
-            Text('35', style: _labelStyle),
-            Text('40', style: _labelStyle),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ScaleBarPainter extends CustomPainter {
-  const _ScaleBarPainter({required this.bmi});
-  final double bmi;
-
-  static const double _minBmi = 15;
-  static const double _maxBmi = 40;
-
-  static const List<_Segment> _segments = [
-    _Segment(15, 16, Color(0xFF6366F1)),
-    _Segment(16, 18.5, Color(0xFF3B82F6)),
-    _Segment(18.5, 21.5, Color(0xFF22C55E)),
-    _Segment(21.5, 25, Color(0xFF84CC16)),
-    _Segment(25, 30, Color(0xFFF59E0B)),
-    _Segment(30, 35, Color(0xFFF97316)),
-    _Segment(35, 40, Color(0xFFEF4444)),
-  ];
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const barHeight = 12.0;
-    const barTop = 14.0;
-    const totalRange = _maxBmi - _minBmi;
-
-    canvas.save();
-    final rrect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, barTop, size.width, barHeight),
-      const Radius.circular(6),
-    );
-    canvas.clipRRect(rrect);
-
-    for (final seg in _segments) {
-      final left = (seg.start - _minBmi) / totalRange * size.width;
-      final right = (seg.end - _minBmi) / totalRange * size.width;
-      canvas.drawRect(
-        Rect.fromLTWH(left, barTop, right - left, barHeight),
-        Paint()..color = seg.color,
-      );
-    }
-    canvas.restore();
-
-    final clampedBmi = bmi.clamp(_minBmi, _maxBmi);
-    final indicatorX = (clampedBmi - _minBmi) / totalRange * size.width;
-
-    final path = Path()
-      ..moveTo(indicatorX, barTop - 1)
-      ..lineTo(indicatorX - 5, 4)
-      ..lineTo(indicatorX + 5, 4)
-      ..close();
-    canvas.drawPath(path, Paint()..color = const Color(0xFF374151));
-  }
-
-  @override
-  bool shouldRepaint(covariant _ScaleBarPainter old) => old.bmi != bmi;
-}
-
-class _Segment {
-  const _Segment(this.start, this.end, this.color);
-  final double start;
-  final double end;
-  final Color color;
-}
 
 // ─── Icon Painters ────────────────────────────────────────────────────────────
 

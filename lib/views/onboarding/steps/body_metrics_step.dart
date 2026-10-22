@@ -18,7 +18,7 @@ import '../widgets/ruler_picker.dart';
 }
 
 int _ftInToCm(int feet, int inches) => ((feet * 12 + inches) * 2.54).round();
-int _kgToLb(int kg) => (kg * 2.20462).round();
+int _kgToLb(num kg) => (kg * 2.20462).round();
 int _lbToKg(int lb) => (lb / 2.20462).round();
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
             ),
             const SizedBox(height: 20),
             _ValueDisplay(
-              value: _weightImperial ? '$lb.0' : '${p.weightKg}.0',
+              value: _weightImperial ? '$lb.0' : p.weightKg.toStringAsFixed(1),
               unit: _weightImperial ? 'lbs' : 'kg',
             ),
             const SizedBox(height: 20),
@@ -81,7 +81,8 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
                     onChanged: (v) => vm.updateWeight(_lbToKg(v)),
                   )
                 : RulerPicker(
-                    value: p.weightKg,
+                    value: p.weightKg.round(),
+                    decimalValue: p.weightKg.toDouble(),
                     min: 30,
                     max: 200,
                     stepWidth: 80.0,

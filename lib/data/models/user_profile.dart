@@ -100,7 +100,7 @@ class UserProfile {
   }
 
   final int heightCm;
-  final int weightKg;
+  final num weightKg;
   final int workoutDaysPerWeek;
   final String firstDayOfWeek;
 
@@ -120,7 +120,7 @@ class UserProfile {
     int? age,
     DateTime? dateOfBirth,
     int? heightCm,
-    int? weightKg,
+    num? weightKg,
     int? workoutDaysPerWeek,
     String? firstDayOfWeek,
   }) {
@@ -182,7 +182,7 @@ class UserProfile {
       age: json['age'] as int? ?? 25,
       dateOfBirth: DateTime.tryParse(json['dateOfBirth'] as String? ?? ''),
       heightCm: json['heightCm'] as int? ?? 170,
-      weightKg: json['weightKg'] as int? ?? 70,
+      weightKg: json['weightKg'] as num? ?? 70,
       workoutDaysPerWeek: json['workoutDaysPerWeek'] as int? ?? 4,
       firstDayOfWeek: json['firstDayOfWeek'] as String? ?? 'SUNDAY',
     );

@@ -35,6 +35,7 @@ class TrainingWorkout {
 
   String get summary =>
       '~$estimatedMinutes min • ${exerciseIds.length} exercises • ${difficulty.label}';
+  String get durationAndLevel => '~$estimatedMinutes min • ${difficulty.label}';
 }
 
 const trainingWorkouts = <TrainingWorkout>[
