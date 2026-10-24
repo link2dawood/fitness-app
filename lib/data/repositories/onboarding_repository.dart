@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_profile.dart';
+import '../models/training_calendar.dart';
 
 /// Single source of truth for onboarding data.
 /// Swap the internals for an API / Firebase / Supabase later without
@@ -13,6 +14,7 @@ class OnboardingRepository {
 
   Future<bool> isOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     return prefs.getBool(_completedKey) ?? false;
   }
 
@@ -60,7 +62,7 @@ class OnboardingRepository {
   }
 
   Future<UserProfile> saveTrainingPreferences(int days, String firstDay) async {
-    if (days < 1 || days > 7 || !['SUNDAY', 'MONDAY'].contains(firstDay)) {
+    if (days < 1 || days > 7 || !TrainingCalendar.firstDays.contains(firstDay)) {
       throw ArgumentError('Invalid training preferences');
     }
     // Merge the latest persisted profile so editing a goal cannot overwrite
@@ -79,7 +81,11 @@ class OnboardingRepository {
 
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_profileKey);
-    await prefs.remove(_completedKey);
+    if (!await prefs.remove(_profileKey)) {
+      throw StateError('Could not reset profile');
+    }
+    if (!await prefs.remove(_completedKey)) {
+      throw StateError('Could not reset onboarding status');
+    }
   }
 }

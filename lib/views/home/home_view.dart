@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../viewmodels/home_viewmodel.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/storage_recovery_view.dart';
+import '../../core/routes/app_routes.dart';
 import 'pages/discover_page.dart';
 import 'pages/report_page.dart';
 import 'pages/settings_page.dart';
@@ -15,6 +17,27 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
+    if (vm.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (vm.profileError != null) {
+      return StorageRecoveryView(
+        title: 'Could not load your profile',
+        message: vm.profileError!,
+        onRetry: vm.load,
+        resetLabel: 'Reset profile',
+        resetDescription:
+            'Remove your saved profile and onboarding status to start again? Saved workouts, workout history, weight logs and reminders will be kept.',
+        onReset: () async {
+          await vm.resetOnboarding();
+          if (context.mounted) {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil(AppRoutes.onboarding, (_) => false);
+          }
+        },
+      );
+    }
 
     final pages = const [
       TrainingPage(),

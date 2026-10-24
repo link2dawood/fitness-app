@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import '../models/training_calendar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,36 +37,33 @@ class TrainingHistoryRepository extends ChangeNotifier {
   static const storageKey = 'training_completions_v1';
   List<TrainingCompletion> _entries = [];
   List<TrainingCompletion> get entries => List.unmodifiable(_entries);
-  Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(storageKey);
-    _entries = raw == null
-        ? []
-        : (jsonDecode(raw) as List)
-              .map(
-                (e) => TrainingCompletion.fromJson(
-                  Map<String, dynamic>.from(e as Map),
-                ),
-              )
-              .toList();
-    notifyListeners();
+  // Reads and writes share a queue so a refresh cannot publish an older
+  // snapshot while a completion is being committed.
+  Future<void>? _operations;
+  Future<T> _enqueue<T>(Future<T> Function() operation) {
+    final previous = _operations;
+    final finished = Completer<void>();
+    final marker = finished.future;
+    _operations = marker;
+    return () async {
+      try {
+        if (previous != null) await previous;
+        return await operation();
+      } finally {
+        // Release before the caller observes completion, including failure.
+        // Idle operations start immediately without retaining a stale Future.
+        if (identical(_operations, marker)) _operations = null;
+        finished.complete();
+      }
+    }();
   }
 
-  Future<void> _writes = Future.value();
-  Future<void> complete(TrainingCompletion completion) {
-    final pending = _writes.then((_) => _complete(completion));
-    // Keep the queue usable after failure while the caller still receives the
-    // original failed Future and can show a retry action.
-    _writes = pending.then<void>((_) {}, onError: (Object _, StackTrace _) {});
-    return pending;
-  }
-
-  Future<void> _complete(TrainingCompletion completion) async {
-    // Only mutate observable state after a durable write. Repeated Finish/retry
-    // for the same session ID cannot create duplicate completions.
-    final prefs = await SharedPreferences.getInstance();
+  Future<List<TrainingCompletion>> _readDurable(SharedPreferences prefs) async {
+    // A failed SharedPreferences write can still change its process cache.
+    // Never use that cache to display history or deduplicate a retry.
+    await prefs.reload();
     final raw = prefs.getString(storageKey);
-    final stored = raw == null
+    return raw == null
         ? <TrainingCompletion>[]
         : (jsonDecode(raw) as List)
               .map(
@@ -73,13 +72,44 @@ class TrainingHistoryRepository extends ChangeNotifier {
                 ),
               )
               .toList();
-    if (stored.any((e) => e.id == completion.id)) return;
+  }
+
+  Future<void> load() => _enqueue(() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = await _readDurable(prefs);
+    _entries = stored;
+    notifyListeners();
+  });
+
+  Future<void> complete(TrainingCompletion completion) =>
+      _enqueue(() => _complete(completion));
+
+  Future<void> _complete(TrainingCompletion completion) async {
+    // Only mutate observable state after a durable write. Repeated Finish/retry
+    // for the same session ID cannot create duplicate completions.
+    final prefs = await SharedPreferences.getInstance();
+    final stored = await _readDurable(prefs);
+    if (stored.any((e) => e.id == completion.id)) {
+      _entries = stored;
+      notifyListeners();
+      return;
+    }
     final next = [...stored, completion];
-    if (!await prefs.setString(
-      storageKey,
-      jsonEncode(next.map((e) => e.toJson()).toList()),
-    )) {
-      throw StateError('Could not save workout completion');
+    try {
+      if (!await prefs.setString(
+        storageKey,
+        jsonEncode(next.map((e) => e.toJson()).toList()),
+      )) {
+        throw StateError('Could not save workout completion');
+      }
+    } catch (_) {
+      try {
+        await prefs.reload();
+      } catch (_) {
+        // Preserve the write error. Future operations must reload successfully
+        // before they can trust any cached value or publish history.
+      }
+      rethrow;
     }
     _entries = next;
     notifyListeners();
@@ -87,10 +117,9 @@ class TrainingHistoryRepository extends ChangeNotifier {
 
   static DateTime day(DateTime value) =>
       DateTime(value.year, value.month, value.day);
-  int weeklyDays(DateTime now, {bool sundayFirst = false}) {
+  int weeklyDays(DateTime now, {bool sundayFirst = false, String? firstDay}) {
     final today = day(now);
-    final offset = sundayFirst ? today.weekday % 7 : today.weekday - 1;
-    final start = DateTime(today.year, today.month, today.day - offset);
+    final start = TrainingCalendar.week(today, firstDay ?? (sundayFirst ? 'SUNDAY' : 'MONDAY')).first;
     return _entries
         .map((e) => day(e.finishedAt))
         .where((d) => !d.isBefore(start) && !d.isAfter(today))

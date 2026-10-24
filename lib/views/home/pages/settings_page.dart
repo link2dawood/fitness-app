@@ -168,7 +168,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFFFFA000),
                   icon: Icons.mic_rounded,
                   title: 'Voice Options (TTS)',
-                  onTap: () => Navigator.of(context).pushNamed(AppRoutes.voiceOptions),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.voiceOptions),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(
@@ -272,9 +273,21 @@ class _SettingsPageState extends State<SettingsPage> {
           Center(
             child: TextButton.icon(
               onPressed: () async {
-                await vm.resetOnboarding();
-                if (!context.mounted) return;
-                Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
+                try {
+                  await vm.resetOnboarding();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushReplacementNamed(AppRoutes.splash);
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Could not reset your profile. Please retry.',
+                        ),
+                      ),
+                    );
+                  }
+                }
               },
               icon: const Icon(
                 Icons.restart_alt_rounded,

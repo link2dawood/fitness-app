@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_strings.dart';
 import '../../viewmodels/splash_viewmodel.dart';
+import '../../data/repositories/onboarding_repository.dart';
+import '../../core/widgets/storage_recovery_view.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -13,6 +15,8 @@ class SplashView extends StatefulWidget {
 
 class _SplashViewState extends State<SplashView>
     with SingleTickerProviderStateMixin {
+  String? _navigationError;
+  bool _navigating = false;
   late final AnimationController _controller;
   late final Animation<double> _logoScale;
   late final Animation<double> _logoFade;
@@ -45,9 +49,22 @@ class _SplashViewState extends State<SplashView>
   }
 
   Future<void> _navigate() async {
-    final route = await context.read<SplashViewModel>().resolveNextRoute();
-    if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed(route);
+    if (!mounted || _navigating) return;
+    _navigating = true;
+    setState(() => _navigationError = null);
+    try {
+      final route = await context.read<SplashViewModel>().resolveNextRoute();
+      if (mounted) Navigator.of(context).pushReplacementNamed(route);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _navigationError =
+              'Your saved profile or onboarding status could not be read. Nothing has been deleted.',
+        );
+      }
+    } finally {
+      _navigating = false;
+    }
   }
 
   @override
@@ -58,6 +75,20 @@ class _SplashViewState extends State<SplashView>
 
   @override
   Widget build(BuildContext context) {
+    if (_navigationError != null) {
+      return StorageRecoveryView(
+        title: 'Could not open your profile',
+        message: _navigationError!,
+        onRetry: _navigate,
+        resetLabel: 'Reset profile',
+        resetDescription:
+            'Remove your saved profile and onboarding status to start again? Saved workouts, workout history, weight logs and reminders will be kept.',
+        onReset: () async {
+          await context.read<OnboardingRepository>().clear();
+          if (mounted) await _navigate();
+        },
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -68,7 +99,10 @@ class _SplashViewState extends State<SplashView>
             child: Image.asset(
               'assets/images/ui/splash_bg.png',
               fit: BoxFit.cover,
-              alignment: const Alignment(0.0, -0.3), // shift up to show torso/chest
+              alignment: const Alignment(
+                0.0,
+                -0.3,
+              ), // shift up to show torso/chest
               errorBuilder: (context, error, stackTrace) {
                 return Container(
                   decoration: const BoxDecoration(
@@ -93,10 +127,14 @@ class _SplashViewState extends State<SplashView>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.black.withValues(alpha: 0.82), // very dark top
-                    Colors.black.withValues(alpha: 0.55), // lighter at chest zone
+                    Colors.black.withValues(
+                      alpha: 0.55,
+                    ), // lighter at chest zone
                     Colors.black.withValues(alpha: 0.70), // mid-body
                     Colors.black.withValues(alpha: 0.90), // dark lower area
-                    Colors.black.withValues(alpha: 0.97), // near-black at bottom
+                    Colors.black.withValues(
+                      alpha: 0.97,
+                    ), // near-black at bottom
                   ],
                   stops: const [0.0, 0.25, 0.55, 0.78, 1.0],
                 ),
@@ -107,7 +145,10 @@ class _SplashViewState extends State<SplashView>
           // ── Foreground Content ──
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 28.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -130,7 +171,9 @@ class _SplashViewState extends State<SplashView>
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFD32F2F).withValues(alpha: 0.45),
+                                  color: const Color(
+                                    0xFFD32F2F,
+                                  ).withValues(alpha: 0.45),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                   offset: const Offset(0, 6),
@@ -200,8 +243,12 @@ class _SplashViewState extends State<SplashView>
                             builder: (_, _) => LinearProgressIndicator(
                               value: _controller.value,
                               minHeight: 3,
-                              backgroundColor: Colors.white.withValues(alpha: 0.15),
-                              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.15,
+                              ),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           ),
                         ),

@@ -113,7 +113,6 @@ class _TrainingPageState extends State<TrainingPage> {
     final history = TrainingHistoryRepository.instance;
     final now = DateTime.now();
     final firstDay = vm.profile?.firstDayOfWeek ?? 'SUNDAY';
-    final sunday = firstDay == 'SUNDAY';
     final today = TrainingHistoryRepository.day(now);
     final dates = TrainingCalendar.week(now, firstDay);
     final completed = history.entries
@@ -212,7 +211,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                       ? 'Loading…'
                                       : vm.historyError != null
                                       ? 'History unavailable'
-                                      : '${history.weeklyDays(now, sundayFirst: sunday)}/${vm.profile?.workoutDaysPerWeek ?? 4}',
+                                      : '${history.weeklyDays(now, firstDay: firstDay)}/${vm.profile?.workoutDaysPerWeek ?? 4}',
                                   style: const TextStyle(
                                     fontSize: 20,
                                     color: AppColors.primary,

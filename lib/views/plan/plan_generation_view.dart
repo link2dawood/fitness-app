@@ -21,6 +21,8 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
 
   double _currentProgress = 0.0;
   int _completedSteps = 0;
+  Timer? _delayTimer;
+  Completer<bool>? _delay;
 
   @override
   void initState() {
@@ -30,12 +32,10 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
       duration: const Duration(milliseconds: 700),
     );
 
-    _progressAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(_controller)
-      ..addListener(() {
-        setState(() {
-          _currentProgress = _progressAnimation.value;
-        });
-      });
+    _progressAnimation = const AlwaysStoppedAnimation<double>(0);
+    _controller.addListener(() {
+      if (mounted) setState(() => _currentProgress = _progressAnimation.value);
+    });
 
     // Start the 4-step loading flow
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,58 +43,39 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
     });
   }
 
-  Future<void> _runLoadingSteps() async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
-
-    // Step 1: 0% -> 25%
-    await _animateTo(0.25);
-    if (!mounted) return;
-    setState(() => _completedSteps = 1);
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-
-    // Step 2: 25% -> 50%
-    await _animateTo(0.50);
-    if (!mounted) return;
-    setState(() => _completedSteps = 2);
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-
-    // Step 3: 50% -> 75%
-    await _animateTo(0.75);
-    if (!mounted) return;
-    setState(() => _completedSteps = 3);
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-
-    // Step 4: 75% -> 100%
-    await _animateTo(1.0);
-    if (!mounted) return;
-    setState(() => _completedSteps = 4);
-    await Future<void>.delayed(const Duration(milliseconds: 700));
-
-    // Navigate to Plan Ready
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed(
-        AppRoutes.planReady,
-        arguments: widget.profile,
-      );
-    }
+  Future<bool> _wait(Duration duration) {
+    if (!mounted) return Future.value(false);
+    final pending = Completer<bool>();
+    _delay = pending;
+    _delayTimer = Timer(duration, () { _delay = null; pending.complete(mounted); });
+    return pending.future;
   }
 
-  Future<void> _animateTo(double target) {
-    _progressAnimation = Tween<double>(
-      begin: _currentProgress,
-      end: target,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOutCubic,
-    ));
+  Future<void> _runLoadingSteps() async {
+    if (!await _wait(const Duration(milliseconds: 400))) return;
+    for (var step = 1; step <= 4; step++) {
+      if (!await _animateTo(step / 4) || !mounted) return;
+      setState(() => _completedSteps = step);
+      if (!await _wait(Duration(milliseconds: step == 4 ? 700 : 500))) return;
+    }
+    if (mounted) Navigator.of(context).pushReplacementNamed(AppRoutes.planReady, arguments: widget.profile);
+  }
 
+  Future<bool> _animateTo(double target) async {
+    if (!mounted) return false;
+    _progressAnimation = Tween<double>(begin: _currentProgress, end: target)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic));
     _controller.reset();
-    return _controller.forward();
+    try {
+      await _controller.forward().orCancel;
+      return mounted;
+    } on TickerCanceled { return false; }
   }
 
   @override
   void dispose() {
+    _delayTimer?.cancel();
+    _delay?.complete(false);
     _controller.dispose();
     super.dispose();
   }

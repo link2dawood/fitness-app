@@ -15,18 +15,39 @@ class GeneralSettings extends ChangeNotifier {
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
-    weightImperial = prefs.getBool('general_weight_imperial') ?? false;
-    heightImperial = prefs.getBool('general_height_imperial') ?? false;
-    keepScreenOn = prefs.getBool('general_keep_screen_on') ?? false;
-    language = AppLanguage.fromCode(prefs.getString('general_language'));
+    await prefs.reload();
+    final weight = prefs.getBool('general_weight_imperial') ?? false;
+    final height = prefs.getBool('general_height_imperial') ?? false;
+    var screen = prefs.getBool('general_keep_screen_on') ?? false;
+    final selectedLanguage = AppLanguage.fromCode(
+      prefs.getString('general_language'),
+    );
     try {
-      await channel.invokeMethod<void>('keepScreenOn', keepScreenOn);
+      await channel.invokeMethod<void>('keepScreenOn', screen);
     } on MissingPluginException {
       // Native screen control is currently available on Android.
     } on PlatformException {
-      keepScreenOn = false;
+      screen = false;
     }
+    weightImperial = weight;
+    heightImperial = height;
+    keepScreenOn = screen;
+    language = selectedLanguage;
     notifyListeners();
+  }
+
+  Future<void> resetPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (final key in [
+      'general_weight_imperial',
+      'general_height_imperial',
+      'general_keep_screen_on',
+      'general_language',
+    ]) {
+      if (!await prefs.remove(key)) {
+        throw StateError('Could not reset app settings');
+      }
+    }
   }
 
   Future<void> setUnits({required bool weight, required bool height}) async {

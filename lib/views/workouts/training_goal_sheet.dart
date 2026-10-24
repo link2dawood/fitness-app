@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../data/models/training_calendar.dart';
 import '../../viewmodels/home_viewmodel.dart';
 
 Future<void> editTrainingGoal(BuildContext context, HomeViewModel model) =>
@@ -91,9 +92,9 @@ class _TrainingGoalSheetState extends State<TrainingGoalSheet> {
               spacing: 12,
               runSpacing: 8,
               children: [
-                for (final value in ['SUNDAY', 'MONDAY'])
+                for (final value in TrainingCalendar.firstDays)
                   ChoiceChip(
-                    label: Text(value == 'SUNDAY' ? 'Sunday' : 'Monday'),
+                    label: Text(value[0] + value.substring(1).toLowerCase()),
                     selected: firstDay == value,
                     onSelected: saving
                         ? null

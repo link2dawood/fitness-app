@@ -12,7 +12,15 @@ class SplashViewModel extends ChangeNotifier {
 
   /// Decides where the app should go after the splash animation.
   Future<String> resolveNextRoute() async {
-    final completed = await _repository.isOnboardingCompleted();
+    final completed = await _repository.isOnboardingCompleted().timeout(
+      const Duration(seconds: 10),
+    );
+    final profile = await _repository.loadProfile().timeout(
+      const Duration(seconds: 10),
+    );
+    if (completed && profile == null) {
+      throw const FormatException('Completed profile is missing');
+    }
     await Future<void>.delayed(_minimumDuration);
     return completed ? AppRoutes.home : AppRoutes.onboarding;
   }

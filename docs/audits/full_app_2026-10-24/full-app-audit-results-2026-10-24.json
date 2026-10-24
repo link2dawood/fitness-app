@@ -1,0 +1,145 @@
+{
+  "historyFailedWrite": {
+    "loadedAfterFailure": 1,
+    "retryWrites": 1,
+    "durableHistory": null
+  },
+  "corruptProfile": {
+    "failure": "FormatException",
+    "stillLoading": true,
+    "historyError": null
+  },
+  "screenOnFailedWrite": {
+    "threw": false,
+    "observable": true,
+    "persisted": null
+  },
+  "unitPartialWrite": {
+    "observableWeight": false,
+    "durable": {
+      "flutter.general_weight_imperial": true
+    }
+  },
+  "unsupportedWeekStart": {
+    "saved": "TUESDAY",
+    "renderedFirstWeekday": 7,
+    "renderedFirstDate": "2026-10-18T00:00:00.000"
+  },
+  "workoutDoneSemantics": "SemanticsNode#32(Rect.fromLTRB(104.0, 514.0, 696.0, 568.0), actions: [tap], label: \"Done\", textDirection: ltr)",
+  "workoutSettingsFailedWrite": {
+    "displayed25": true,
+    "errorShown": false,
+    "durablePrep": null
+  },
+  "challengeButtons": [
+    "Padding(padding: EdgeInsets(0.0, 8.0, 0.0, 8.0))",
+    "Text(\"Start workout\")"
+  ],
+  "challengeOffRest": {
+    "restSeconds": 30,
+    "prep": 0
+  },
+  "genericSettings": {
+    "exerciseStartedImmediately": true,
+    "configuredPrep": 45,
+    "catalogRest": 15,
+    "savedRestMode": "Off"
+  },
+  "planGenerationAfterDispose": null,
+  "layouts-390.0-844.0-1.0": {
+    "planReady": [],
+    "pro": [],
+    "onboarding-gender": [],
+    "onboarding-focusArea": [],
+    "onboarding-goal": [],
+    "onboarding-motivation": [],
+    "onboarding-fitnessLevel": [],
+    "onboarding-activityLevel": [],
+    "onboarding-weeklyGoal": [],
+    "onboarding-bodyMetrics": [],
+    "genericSession": [],
+    "homeAllTabs": [],
+    "settings-Music": [],
+    "settings-Rest timer": [],
+    "settings-Prep timer": [],
+    "settings-Sound options": []
+  },
+  "layouts-320.0-640.0-2.0": {
+    "planReady": [
+      "A RenderFlex overflowed by 695 pixels on the bottom."
+    ],
+    "pro": [
+      "A RenderFlex overflowed by 22 pixels on the right.",
+      "A RenderFlex overflowed by 251 pixels on the right.",
+      "A RenderFlex overflowed by 101 pixels on the right.",
+      "A RenderFlex overflowed by 143 pixels on the right.",
+      "A RenderFlex overflowed by 161 pixels on the right.",
+      "A RenderFlex overflowed by 161 pixels on the right.",
+      "A RenderFlex overflowed by 159 pixels on the right.",
+      "A RenderFlex overflowed by 164 pixels on the bottom.",
+      "A RenderFlex overflowed by 176 pixels on the bottom.",
+      "A RenderFlex overflowed by 62 pixels on the right.",
+      "A RenderFlex overflowed by 40 pixels on the right."
+    ],
+    "onboarding-gender": [
+      "A RenderFlex overflowed by 60 pixels on the bottom.",
+      "A RenderFlex overflowed by 60 pixels on the bottom."
+    ],
+    "onboarding-focusArea": [
+      "A RenderFlex overflowed by 44 pixels on the bottom."
+    ],
+    "onboarding-goal": [],
+    "onboarding-motivation": [],
+    "onboarding-fitnessLevel": [
+      "A RenderFlex overflowed by 2.0 pixels on the bottom."
+    ],
+    "onboarding-activityLevel": [],
+    "onboarding-weeklyGoal": [
+      "A RenderFlex overflowed by 56 pixels on the right.",
+      "A RenderFlex overflowed by 0.109 pixels on the right.",
+      "A RenderFlex overflowed by 16 pixels on the bottom."
+    ],
+    "onboarding-bodyMetrics": [
+      "A RenderFlex overflowed by 3.6 pixels on the right."
+    ],
+    "genericSession": [],
+    "homeAllTabs": [],
+    "settings-Music": [
+      "A RenderFlex overflowed by 16 pixels on the bottom."
+    ],
+    "settings-Rest timer": [
+      "A RenderFlex overflowed by 168 pixels on the bottom."
+    ],
+    "settings-Prep timer": [
+      "A RenderFlex overflowed by 5.0 pixels on the bottom."
+    ],
+    "settings-Sound options": [
+      "A RenderFlex overflowed by 187 pixels on the right.",
+      "A RenderFlex overflowed by 173 pixels on the right."
+    ]
+  },
+  "layouts-844.0-390.0-1.0": {
+    "planReady": [
+      "A RenderFlex overflowed by 221 pixels on the bottom."
+    ],
+    "pro": [],
+    "onboarding-gender": [],
+    "onboarding-focusArea": [],
+    "onboarding-goal": [],
+    "onboarding-motivation": [],
+    "onboarding-fitnessLevel": [],
+    "onboarding-activityLevel": [],
+    "onboarding-weeklyGoal": [],
+    "onboarding-bodyMetrics": [],
+    "genericSession": [],
+    "homeAllTabs": [],
+    "settings-Music": [
+      "A RenderFlex overflowed by 100 pixels on the bottom."
+    ],
+    "settings-Rest timer": [
+      "A RenderFlex overflowed by 45 pixels on the bottom."
+    ],
+    "settings-Prep timer": [],
+    "settings-Sound options": []
+  }
+}

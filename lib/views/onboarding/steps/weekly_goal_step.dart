@@ -4,20 +4,13 @@ import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../viewmodels/onboarding_viewmodel.dart';
+import '../../../data/models/training_calendar.dart';
 import '../widgets/step_scaffold.dart';
 
 class WeeklyGoalStep extends StatelessWidget {
   const WeeklyGoalStep({super.key});
 
-  static const List<String> _daysOfWeek = [
-    'SUNDAY',
-    'MONDAY',
-    'TUESDAY',
-    'WEDNESDAY',
-    'THURSDAY',
-    'FRIDAY',
-    'SATURDAY',
-  ];
+  static const _daysOfWeek = TrainingCalendar.firstDays;
 
   void _showDayPicker(
       BuildContext context, OnboardingViewModel vm, String currentDay) {
