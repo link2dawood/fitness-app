@@ -1,3 +1,4 @@
+import '../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -114,7 +115,7 @@ class _ProPlanViewState extends State<ProPlanView> {
                   icon: Icons.close_rounded,
                   onTap: () => Navigator.of(context).pop(),
                 ),
-                GestureDetector(
+                AppAction(
                   onTap: () => showDialog<void>(
                     context: context,
                     builder: (ctx) => AlertDialog(
@@ -166,8 +167,8 @@ class _ProPlanViewState extends State<ProPlanView> {
                 MediaQuery.of(context).padding.bottom + 12,
               ),
               color: Colors.white,
-              child: SizedBox(
-                height: 56,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 56),
                 child: FilledButton(
                   onPressed: null,
                   style: FilledButton.styleFrom(
@@ -179,12 +180,15 @@ class _ProPlanViewState extends State<ProPlanView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Text(
-                        'COMING SOON',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.6,
+                      Flexible(
+                        child: Text(
+                          'COMING SOON',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.6,
+                          ),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -335,7 +339,8 @@ class _ProPlanViewState extends State<ProPlanView> {
     String? badge,
   }) {
     final selected = _selectedPlan == index;
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
       onTap: () {
         HapticFeedback.selectionClick();
         setState(() => _selectedPlan = index);
@@ -348,109 +353,66 @@ class _ProPlanViewState extends State<ProPlanView> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: selected ? const Color(0xFF0062FF) : const Color(0xFFE5E7EB),
-            width: selected ? 2.0 : 1.0,
+            width: selected ? 2 : 1,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF0062FF).withValues(alpha: 0.12),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
         ),
-        child: Stack(
-          clipBehavior: Clip.none,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                // Radio circle
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: selected
-                          ? const Color(0xFF0062FF)
-                          : const Color(0xFFD1D5DB),
-                      width: 2,
-                    ),
-                    color: selected
-                        ? const Color(0xFF0062FF)
-                        : Colors.transparent,
-                  ),
-                  child: selected
-                      ? const Icon(Icons.check, size: 15, color: Colors.white)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                // Text
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+            Icon(
+              selected ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: selected
+                  ? const Color(0xFF0062FF)
+                  : const Color(0xFFD1D5DB),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (badge != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text(
+                        badge,
+                        style: const TextStyle(
+                          color: Color(0xFF0062FF),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      Text(
+                        price,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      if (oldPrice != null)
                         Text(
-                          price,
+                          oldPrice,
                           style: const TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF6B7280),
+                            color: Color(0xFF9CA3AF),
+                            decoration: TextDecoration.lineThrough,
                           ),
                         ),
-                        if (oldPrice != null) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            oldPrice,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF9CA3AF),
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            // Badge
-            if (badge != null)
-              Positioned(
-                top: -6,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
+                    ],
                   ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0062FF),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    badge,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -461,29 +423,16 @@ class _ProPlanViewState extends State<ProPlanView> {
   // 3. FREE TRIAL TOGGLE
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildTrialToggle() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            'Enable 7 days free trial',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF374151),
-            ),
-          ),
-          Switch.adaptive(
-            value: _freeTrialEnabled,
-            activeTrackColor: const Color(0xFF0062FF),
-            onChanged: (v) => setState(() => _freeTrialEnabled = v),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildTrialToggle() => Padding(
+    padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+    child: SwitchListTile.adaptive(
+      contentPadding: EdgeInsets.zero,
+      title: const Text('Enable 7 days free trial'),
+      value: _freeTrialEnabled,
+      activeTrackColor: const Color(0xFF0062FF),
+      onChanged: (value) => setState(() => _freeTrialEnabled = value),
+    ),
+  );
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 4. FEATURES LIST
@@ -522,12 +471,14 @@ class _ProPlanViewState extends State<ProPlanView> {
                 children: [
                   Icon(f.icon, size: 22, color: const Color(0xFF6B7280)),
                   const SizedBox(width: 14),
-                  Text(
-                    f.label,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF374151),
+                  Expanded(
+                    child: Text(
+                      f.label,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
                     ),
                   ),
                 ],
@@ -559,10 +510,41 @@ class _ProPlanViewState extends State<ProPlanView> {
         ),
 
         // Swipeable review cards
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            IconButton(
+              tooltip: 'Previous review',
+              onPressed: _reviewPage == 0
+                  ? null
+                  : () => _reviewController.previousPage(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                    ),
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Semantics(
+              liveRegion: true,
+              child: Text('Review ${_reviewPage + 1} of ${_reviews.length}'),
+            ),
+            IconButton(
+              tooltip: 'Next review',
+              onPressed: _reviewPage == _reviews.length - 1
+                  ? null
+                  : () => _reviewController.nextPage(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                    ),
+              icon: const Icon(Icons.chevron_right),
+            ),
+          ],
+        ),
         SizedBox(
-          height: 420,
+          height: 240 + 260 * MediaQuery.textScalerOf(context).scale(1),
           child: PageView.builder(
             controller: _reviewController,
+            allowImplicitScrolling: true,
             itemCount: _reviews.length,
             padEnds: true,
             itemBuilder: (context, i) {
@@ -692,6 +674,22 @@ class _ProPlanViewState extends State<ProPlanView> {
   // 6. LEGAL SECTION
   // ═══════════════════════════════════════════════════════════════════════════
 
+  void _policyUnavailable(String name) => showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('$name not published'),
+      content: const Text(
+        'This document is not available yet. Premium purchases remain unavailable.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
+
   Widget _buildLegalSection() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
@@ -709,11 +707,12 @@ class _ProPlanViewState extends State<ProPlanView> {
             ),
           ),
           const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              GestureDetector(
-                onTap: () {},
+              AppAction(
+                onTap: () => _policyUnavailable('Terms of Use'),
                 child: const Text(
                   'Terms of Use',
                   style: TextStyle(
@@ -728,8 +727,8 @@ class _ProPlanViewState extends State<ProPlanView> {
                 ' | ',
                 style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
               ),
-              GestureDetector(
-                onTap: () {},
+              AppAction(
+                onTap: () => _policyUnavailable('Privacy Policy'),
                 child: const Text(
                   'Privacy Policy',
                   style: TextStyle(
@@ -752,11 +751,12 @@ class _ProPlanViewState extends State<ProPlanView> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _circleButton({required IconData icon, required VoidCallback onTap}) {
-    return GestureDetector(
+    return AppAction(
+      label: 'Close Pro plans',
       onTap: onTap,
       child: Container(
-        width: 36,
-        height: 36,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.35),
           shape: BoxShape.circle,

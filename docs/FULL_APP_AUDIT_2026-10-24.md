@@ -1,6 +1,6 @@
 # Full app audit
 
-**Resolution update:** H1 and H2 have been fixed and given permanent regression coverage. See [history durability resolution](FULL_APP_H1_HISTORY_DURABILITY_RESOLUTION.md) and [startup/profile recovery resolution](FULL_APP_H2_STARTUP_RECOVERY_RESOLUTION.md). The counts, evidence and findings below retain the original audit snapshot.
+**Resolution update:** H1, H2 and M1–M9 have been fixed and given permanent regression coverage. See [M1–M4 resolution](FULL_APP_M1_M4_RESOLUTION.md), [M5–M6 resolution](FULL_APP_M5_M6_RESOLUTION.md), and [M7–M9 resolution](FULL_APP_M7_M9_RESOLUTION.md). See [history durability resolution](FULL_APP_H1_HISTORY_DURABILITY_RESOLUTION.md) and [startup/profile recovery resolution](FULL_APP_H2_STARTUP_RECOVERY_RESOLUTION.md). The counts, evidence and findings below retain the original audit snapshot.
 
 **Date:** October 24, 2026 — Asia/Karachi  
 **Project:** fitness_pro  

@@ -1,3 +1,4 @@
+import '../../core/settings/settings_record.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,8 +145,7 @@ class CustomWorkoutRepository {
   }
 
   Future<int> defaultRest() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('settings_rest_mode') == 'Off') return 0;
-    return (prefs.getInt('settings_rest_seconds') ?? 30).clamp(0, 600);
+    final prefs = await SettingsRecord.load('settings_');
+    return prefs.restFor(30);
   }
 }

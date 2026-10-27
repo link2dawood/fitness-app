@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,13 +36,15 @@ class SelectableCard extends StatelessWidget {
 
     // Icon container colors
     final iconBg = selected
-        ? effectiveColor                            // solid accent when selected
-        : effectiveColor.withValues(alpha: 0.12);  // soft pastel when idle
+        ? effectiveColor // solid accent when selected
+        : effectiveColor.withValues(alpha: 0.12); // soft pastel when idle
     final iconFg = selected
-        ? Colors.white                              // white icon on solid bg
-        : effectiveColor;                           // colored icon on pastel bg
+        ? Colors
+              .white // white icon on solid bg
+        : effectiveColor; // colored icon on pastel bg
 
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();
@@ -105,10 +108,16 @@ class SelectableCard extends StatelessWidget {
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               child: selected
-                  ? const Icon(Icons.check_circle_rounded,
-                      key: ValueKey('on'), color: AppColors.primary)
-                  : const Icon(Icons.radio_button_unchecked_rounded,
-                      key: ValueKey('off'), color: AppColors.border),
+                  ? const Icon(
+                      Icons.check_circle_rounded,
+                      key: ValueKey('on'),
+                      color: AppColors.primary,
+                    )
+                  : const Icon(
+                      Icons.radio_button_unchecked_rounded,
+                      key: ValueKey('off'),
+                      color: AppColors.border,
+                    ),
             ),
           ],
         ),

@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -124,16 +125,37 @@ class _FocusAreaStepState extends State<FocusAreaStep> {
       child: figure == null
           ? const SizedBox.shrink()
           : LayoutBuilder(
-              builder: (context, c) => _buildStage(
-                c.maxWidth,
-                c.maxHeight,
-                asset,
-                figure,
-                order,
-                anchors,
-                selected,
-                vm,
-              ),
+              builder: (context, c) =>
+                  MediaQuery.textScalerOf(context).scale(16) > 22
+                  ? ListView(
+                      children: [
+                        for (final area in order)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: AppAction(
+                              selected: selected.contains(area),
+                              onTap: () => vm.toggleFocusArea(area),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  area.label,
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                  : _buildStage(
+                      c.maxWidth,
+                      c.maxHeight,
+                      asset,
+                      figure,
+                      order,
+                      anchors,
+                      selected,
+                      vm,
+                    ),
             ),
     );
   }
@@ -399,7 +421,8 @@ class _FocusAreaTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
       behavior: HitTestBehavior.opaque,
       onTap: () {
         HapticFeedback.selectionClick();

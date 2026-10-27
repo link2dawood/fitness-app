@@ -1,10 +1,11 @@
+import '../../../widgets/app_action.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/settings/settings_record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,9 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
   final ValueNotifier<int> _audioRevision = ValueNotifier(0);
   final List<StreamSubscription<dynamic>> _audioSubscriptions = [];
   bool _preferencesReady = false;
+  String? _loadError;
   bool _importingAudio = false;
-  SharedPreferences? _prefs;
+  SettingsRecord? _prefs;
 
   void _updateAudio(VoidCallback update) {
     if (!mounted) return;
@@ -41,7 +43,7 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
 
   Future<void> _loadPreferences() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SettingsRecord.load('settings_');
       final savedTracks = <Map<String, String>>[];
       for (final raw
           in prefs.getStringList('settings_imported_tracks') ?? <String>[]) {
@@ -76,6 +78,7 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
           (track) => track['path'] == savedPath,
         );
         _currentTrackIndex = index < 0 ? 0 : index;
+        _loadError = null;
         _preferencesReady = true;
         _prefs = prefs;
         _musicOn = prefs.getBool('settings_music') ?? true;
@@ -89,10 +92,12 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
         _voiceVol = prefs.getDouble('settings_voice_volume') ?? 0.8;
         _effectVol = prefs.getDouble('settings_effect_volume') ?? 0.4;
       });
-      await _audioPlayer.setVolume(_mute || !_soundEffect ? 0 : _effectVol);
+      await _audioPlayer
+          .setVolume(_mute || !_soundEffect ? 0 : _effectVol)
+          .catchError((Object _) {});
     } catch (_) {
       if (!mounted) return;
-      setState(() => _preferencesReady = true);
+      setState(() => _loadError = 'Could not load settings. Please retry.');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Could not load settings. Please try again.'),
@@ -101,28 +106,45 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
     }
   }
 
-  Future<void> _savePreferences() async {
+  bool _savingPreferences = false;
+  Future<bool> _savePreferences(Map<String, dynamic> patch) async {
+    if (_savingPreferences) return false;
+    _savingPreferences = true;
     try {
-      final prefs = _prefs ?? await SharedPreferences.getInstance();
-      await prefs.setBool('settings_music', _musicOn);
-      await prefs.setInt('settings_prep', _prepSeconds);
-      await prefs.setString('settings_rest_mode', _restTimerMode);
-      await prefs.setInt('settings_rest_seconds', _customRestSeconds);
-      await prefs.setBool('settings_mute', _mute);
-      await prefs.setBool('settings_voice', _voiceGuide);
-      await prefs.setBool('settings_tips', _coachTips);
-      await prefs.setBool('settings_effect', _soundEffect);
-      await prefs.setDouble('settings_voice_volume', _voiceVol);
-      await prefs.setDouble('settings_effect_volume', _effectVol);
-      await _audioPlayer.setVolume(_mute || !_soundEffect ? 0 : _effectVol);
+      final prefs = _prefs ?? await SettingsRecord.load('settings_');
+      await prefs.update(patch);
+      if (!mounted) return false;
+      setState(() {
+        _musicOn = prefs.getBool('settings_music') ?? true;
+        _prepSeconds = prefs.getInt('settings_prep') ?? 15;
+        _restTimerMode = prefs.getString('settings_rest_mode') ?? 'Default';
+        _customRestSeconds = prefs.getInt('settings_rest_seconds') ?? 30;
+        _mute = prefs.getBool('settings_mute') ?? false;
+        _voiceGuide = prefs.getBool('settings_voice') ?? true;
+        _coachTips = prefs.getBool('settings_tips') ?? true;
+        _soundEffect = prefs.getBool('settings_effect') ?? true;
+        _voiceVol = prefs.getDouble('settings_voice_volume') ?? .8;
+        _effectVol = prefs.getDouble('settings_effect_volume') ?? .4;
+      });
+      unawaited(
+        _audioPlayer
+            .setVolume(_mute || !_soundEffect ? 0 : _effectVol)
+            .catchError((Object _) {}),
+      );
+      return true;
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not save settings. Please try again.'),
+            content: Text(
+              'Could not save settings. Your changes are retained; tap Done to retry.',
+            ),
           ),
         );
       }
+      return false;
+    } finally {
+      _savingPreferences = false;
     }
   }
 
@@ -200,13 +222,25 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
       _audioDuration = Duration.zero;
     });
     try {
+      final prefs = _prefs ?? await SettingsRecord.load('settings_');
+      await prefs.setString('settings_current_track', path);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Selected music could not be saved. Please retry.'),
+          ),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    try {
       await _audioPlayer.stop();
       if (!mounted) return;
       await _audioPlayer.play(
         path.startsWith('audio/') ? AssetSource(path) : DeviceFileSource(path),
       );
-      final prefs = _prefs ?? await SharedPreferences.getInstance();
-      await prefs.setString('settings_current_track', path);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -287,15 +321,16 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
         'image': 'assets/images/workouts/hiit_fat_burning.jpg',
         'path': saved.path,
       };
-      final prefs = _prefs ?? await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SettingsRecord.load('settings_');
       final imported = [
         track,
         ..._musicQueue.where((entry) => !entry['path']!.startsWith('audio/')),
       ];
-      if (!await prefs.setStringList(
-        'settings_imported_tracks',
-        imported.map(jsonEncode).toList(),
-      )) {
+      if (!await prefs.update({
+        'settings_imported_tracks': imported.map(jsonEncode).toList(),
+        'settings_music': true,
+        'settings_current_track': saved.path,
+      })) {
         throw StateError('Could not save music library');
       }
       if (!mounted) return;
@@ -304,7 +339,6 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
         _currentTrackIndex = 0;
         _musicOn = true;
       });
-      await prefs.setBool('settings_music', true);
       await _playSelected();
     } catch (_) {
       if (mounted) {
@@ -360,7 +394,20 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
         ),
       ),
       body: !_preferencesReady
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: _loadError == null
+                  ? const CircularProgressIndicator()
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(_loadError!),
+                        TextButton(
+                          onPressed: _loadPreferences,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+            )
           : ListView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -412,15 +459,6 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
                     _showSoundOptionsModal(context);
                   },
                 ),
-                const Divider(color: Color(0xFFF3F4F6), height: 1),
-                _buildItem(
-                  icon: Icons.replay_rounded,
-                  title: 'Restart progress',
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    _showRestartProgressDialog(context);
-                  },
-                ),
               ],
             ),
     );
@@ -465,297 +503,175 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
     );
   }
 
-  // ── Music Modal ────────────────────────────────────────────────────────────
-  void _showMusicModal(BuildContext context) {
-    bool localMusicOn = _musicOn;
+  String _formatDuration(Duration value) =>
+      '${value.inMinutes}:${(value.inSeconds % 60).toString().padLeft(2, '0')}';
 
-    showModalBottomSheet(
+  Widget _sheetBody(
+    BuildContext ctx, {
+    required String title,
+    required List<Widget> children,
+  }) => SafeArea(
+    child: SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+        child: Material(
+          type: MaterialType.transparency,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ...children,
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _doneButton(
+    BuildContext ctx,
+    StateSetter update,
+    Map<String, dynamic> Function() patch,
+  ) => FilledButton(
+    style: FilledButton.styleFrom(
+      minimumSize: const Size(48, 54),
+      backgroundColor: const Color(0xFF0066FF),
+      foregroundColor: Colors.white,
+    ),
+    onPressed: _savingPreferences
+        ? null
+        : () async {
+            final pending = _savePreferences(patch());
+            update(() {});
+            final saved = await pending;
+            if (!ctx.mounted) return;
+            if (saved) {
+              if (!_musicOn && _isPlaying) {
+                unawaited(_audioPlayer.pause().catchError((Object _) {}));
+              }
+              Navigator.of(ctx).pop();
+            } else {
+              update(() {});
+            }
+          },
+    child: Text(_savingPreferences ? 'Saving…' : 'Done'),
+  );
+
+  void _showMusicModal(BuildContext context) {
+    var localMusicOn = _musicOn;
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (ctx) {
-        return ValueListenableBuilder<int>(
-          valueListenable: _audioRevision,
-          builder: (_, revision, child) => StatefulBuilder(
-            builder: (ctx, setSheet) {
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      useSafeArea: true,
+      builder: (ctx) => ValueListenableBuilder<int>(
+        valueListenable: _audioRevision,
+        builder: (_, revision, child) => StatefulBuilder(
+          builder: (ctx, update) => _sheetBody(
+            ctx,
+            title: 'Music',
+            children: [
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Play music during your workout'),
+                value: localMusicOn,
+                onChanged: (value) => update(() => localMusicOn = value),
+              ),
+              if (localMusicOn) ...[
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Image.asset(
+                    _musicQueue[_currentTrackIndex]['image']!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                  ),
+                  title: Text(_musicQueue[_currentTrackIndex]['title']!),
+                  subtitle: Text(_musicQueue[_currentTrackIndex]['subtitle']!),
                 ),
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 12,
                   children: [
-                    // Title & Switch Row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Music',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: Color(0xFF111827),
-                          ),
-                        ),
-                        Switch(
-                          value: localMusicOn,
-                          activeTrackColor: const Color(0xFF0066FF),
-                          onChanged: (val) {
-                            setSheet(() => localMusicOn = val);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-
-                    const Text(
-                      'Play music during your workout to stay motivated!',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF111827),
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Active Music Player UI
-                    if (localMusicOn) ...[
-                      // Song Info
-                      Row(
-                        children: [
-                          ClipOval(
-                            child: Container(
-                              width: 56,
-                              height: 56,
-                              color: const Color(0xFFF3F4F6),
-                              child: Image.asset(
-                                _musicQueue[_currentTrackIndex]['image']!,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _musicQueue[_currentTrackIndex]['title']!,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111827),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _musicQueue[_currentTrackIndex]['subtitle']!,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: Color(0xFF9CA3AF),
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Controls
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Icon(
-                            Icons.repeat_rounded,
-                            color: Color(0xFF111827),
-                            size: 24,
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await _playPrevious();
-                              if (ctx.mounted) setSheet(() {});
-                            },
-                            child: const Icon(
-                              Icons.fast_rewind_rounded,
-                              color: Color(0xFF111827),
-                              size: 32,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await _playPause();
-                              if (ctx.mounted) setSheet(() {});
-                            },
-                            child: Container(
-                              width: 56,
-                              height: 56,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF0066FF),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                _isPlaying
-                                    ? Icons.pause_rounded
-                                    : Icons.play_arrow_rounded,
-                                color: Colors.white,
-                                size: 28,
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              await _playNext();
-                              if (ctx.mounted) setSheet(() {});
-                            },
-                            child: const Icon(
-                              Icons.fast_forward_rounded,
-                              color: Color(0xFF111827),
-                              size: 32,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              // Pop current music modal and show queue
-                              Navigator.of(ctx).pop();
-                              _showMusicQueueModal(context);
-                            },
-                            child: const Icon(
-                              Icons.format_list_bulleted_rounded,
-                              color: Color(0xFF111827),
-                              size: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Progress Slider
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.volume_down_rounded,
-                            color: Color(0xFFD1D5DB),
-                            size: 20,
-                          ),
-                          Expanded(
-                            child: Slider(
-                              value: _audioDuration.inMilliseconds > 0
-                                  ? _audioPosition.inMilliseconds
-                                        .toDouble()
-                                        .clamp(
-                                          0.0,
-                                          _audioDuration.inMilliseconds
-                                              .toDouble(),
-                                        )
-                                  : 0.0,
-                              max: _audioDuration.inMilliseconds > 0
-                                  ? _audioDuration.inMilliseconds.toDouble()
-                                  : 1.0,
-                              activeColor: const Color(0xFF0066FF),
-                              inactiveColor: const Color(0xFFE5E7EB),
-                              onChanged: (v) {
-                                _audioPlayer.seek(
-                                  Duration(milliseconds: v.toInt()),
-                                );
-                              },
-                            ),
-                          ),
-                          const Icon(
-                            Icons.volume_up_rounded,
-                            color: Color(0xFFD1D5DB),
-                            size: 20,
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Stream Audio Link -> Choose from device
-                      Center(
-                        child: GestureDetector(
-                          onTap: () async {
-                            HapticFeedback.selectionClick();
-                            await _pickDeviceAudio();
-                            if (ctx.mounted) setSheet(() {});
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text(
-                                'Choose from device',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF4B5563),
-                                ),
-                              ),
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: Color(0xFF4B5563),
-                                size: 18,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                    ] else ...[
-                      // When music is off, just give some space
-                      const SizedBox(height: 48),
-                    ],
-
-                    // DONE Button
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _musicOn = localMusicOn;
-                        });
-                        _savePreferences();
-                        if (!_musicOn && _isPlaying) {
-                          _audioPlayer.pause();
-                        }
+                    IconButton(
+                      tooltip: 'Playing queue',
+                      onPressed: () {
                         Navigator.of(ctx).pop();
+                        _showMusicQueueModal(context);
                       },
-                      child: Container(
-                        height: 54,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0066FF),
-                          borderRadius: BorderRadius.circular(27),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'DONE',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
+                      icon: const Icon(Icons.format_list_bulleted_rounded),
+                    ),
+                    IconButton(
+                      tooltip: 'Previous track',
+                      onPressed: _playPrevious,
+                      icon: const Icon(Icons.skip_previous_rounded),
+                    ),
+                    IconButton(
+                      tooltip: _isPlaying ? 'Pause music' : 'Play music',
+                      onPressed: _playPause,
+                      icon: Icon(
+                        _isPlaying
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
                       ),
+                    ),
+                    IconButton(
+                      tooltip: 'Next track',
+                      onPressed: _playNext,
+                      icon: const Icon(Icons.skip_next_rounded),
                     ),
                   ],
                 ),
-              );
-            },
+                Slider(
+                  label: _formatDuration(_audioPosition),
+                  semanticFormatterCallback: (value) =>
+                      '${_formatDuration(Duration(milliseconds: value.round()))} of ${_formatDuration(_audioDuration)}',
+                  value: _audioPosition.inMilliseconds.toDouble().clamp(
+                    0,
+                    _audioDuration.inMilliseconds > 0
+                        ? _audioDuration.inMilliseconds.toDouble()
+                        : 1,
+                  ),
+                  max: _audioDuration.inMilliseconds > 0
+                      ? _audioDuration.inMilliseconds.toDouble()
+                      : 1,
+                  onChanged: (value) =>
+                      _audioPlayer.seek(Duration(milliseconds: value.round())),
+                ),
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  children: [
+                    Text(_formatDuration(_audioPosition)),
+                    Text(_formatDuration(_audioDuration)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: _importingAudio ? null : _pickDeviceAudio,
+                  icon: const Icon(Icons.library_music_rounded),
+                  label: Text(_importingAudio ? 'Loading...' : 'Import music'),
+                ),
+              ],
+              const SizedBox(height: 16),
+              _doneButton(ctx, update, () => {'settings_music': localMusicOn}),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -765,6 +681,7 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (ctx) {
         return ValueListenableBuilder<int>(
           valueListenable: _audioRevision,
@@ -779,8 +696,9 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     const Text(
                       'Playing Queue',
@@ -790,7 +708,7 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    GestureDetector(
+                    AppAction(
                       onTap: () async {
                         await _pickDeviceAudio();
                       },
@@ -862,7 +780,8 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
     bool isActive = false,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return AppAction(
+      selected: isActive,
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
@@ -928,753 +847,231 @@ class _WorkoutSettingsViewState extends State<WorkoutSettingsView> {
     );
   }
 
-  // ── Rest Timer Modal ───────────────────────────────────────────────────────
+  // Timer and sound sheets use natural content heights and a scrollable viewport.
   void _showRestTimerModal(BuildContext context) {
-    bool localModeIsDefault = _restTimerMode == 'Default';
-    bool localEnableRest = _restTimerMode != 'Off';
-    int localCustomSeconds = _customRestSeconds;
-
-    showModalBottomSheet(
+    var useDefault = _restTimerMode == 'Default';
+    var enabled = _restTimerMode != 'Off';
+    var seconds = _customRestSeconds;
+    showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheet) {
-            return Container(
-              height: 520,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      useSafeArea: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, update) => _sheetBody(
+          ctx,
+          title: 'Rest timer',
+          children: [
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: [
+                ChoiceChip(
+                  label: const Text('Default'),
+                  selected: useDefault,
+                  onSelected: (_) => update(() => useDefault = true),
+                ),
+                ChoiceChip(
+                  label: const Text('Custom'),
+                  selected: !useDefault,
+                  onSelected: (_) => update(() => useDefault = false),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            if (useDefault) ...[
+              const Icon(
+                Icons.local_cafe_rounded,
+                size: 64,
+                color: Color(0xFF0066FF),
               ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  const Text(
-                    'Rest timer',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Segmented Control (Default | Custom)
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setSheet(() => localModeIsDefault = true);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: localModeIsDefault
-                                    ? Colors.white
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: localModeIsDefault
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.04,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Default',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: localModeIsDefault
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                    color: localModeIsDefault
-                                        ? const Color(0xFF111827)
-                                        : const Color(0xFF9CA3AF),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setSheet(() => localModeIsDefault = false);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: !localModeIsDefault
-                                    ? Colors.white
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: !localModeIsDefault
-                                    ? [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.04,
-                                          ),
-                                          blurRadius: 4,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ]
-                                    : null,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Custom',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: !localModeIsDefault
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                    color: !localModeIsDefault
-                                        ? const Color(0xFF111827)
-                                        : const Color(0xFF9CA3AF),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // ── Default Content ──────────────────────────────────────────
-                  if (localModeIsDefault)
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 86,
-                            height: 86,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFEEF2FF),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: const Icon(
-                              Icons.local_cafe_rounded,
-                              size: 40,
-                              color: Color(0xFF0066FF),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Smart Rest',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              'Follow the coach-recommended intervals for optimal recovery.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                height: 1.4,
-                                color: Color(0xFF6B7280),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  // ── Custom Content ───────────────────────────────────────────
-                  else
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Enable rest',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF111827),
-                                ),
-                              ),
-                              Switch(
-                                value: localEnableRest,
-                                activeTrackColor: const Color(0xFF0066FF),
-                                onChanged: (val) {
-                                  setSheet(() => localEnableRest = val);
-                                },
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          if (localEnableRest)
-                            SizedBox(
-                              height: 140,
-                              child: ListWheelScrollView.useDelegate(
-                                itemExtent: 48,
-                                physics: const FixedExtentScrollPhysics(),
-                                onSelectedItemChanged: (i) {
-                                  HapticFeedback.selectionClick();
-                                  setSheet(
-                                    () => localCustomSeconds = (i + 1) * 5,
-                                  );
-                                },
-                                controller: FixedExtentScrollController(
-                                  initialItem: (localCustomSeconds ~/ 5) - 1,
-                                ),
-                                childDelegate: ListWheelChildBuilderDelegate(
-                                  childCount: 18,
-                                  builder: (ctx, i) {
-                                    final seconds = (i + 1) * 5;
-                                    final isSelected =
-                                        seconds == localCustomSeconds;
-                                    return Center(
-                                      child: Container(
-                                        decoration: isSelected
-                                            ? BoxDecoration(
-                                                color: const Color(0xFFF3F4F6),
-                                                borderRadius:
-                                                    BorderRadius.circular(16),
-                                              )
-                                            : null,
-                                        alignment: Alignment.center,
-                                        width: double.infinity,
-                                        child: Text(
-                                          '${seconds}s',
-                                          style: TextStyle(
-                                            fontSize: isSelected ? 22 : 18,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w800
-                                                : FontWeight.w600,
-                                            color: isSelected
-                                                ? const Color(0xFF0066FF)
-                                                : const Color(0xFFD1D5DB),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            )
-                          else
-                            const Center(
-                              child: Text(
-                                'Rest disabled',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF9CA3AF),
-                                ),
-                              ),
-                            ),
-                          const Spacer(),
-                        ],
-                      ),
-                    ),
-
-                  const SizedBox(height: 12),
-
-                  // Bottom Done Button
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() {
-                        if (localModeIsDefault) {
-                          _restTimerMode = 'Default';
-                        } else {
-                          _restTimerMode = localEnableRest
-                              ? '${localCustomSeconds}s'
-                              : 'Off';
-                          _customRestSeconds = localCustomSeconds;
-                        }
-                      });
-                      _savePreferences();
-                      Navigator.of(ctx).pop();
-                    },
-                    child: Container(
-                      height: 54,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0066FF),
-                        borderRadius: BorderRadius.circular(27),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Done',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              const Text(
+                'Smart Rest',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
               ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ── Prep Timer Modal ───────────────────────────────────────────────────────
-  void _showPrepTimerModal(BuildContext context) {
-    int localPrepSeconds = _prepSeconds;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheet) {
-            return Container(
-              height: 400,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              const SizedBox(height: 12),
+              const Text(
+                'Follow the coach-recommended intervals for optimal recovery.',
+                textAlign: TextAlign.center,
               ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  const Text(
-                    'Prep timer',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Subtitle
-                  const Text(
-                    'Set the prep time before workouts',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  // Scroll Picker
-                  SizedBox(
-                    height: 140,
-                    child: ListWheelScrollView.useDelegate(
-                      itemExtent: 48,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (i) {
-                        HapticFeedback.selectionClick();
-                        setSheet(
-                          () => localPrepSeconds = (i + 1) * 5,
-                        ); // 5, 10, 15...
-                      },
-                      controller: FixedExtentScrollController(
-                        initialItem: (localPrepSeconds ~/ 5) - 1,
-                      ),
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        childCount: 12, // Up to 60s
-                        builder: (ctx, i) {
-                          final seconds = (i + 1) * 5;
-                          final isSelected = seconds == localPrepSeconds;
-                          return Center(
-                            child: Container(
-                              decoration: isSelected
-                                  ? BoxDecoration(
-                                      color: const Color(0xFFF3F4F6),
-                                      borderRadius: BorderRadius.circular(16),
-                                    )
-                                  : null,
-                              alignment: Alignment.center,
-                              width: double.infinity,
-                              child: Text(
-                                '${seconds}s',
-                                style: TextStyle(
-                                  fontSize: isSelected ? 22 : 18,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                  color: isSelected
-                                      ? const Color(0xFF0066FF)
-                                      : const Color(0xFFD1D5DB),
-                                ),
-                              ),
+            ] else ...[
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Enable rest'),
+                value: enabled,
+                onChanged: (value) => update(() => enabled = value),
+              ),
+              if (enabled)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    IconButton(
+                      tooltip: 'Shorter rest',
+                      onPressed: seconds <= 0
+                          ? null
+                          : () => update(
+                              () => seconds = (seconds - 5).clamp(0, 600),
                             ),
-                          );
-                        },
-                      ),
+                      icon: const Icon(Icons.remove),
                     ),
-                  ),
-
-                  const Spacer(),
-
-                  // Bottom Done Button
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() {
-                        _prepSeconds = localPrepSeconds;
-                        _savePreferences();
-                      });
-                      Navigator.of(ctx).pop();
-                    },
-                    child: Container(
-                      height: 54,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0066FF),
-                        borderRadius: BorderRadius.circular(27),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Done',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  // ── Sound Options Modal ────────────────────────────────────────────────────
-  void _showSoundOptionsModal(BuildContext context) {
-    bool localMute = _mute;
-    bool localVoiceGuide = _voiceGuide;
-    bool localCoachTips = _coachTips;
-    bool localSoundEffect = _soundEffect;
-    double localVoiceVol = _voiceVol;
-    double localEffectVol = _effectVol;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheet) {
-            return Container(
-              height: MediaQuery.of(context).size.height * 0.85,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  // Title
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
+                    Semantics(
+                      liveRegion: true,
                       child: Text(
-                        'Sound options',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF111827),
+                        '$seconds seconds',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Expanded(
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: [
-                        // Mute Card
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Mute',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF111827),
-                                ),
-                              ),
-                              Switch(
-                                value: localMute,
-                                activeTrackColor: const Color(0xFF0066FF),
-                                onChanged: (val) {
-                                  setSheet(() => localMute = val);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Voice Guide & Tips Card
-                        Opacity(
-                          opacity: localMute ? 0.5 : 1.0,
-                          child: IgnorePointer(
-                            ignoring: localMute,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Voice guide (coming soon)',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF111827),
-                                        ),
-                                      ),
-                                      Switch(
-                                        value: localVoiceGuide,
-                                        activeTrackColor: const Color(
-                                          0xFF0066FF,
-                                        ),
-                                        onChanged: null,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Coach tips (coming soon)',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF111827),
-                                        ),
-                                      ),
-                                      Switch(
-                                        value: localCoachTips,
-                                        activeTrackColor: const Color(
-                                          0xFF0066FF,
-                                        ),
-                                        onChanged: null,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.volume_down_rounded,
-                                        color: Color(0xFFD1D5DB),
-                                        size: 20,
-                                      ),
-                                      Expanded(
-                                        child: Slider(
-                                          value: localVoiceVol,
-                                          activeColor: const Color(0xFF0066FF),
-                                          inactiveColor: const Color(
-                                            0xFFE5E7EB,
-                                          ),
-                                          onChanged: null,
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.volume_up_rounded,
-                                        color: Color(0xFFD1D5DB),
-                                        size: 20,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                    IconButton(
+                      tooltip: 'Longer rest',
+                      onPressed: seconds >= 600
+                          ? null
+                          : () => update(
+                              () => seconds = (seconds + 5).clamp(0, 600),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Sound Effect Card
-                        Opacity(
-                          opacity: localMute ? 0.5 : 1.0,
-                          child: IgnorePointer(
-                            ignoring: localMute,
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'Music audio',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF111827),
-                                        ),
-                                      ),
-                                      Switch(
-                                        value: localSoundEffect,
-                                        activeTrackColor: const Color(
-                                          0xFF0066FF,
-                                        ),
-                                        onChanged: (val) => setSheet(
-                                          () => localSoundEffect = val,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.volume_down_rounded,
-                                        color: Color(0xFFD1D5DB),
-                                        size: 20,
-                                      ),
-                                      Expanded(
-                                        child: Slider(
-                                          value: localEffectVol,
-                                          activeColor: const Color(0xFF0066FF),
-                                          inactiveColor: const Color(
-                                            0xFFE5E7EB,
-                                          ),
-                                          onChanged: (v) => setSheet(
-                                            () => localEffectVol = v,
-                                          ),
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.volume_up_rounded,
-                                        color: Color(0xFFD1D5DB),
-                                        size: 20,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      icon: const Icon(Icons.add),
                     ),
-                  ),
-
-                  // Bottom Button Area
-                  Container(
-                    color: const Color(0xFFF3F4F6),
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-                    child: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _mute = localMute;
-                          _voiceGuide = localVoiceGuide;
-                          _coachTips = localCoachTips;
-                          _soundEffect = localSoundEffect;
-                          _voiceVol = localVoiceVol;
-                          _effectVol = localEffectVol;
-                        });
-                        _savePreferences();
-                        Navigator.of(ctx).pop();
-                      },
-                      child: Container(
-                        height: 54,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0066FF),
-                          borderRadius: BorderRadius.circular(27),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'DONE',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+                  ],
+                ),
+            ],
+            const SizedBox(height: 24),
+            _doneButton(
+              ctx,
+              update,
+              () => {
+                'settings_rest_mode': useDefault
+                    ? 'Default'
+                    : enabled
+                    ? 'Custom'
+                    : 'Off',
+                'settings_rest_seconds': seconds,
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _showRestartProgressDialog(BuildContext context) {
-    showDialog(
+  void _showPrepTimerModal(BuildContext context) {
+    var seconds = _prepSeconds;
+    showModalBottomSheet<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Restart Progress?'),
-        content: const Text(
-          'There is no saved workout progress to restart. Workout progress tracking is not available yet.',
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, update) => _sheetBody(
+          ctx,
+          title: 'Prep timer',
+          children: [
+            const Text('Preparation time before your workout'),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final value in [
+                  0,
+                  5,
+                  10,
+                  15,
+                  20,
+                  25,
+                  30,
+                  35,
+                  40,
+                  45,
+                  50,
+                  55,
+                  60,
+                ])
+                  ChoiceChip(
+                    label: Text(value == 0 ? 'Off' : '$value secs'),
+                    selected: seconds == value,
+                    onSelected: (_) => update(() => seconds = value),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            _doneButton(ctx, update, () => {'settings_prep': seconds}),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
-          ),
-        ],
+      ),
+    );
+  }
+
+  void _showSoundOptionsModal(BuildContext context) {
+    var mute = _mute;
+    var effects = _soundEffect;
+    var volume = _effectVol;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, update) => _sheetBody(
+          ctx,
+          title: 'Sound options',
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Mute'),
+              value: mute,
+              onChanged: (value) => update(() => mute = value),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Voice guide (coming soon)'),
+              value: _voiceGuide,
+              onChanged: null,
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Coach tips (coming soon)'),
+              value: _coachTips,
+              onChanged: null,
+            ),
+            const Text('Voice volume (coming soon)'),
+            Slider(
+              value: _voiceVol,
+              onChanged: null,
+              semanticFormatterCallback: (value) =>
+                  'Voice volume ${(value * 100).round()} percent',
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Music audio'),
+              value: effects,
+              onChanged: mute ? null : (value) => update(() => effects = value),
+            ),
+            const Text('Music audio volume'),
+            Slider(
+              value: volume,
+              label: '${(volume * 100).round()}%',
+              semanticFormatterCallback: (value) =>
+                  'Music audio volume ${(value * 100).round()} percent',
+              onChanged: mute || !effects
+                  ? null
+                  : (value) => update(() => volume = value),
+            ),
+            const SizedBox(height: 24),
+            _doneButton(
+              ctx,
+              update,
+              () => {
+                'settings_mute': mute,
+                'settings_effect': effects,
+                'settings_effect_volume': volume,
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

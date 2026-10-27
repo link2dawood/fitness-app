@@ -89,10 +89,12 @@ Future<void> showTrainingHistory(
   BuildContext context,
   DateTime date, {
   required String firstDay,
+  DateTime Function()? now,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
-  builder: (_) => TrainingHistorySheet(date: date, firstDay: firstDay),
+  builder: (_) =>
+      TrainingHistorySheet(date: date, firstDay: firstDay, now: now),
 );
 
 class TrainingHistorySheet extends StatefulWidget {

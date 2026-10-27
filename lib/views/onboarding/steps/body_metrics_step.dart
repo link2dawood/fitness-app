@@ -1,5 +1,5 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -72,6 +72,7 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
             const SizedBox(height: 20),
             _weightImperial
                 ? RulerPicker(
+                    semanticLabel: 'Weight in pounds',
                     value: lb,
                     min: 66,
                     max: 441,
@@ -81,6 +82,7 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
                     onChanged: (v) => vm.updateWeight(_lbToKg(v)),
                   )
                 : RulerPicker(
+                    semanticLabel: 'Weight in kilograms',
                     value: p.weightKg.round(),
                     decimalValue: p.weightKg.toDouble(),
                     min: 30,
@@ -118,6 +120,7 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
                     onChanged: (f, i) => vm.updateHeight(_ftInToCm(f, i)),
                   )
                 : RulerPicker(
+                    semanticLabel: 'Height in centimeters',
                     value: p.heightCm,
                     min: 120,
                     max: 220,
@@ -135,6 +138,7 @@ class _BodyMetricsStepState extends State<BodyMetricsStep> {
             _ValueDisplay(value: '${p.age}', unit: 'years'),
             const SizedBox(height: 20),
             RulerPicker(
+              semanticLabel: 'Age in years',
               value: p.age,
               min: 13,
               max: 90,
@@ -159,8 +163,11 @@ class _HeaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
         children: [
           Text(
             title,
@@ -247,6 +254,7 @@ class _FtInRuler extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               RulerPicker(
+                semanticLabel: 'Height feet',
                 value: feet,
                 min: 4,
                 max: 7,
@@ -273,6 +281,7 @@ class _FtInRuler extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               RulerPicker(
+                semanticLabel: 'Height inches',
                 value: inches,
                 min: 0,
                 max: 11,
@@ -308,27 +317,28 @@ class _UnitToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onChanged(!isRight);
-      },
-      child: Container(
-        height: 34,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(17),
+    return Wrap(
+      spacing: 4,
+      children: [
+        AppAction(
+          label: 'Use $leftLabel',
+          selected: !isRight,
+          onTap: () => onChanged(false),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: _ToggleTab(label: leftLabel, active: !isRight),
+          ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _ToggleTab(label: leftLabel, active: !isRight),
-            _ToggleTab(label: rightLabel, active: isRight),
-          ],
+        AppAction(
+          label: 'Use $rightLabel',
+          selected: isRight,
+          onTap: () => onChanged(true),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: _ToggleTab(label: rightLabel, active: isRight),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -342,7 +352,7 @@ class _ToggleTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: active ? AppColors.primary : Colors.transparent,

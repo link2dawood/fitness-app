@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,10 @@ class WeeklyGoalStep extends StatelessWidget {
   static const _daysOfWeek = TrainingCalendar.firstDays;
 
   void _showDayPicker(
-      BuildContext context, OnboardingViewModel vm, String currentDay) {
+    BuildContext context,
+    OnboardingViewModel vm,
+    String currentDay,
+  ) {
     HapticFeedback.selectionClick();
     showModalBottomSheet<void>(
       context: context,
@@ -62,6 +66,7 @@ class WeeklyGoalStep extends StatelessWidget {
                           vm.selectFirstDayOfWeek(day);
                           Navigator.of(ctx).pop();
                         },
+                        selected: isSelected,
                         title: Text(
                           day,
                           style: TextStyle(
@@ -75,8 +80,11 @@ class WeeklyGoalStep extends StatelessWidget {
                           ),
                         ),
                         trailing: isSelected
-                            ? const Icon(Icons.check_circle_rounded,
-                                color: AppColors.primary, size: 22)
+                            ? const Icon(
+                                Icons.check_circle_rounded,
+                                color: AppColors.primary,
+                                size: 22,
+                              )
                             : null,
                       );
                     },
@@ -107,8 +115,9 @@ class WeeklyGoalStep extends StatelessWidget {
         child: Column(
           children: [
             // ── Section 1: Weekly training days ──────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: const [
                 Icon(
                   Icons.track_changes_rounded,
@@ -177,16 +186,14 @@ class WeeklyGoalStep extends StatelessWidget {
             const SizedBox(height: 32),
 
             // ── Divider ──────────────────────────────────────────────────────
-            Container(
-              height: 1,
-              color: const Color(0xFFF0F2F5),
-            ),
+            Container(height: 1, color: const Color(0xFFF0F2F5)),
 
             const SizedBox(height: 28),
 
             // ── Section 2: First day of week ─────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: const [
                 Icon(
                   Icons.calendar_today_rounded,
@@ -206,12 +213,14 @@ class WeeklyGoalStep extends StatelessWidget {
             ),
             const SizedBox(height: 18),
 
-            GestureDetector(
+            AppAction(
               onTap: () => _showDayPicker(context, vm, firstDay),
               behavior: HitTestBehavior.opaque,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 18,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -275,7 +284,9 @@ class _DayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
+      label: '$day training days per week',
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();

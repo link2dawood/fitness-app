@@ -40,10 +40,9 @@ class OnboardingView extends StatelessWidget {
   }
 
   void _goToPlanGeneration(BuildContext context, UserProfile profile) {
-    Navigator.of(context).pushReplacementNamed(
-      AppRoutes.planGeneration,
-      arguments: profile,
-    );
+    Navigator.of(
+      context,
+    ).pushReplacementNamed(AppRoutes.planGeneration, arguments: profile);
   }
 
   Future<void> _onContinue(BuildContext context, OnboardingViewModel vm) async {
@@ -110,10 +109,11 @@ class OnboardingView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
                 child: PrimaryButton(
-                  label: vm.isLast ? 'Get My Plan' : 'NEXT',
+                  label: vm.isLast ? 'Save preferences' : 'NEXT',
                   isLoading: vm.isSaving,
-                  onPressed:
-                      vm.canProceed ? () => _onContinue(context, vm) : null,
+                  onPressed: vm.canProceed
+                      ? () => _onContinue(context, vm)
+                      : null,
                 ),
               ),
             ],

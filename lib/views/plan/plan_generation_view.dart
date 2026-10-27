@@ -47,7 +47,10 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
     if (!mounted) return Future.value(false);
     final pending = Completer<bool>();
     _delay = pending;
-    _delayTimer = Timer(duration, () { _delay = null; pending.complete(mounted); });
+    _delayTimer = Timer(duration, () {
+      _delay = null;
+      pending.complete(mounted);
+    });
     return pending.future;
   }
 
@@ -58,18 +61,26 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
       setState(() => _completedSteps = step);
       if (!await _wait(Duration(milliseconds: step == 4 ? 700 : 500))) return;
     }
-    if (mounted) Navigator.of(context).pushReplacementNamed(AppRoutes.planReady, arguments: widget.profile);
+    if (mounted) {
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(AppRoutes.planReady, arguments: widget.profile);
+    }
   }
 
   Future<bool> _animateTo(double target) async {
     if (!mounted) return false;
     _progressAnimation = Tween<double>(begin: _currentProgress, end: target)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic));
+        .animate(
+          CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic),
+        );
     _controller.reset();
     try {
       await _controller.forward().orCancel;
       return mounted;
-    } on TickerCanceled { return false; }
+    } on TickerCanceled {
+      return false;
+    }
   }
 
   @override
@@ -81,7 +92,8 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
   }
 
   String _formatBodyMetrics() {
-    final heightCm = widget.profile?.heightCm ?? 175;
+    if (widget.profile == null) return 'Not selected';
+    final heightCm = widget.profile!.heightCm;
     final weightKg = widget.profile?.weightKg ?? 75;
 
     final totalInches = (heightCm / 2.54).round();
@@ -95,114 +107,117 @@ class _PlanGenerationViewState extends State<PlanGenerationView>
   @override
   Widget build(BuildContext context) {
     final bodyMetricsText = _formatBodyMetrics();
-    final fitnessLevelText = widget.profile?.level?.label ?? 'Beginner';
-    final targetedWorkoutText = widget.profile != null && widget.profile!.focusAreas.isNotEmpty
+    final fitnessLevelText = widget.profile?.level?.label ?? 'Not selected';
+    final targetedWorkoutText =
+        widget.profile != null && widget.profile!.focusAreas.isNotEmpty
         ? widget.profile!.focusAreas.map((e) => e.label).join(', ')
-        : 'Full Body';
+        : 'Not selected';
     final percentage = (_currentProgress * 100).round();
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 36),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 36),
 
-              // ── Header Title & Subtitle ────────────────────────────────────
-              const Text(
-                'GENERATING THE\nPLAN FOR YOU',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.4,
-                  height: 1.25,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Preparing your plan based on your goal...',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
-
-              const Spacer(flex: 2),
-
-              // ── Circular Progress Ring ─────────────────────────────────────
-              Center(
-                child: SizedBox(
-                  width: 220,
-                  height: 220,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CustomPaint(
-                        size: const Size(220, 220),
-                        painter: _CircleProgressPainter(
-                          progress: _currentProgress,
-                          progressColor: const Color(0xFF0062FF),
-                          backgroundColor: const Color(0xFFF1F3F7),
-                          strokeWidth: 18,
-                        ),
-                      ),
-                      Text(
-                        '$percentage%',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                    ],
+                // ── Header Title & Subtitle ────────────────────────────────────
+                const Text(
+                  'REVIEWING YOUR\nPREFERENCES',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.4,
+                    height: 1.25,
+                    color: Color(0xFF111827),
                   ),
                 ),
-              ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Preparing workout suggestions from the catalog...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
 
-              const Spacer(flex: 2),
+                const SizedBox(height: 28),
 
-              // ── Checklist of 4 steps ───────────────────────────────────────
-              _StepCheckRow(
-                isCompleted: _completedSteps >= 1,
-                isVisible: true,
-                prefixText: 'Analyze your body: ',
-                highlightText: bodyMetricsText,
-              ),
-              const SizedBox(height: 14),
+                // ── Circular Progress Ring ─────────────────────────────────────
+                Center(
+                  child: SizedBox(
+                    width: 220,
+                    height: 220,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CustomPaint(
+                          size: const Size(220, 220),
+                          painter: _CircleProgressPainter(
+                            progress: _currentProgress,
+                            progressColor: const Color(0xFF0062FF),
+                            backgroundColor: const Color(0xFFF1F3F7),
+                            strokeWidth: 18,
+                          ),
+                        ),
+                        Text(
+                          '$percentage%',
+                          style: const TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            color: Color(0xFF111827),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-              _StepCheckRow(
-                isCompleted: _completedSteps >= 2,
-                isVisible: _completedSteps >= 1,
-                prefixText: 'Adjust your fitness level: ',
-                highlightText: fitnessLevelText,
-              ),
-              const SizedBox(height: 14),
+                const SizedBox(height: 28),
 
-              _StepCheckRow(
-                isCompleted: _completedSteps >= 3,
-                isVisible: _completedSteps >= 2,
-                prefixText: 'Select targeted workout: ',
-                highlightText: targetedWorkoutText,
-              ),
-              const SizedBox(height: 14),
+                // ── Checklist of 4 steps ───────────────────────────────────────
+                _StepCheckRow(
+                  isCompleted: _completedSteps >= 1,
+                  isVisible: true,
+                  prefixText: 'Body measurements: ',
+                  highlightText: bodyMetricsText,
+                ),
+                const SizedBox(height: 14),
 
-              _StepCheckRow(
-                isCompleted: _completedSteps >= 4,
-                isVisible: _completedSteps >= 3,
-                prefixText: 'Your personalized plan is ready!',
-                highlightText: '',
-                isBoldPrefix: true,
-              ),
+                _StepCheckRow(
+                  isCompleted: _completedSteps >= 2,
+                  isVisible: _completedSteps >= 1,
+                  prefixText: 'Fitness level: ',
+                  highlightText: fitnessLevelText,
+                ),
+                const SizedBox(height: 14),
 
-              const Spacer(flex: 3),
-            ],
+                _StepCheckRow(
+                  isCompleted: _completedSteps >= 3,
+                  isVisible: _completedSteps >= 2,
+                  prefixText: 'Focus areas: ',
+                  highlightText: targetedWorkoutText,
+                ),
+                const SizedBox(height: 14),
+
+                _StepCheckRow(
+                  isCompleted: _completedSteps >= 4,
+                  isVisible: _completedSteps >= 3,
+                  prefixText: 'Your preferences are ready!',
+                  highlightText: '',
+                  isBoldPrefix: true,
+                ),
+
+                const SizedBox(height: 28),
+              ],
+            ),
           ),
         ),
       ),
@@ -243,36 +258,36 @@ class _StepCheckRow extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             scale: isCompleted ? 1.0 : 0.0,
             curve: Curves.easeOutBack,
-            child: const Icon(
-              Icons.check_rounded,
-              color: activeBlue,
-              size: 20,
-            ),
+            child: const Icon(Icons.check_rounded, color: activeBlue, size: 20),
           ),
           const SizedBox(width: 8),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: prefixText,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: isBoldPrefix ? FontWeight.w700 : FontWeight.w500,
-                    color: isCompleted
-                        ? const Color(0xFF111827)
-                        : const Color(0xFF9CA3AF),
-                  ),
-                ),
-                if (highlightText.isNotEmpty)
+          Flexible(
+            child: Text.rich(
+              TextSpan(
+                children: [
                   TextSpan(
-                    text: highlightText,
-                    style: const TextStyle(
+                    text: prefixText,
+                    style: TextStyle(
                       fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: activeBlue,
+                      fontWeight: isBoldPrefix
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: isCompleted
+                          ? const Color(0xFF111827)
+                          : const Color(0xFF9CA3AF),
                     ),
                   ),
-              ],
+                  if (highlightText.isNotEmpty)
+                    TextSpan(
+                      text: highlightText,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: activeBlue,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],

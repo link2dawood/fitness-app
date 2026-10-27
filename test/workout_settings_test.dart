@@ -1,3 +1,8 @@
+import 'package:fitness_pro/data/models/challenge_day.dart';
+import 'package:fitness_pro/data/repositories/challenge_day_repository.dart';
+import 'package:fitness_pro/core/settings/settings_record.dart';
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'dart:async';
 
 import 'package:fitness_pro/views/settings/workout_settings_view.dart';
@@ -5,6 +10,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class WorkoutFailStore extends InMemorySharedPreferencesStore {
+  WorkoutFailStore(super.data) : super.withData();
+  bool fail = true;
+  Completer<void>? gate;
+  int writes = 0;
+  @override
+  Future<bool> setValue(String type, String key, Object value) async {
+    writes++;
+    await gate?.future;
+    return fail ? false : super.setValue(type, key, value);
+  }
+}
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +66,8 @@ void main() {
             message: 'Playback interrupted',
           );
         }
-        if (call.method == 'getDuration' || call.method == 'getCurrentPosition') {
+        if (call.method == 'getDuration' ||
+            call.method == 'getCurrentPosition') {
           return 0;
         }
         return null;
@@ -71,7 +90,7 @@ void main() {
       expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
       await tester.tap(find.text('Done'));
       await tester.pumpAndSettle();
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SettingsRecord.load('settings_');
       expect(prefs.getString('settings_rest_mode'), 'Off');
       await tester.tap(find.text('Rest timer'));
       await tester.pumpAndSettle();
@@ -103,7 +122,7 @@ void main() {
       await tester.tap(find.text('Music'));
       await tester.pumpAndSettle();
       pendingStop = Completer<void>();
-      await tester.tap(find.byIcon(Icons.fast_forward_rounded));
+      await tester.tap(find.byTooltip('Next track'));
       await tester.pump();
       Navigator.of(tester.element(find.byType(Slider))).pop();
       await tester.pumpAndSettle();
@@ -111,6 +130,77 @@ void main() {
       await tester.pumpAndSettle();
       pendingStop = null;
       expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'Failed settings commit keeps the draft and blocks duplicate Done taps',
+    (tester) async {
+      final store = WorkoutFailStore({'flutter.settings_rest_mode': 'Off'});
+      SharedPreferencesStorePlatform.instance = store;
+      await open(tester);
+      await tester.tap(find.text('Rest timer'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      store.gate = Completer<void>();
+      await tester.tap(find.text('Done'));
+      await tester.pump();
+      expect(
+        tester
+            .widget<FilledButton>(find.widgetWithText(FilledButton, 'Saving…'))
+            .onPressed,
+        isNull,
+      );
+      expect(store.writes, 1);
+      store.gate!.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(Switch), findsOneWidget);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, true);
+      expect(
+        (await SettingsRecord.load(
+          'settings_',
+        )).getString('settings_rest_mode'),
+        'Off',
+      );
+      store.fail = false;
+      store.gate = null;
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Switch), findsNothing);
+      expect(
+        (await SettingsRecord.load(
+          'settings_',
+        )).getString('settings_rest_mode'),
+        'Custom',
+      );
+      await tester.pumpWidget(const SizedBox());
+      SharedPreferences.setMockInitialValues({});
+    },
+  );
+  testWidgets(
+    'Global settings removes obsolete restart action and preserves the saved challenge',
+    (tester) async {
+      final day = ChallengeDay(
+        entries: referenceDayEntries(),
+        progress: ChallengeProgress(
+          sessionId: 'keep-me',
+          index: 0,
+          phase: ChallengePhase.exercise,
+          remainingMs: 10000,
+          activeMs: 20000,
+        ),
+      );
+      await tester.runAsync(() => ChallengeDayRepository.instance.save(day));
+      await open(tester);
+      expect(find.text('Restart progress'), findsNothing);
+      expect(
+        find.textContaining('progress tracking is not available'),
+        findsNothing,
+      );
+      final saved = await tester.runAsync(ChallengeDayRepository.instance.load);
+      expect(saved!.progress!.sessionId, 'keep-me');
+      expect(saved.progress!.remainingMs, 10000);
+      await tester.pumpWidget(const SizedBox());
     },
   );
 }

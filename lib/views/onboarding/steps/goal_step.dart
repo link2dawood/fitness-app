@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,7 @@ class _GoalCard extends StatelessWidget {
 
   String _getPrimaryAsset(FitnessGoal goal, Gender? gender) {
     if (gender == Gender.female) {
-       switch (goal) {
+      switch (goal) {
         case FitnessGoal.loseWeight:
           return 'assets/images/ui/goal_female_lose_weight.jpg';
         case FitnessGoal.buildMuscle:
@@ -89,121 +90,66 @@ class _GoalCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    const activeColor = AppColors.primary; // Fitness green – consistent with all other steps
-
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        height: 115,
-        decoration: BoxDecoration(
-          color: selected
-              ? activeColor.withValues(alpha: 0.10)
-              : AppColors.surface,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: selected ? activeColor : AppColors.border,
-            width: selected ? 2.0 : 1.0,
-          ),
-          boxShadow: [
-            if (selected)
-              BoxShadow(
-                color: activeColor.withValues(alpha: 0.22),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
-              )
-            else
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
+  Widget build(BuildContext context) => AppAction(
+    selected: selected,
+    onTap: () {
+      HapticFeedback.selectionClick();
+      onTap();
+    },
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      constraints: const BoxConstraints(minHeight: 115),
+      decoration: BoxDecoration(
+        color: selected
+            ? AppColors.primary.withValues(alpha: .10)
+            : AppColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: selected ? AppColors.primary : AppColors.border,
+          width: selected ? 2 : 1,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
-          child: Stack(
-            children: [
-              // Left side: Goal Label
-              Positioned(
-                left: 20,
-                top: 0,
-                bottom: 0,
-                right: 145,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (selected)
+                    const Icon(Icons.check_circle, color: AppColors.primary),
+                  Text(
                     goal.label,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: selected ? activeColor : AppColors.textPrimary,
-                      height: 1.2,
+                      color: selected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
                     ),
                   ),
-                ),
+                ],
               ),
-
-              // Right side: Goal Image
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                width: 145,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(22),
-                    bottomRight: Radius.circular(22),
-                  ),
-                  child: Image.asset(
-                    _getPrimaryAsset(goal, gender),
-                    fit: BoxFit.cover,
-                    alignment: Alignment.center,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        _getFallbackAsset(goal),
-                        fit: BoxFit.cover,
-                        alignment: Alignment.center,
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Selected checkmark badge
-              if (selected)
-                Positioned(
-                  top: 10,
-                  left: 12,
-                  child: Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      color: activeColor,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: activeColor.withValues(alpha: 0.4),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.asset(
+              _getPrimaryAsset(goal, gender),
+              width: 95,
+              height: 115,
+              fit: BoxFit.cover,
+              errorBuilder: (_, error, stack) => Image.asset(
+                _getFallbackAsset(goal),
+                width: 95,
+                height: 115,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }

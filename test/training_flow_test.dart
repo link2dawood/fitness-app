@@ -60,7 +60,7 @@ Widget app(Widget home) => MaterialApp(
 
 void main() {
   setUp(() async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({'settings_prep': 0});
     await TrainingHistoryRepository.instance.load();
   });
   test(
@@ -311,4 +311,76 @@ void main() {
       expect(find.text('${trainingWorkouts.length} workouts'), findsOneWidget);
     },
   );
+  testWidgets('Shared preparation and Off rest apply to a generic workout', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      'settings_prep': 5,
+      'settings_rest_mode': 'Off',
+      'settings_music': false,
+      'settings_voice': false,
+      'settings_effect': false,
+    });
+    final clocks = <ManualStopwatch>[];
+    await tester.pumpWidget(
+      app(
+        TrainingSessionPage(
+          workout: sample,
+          createStopwatch: () {
+            final clock = ManualStopwatch();
+            clocks.add(clock);
+            return clock;
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Get ready'), findsOneWidget);
+    expect(
+      tester
+          .widget<FilledButton>(
+            find.widgetWithText(FilledButton, 'Exercise done'),
+          )
+          .onPressed,
+      isNull,
+    );
+    for (final clock in clocks) {
+      clock.advance(const Duration(seconds: 5));
+    }
+    await tester.pump(const Duration(milliseconds: 250));
+    expect(find.text('Get ready'), findsNothing);
+    await tester.tap(find.text('Exercise done'));
+    await tester.pump();
+    expect(find.text('Exercise 2 of 2'), findsOneWidget);
+    expect(find.text('Rest'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Unreadable session settings offer retry before clocks start', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({'settings_record_v1': 'broken'});
+    final clocks = <ManualStopwatch>[];
+    await tester.pumpWidget(
+      app(
+        TrainingSessionPage(
+          workout: sample,
+          createStopwatch: () {
+            final clock = ManualStopwatch();
+            clocks.add(clock);
+            return clock;
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Retry'), findsOneWidget);
+    expect(clocks.every((clock) => !clock.isRunning), isTrue);
+    SharedPreferences.setMockInitialValues({'settings_prep': 0});
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+    expect(find.text('Exercise 1 of 2'), findsOneWidget);
+    expect(clocks.every((clock) => clock.isRunning), isTrue);
+    await tester.pumpWidget(const SizedBox());
+  });
 }

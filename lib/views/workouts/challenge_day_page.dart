@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/settings/settings_record.dart';
 import '../../core/routes/app_routes.dart';
 import '../../data/models/challenge_day.dart';
 import '../../data/repositories/challenge_day_repository.dart';
@@ -22,7 +22,9 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
       MaterialPageRoute(builder: (_) => const ChallengeDayPage()),
     );
     if (mounted) {
-      setState(() => future = ChallengeDayRepository.instance.load());
+      setState(() {
+        future = ChallengeDayRepository.instance.load();
+      });
     }
   }
 
@@ -42,6 +44,7 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
             : day!.progress!.credited
             ? 'VIEW DAY 1'
             : 'CONTINUE DAY 1',
+        compact: true,
         onTap: open,
       );
     },
@@ -71,14 +74,12 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
   Future<void> load() async {
     try {
       final saved = await repository.load();
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SettingsRecord.load('settings_');
       if (mounted) {
         setState(() {
           day = saved;
           prep = (prefs.getInt('settings_prep') ?? 15).clamp(0, 60);
-          rest = prefs.getString('settings_rest_mode') == 'Custom'
-              ? (prefs.getInt('settings_rest_seconds') ?? 30).clamp(0, 600)
-              : 30;
+          rest = prefs.restFor(30);
           error = null;
         });
       }
@@ -171,7 +172,7 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
         builder: (ctx) => AlertDialog(
           title: const Text('Restart Day 1?'),
           content: const Text(
-            'Your exercise edits are kept. Only the current session progress will restart.',
+            'Your exercise edits are kept. Only the current Day 1 session progress will restart. Completed workout history is kept.',
           ),
           actions: [
             TextButton(

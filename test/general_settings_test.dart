@@ -1,3 +1,4 @@
+import 'package:fitness_pro/core/settings/settings_record.dart';
 import 'package:fitness_pro/core/settings/general_settings.dart';
 import 'package:fitness_pro/views/settings/general_settings_view.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SettingsRecord.load('general_');
     expect(prefs.getBool('general_weight_imperial'), isTrue);
     expect(prefs.getBool('general_height_imperial'), isTrue);
     expect(prefs.getBool('general_keep_screen_on'), isTrue);

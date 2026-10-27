@@ -1,3 +1,7 @@
+import '../../core/settings/settings_record.dart';
+import '../../core/settings/challenge_audio.dart';
+import '../../core/settings/tts_service.dart';
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
@@ -136,6 +140,73 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   late final phase = widget.createStopwatch?.call() ?? Stopwatch();
   Timer? timer;
   int index = 0;
+  SettingsRecord? preferences;
+  bool preparing = false;
+  String? settingsError;
+  ChallengeAudio? audio;
+  final tts = TtsService();
+  Future<void> _loadSettings() async {
+    try {
+      final settings = await SettingsRecord.load('settings_');
+      if (!mounted) return;
+      setState(() {
+        preferences = settings;
+        settingsError = null;
+        preparing = (settings.getInt('settings_prep') ?? 15).clamp(0, 60) > 0;
+      });
+      if (!paused) {
+        active.start();
+        phase.start();
+      }
+      // Missing media plugins must never prevent a workout from starting.
+      try {
+        await tts.state();
+        if (!mounted) return;
+        audio = ChallengeAudio();
+        await audio!.load();
+        if (!mounted) return;
+        await audio!.play(!paused);
+      } catch (_) {
+        /* Media is optional on unsupported platforms. */
+      }
+      if (mounted) _announce();
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => settingsError =
+              'Could not load workout settings. Retry before starting.',
+        );
+      }
+    }
+  }
+
+  void _announce() {
+    final settings = preferences;
+    if (settings == null || paused) return;
+    if (settings.getBool('settings_mute') == true) return;
+    if (settings.getBool('settings_effect') ?? true) {
+      unawaited(
+        SystemSound.play(SystemSoundType.click).catchError((Object _) {}),
+      );
+    }
+    if (settings.getBool('settings_voice') ?? true) {
+      unawaited(
+        tts
+            .action('speak', {
+              'text': finished
+                  ? 'Workout complete'
+                  : preparing
+                  ? 'Get ready'
+                  : rest
+                  ? 'Rest'
+                  : widget.workout.exercises[index].name,
+              'volume': settings.getDouble('settings_voice_volume') ?? .8,
+            })
+            .catchError((Object _) {}),
+      );
+    }
+  }
+
   bool rest = false,
       paused = false,
       finished = false,
@@ -145,8 +216,11 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   String? error;
   DateTime? completedAt;
   bool confirmingExit = false;
-  int get phaseSeconds => rest
-      ? widget.workout.restAfter(index)
+  int get phaseSeconds => preparing
+      ? (preferences?.getInt('settings_prep') ?? 15).clamp(0, 60)
+      : rest
+      ? (preferences?.restFor(widget.workout.restAfter(index)) ??
+            widget.workout.restAfter(index))
       : widget.workout.exercises[index].timed
       ? widget.workout.targetAt(index)
       : 0;
@@ -156,16 +230,27 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    active.start();
-    phase.start();
+    _loadSettings();
     timer = Timer.periodic(const Duration(milliseconds: 250), (_) {
-      if (mounted && !paused && !finished) setState(() {});
+      if (mounted && preferences != null && !paused && !finished) {
+        if (preparing && remaining == 0) {
+          setState(() {
+            preparing = false;
+            phase.reset();
+          });
+          _announce();
+        } else {
+          setState(() {});
+        }
+      }
     });
   }
 
   @override
   void dispose() {
     timer?.cancel();
+    audio?.dispose();
+    unawaited(tts.action('stop').catchError((Object _) {}));
     active.stop();
     phase.stop();
     WidgetsBinding.instance.removeObserver(this);
@@ -178,6 +263,8 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   }
 
   void _pause() => setState(() {
+    unawaited(audio?.play(paused) ?? Future.value());
+    unawaited(tts.action('stop').catchError((Object _) {}));
     paused = !paused;
     if (paused) {
       active.stop();
@@ -188,7 +275,9 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
     }
   });
   void _next() {
-    if (paused ||
+    if (preferences == null ||
+        preparing ||
+        paused ||
         finished ||
         saving ||
         (!rest && widget.workout.exercises[index].timed && remaining > 0)) {
@@ -204,10 +293,13 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
         active.stop();
         phase.stop();
       } else {
-        rest = true;
+        rest = preferences!.restFor(widget.workout.restAfter(index)) > 0;
+        if (!rest) index++;
       }
       phase.reset();
     });
+    if (finished) unawaited(audio?.play(false) ?? Future.value());
+    _announce();
   }
 
   Future<void> _save() async {
@@ -292,94 +384,122 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
             icon: const Icon(Icons.arrow_back),
           ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              if (finished) ...[
-                const Icon(
-                  Icons.check_circle,
-                  size: 80,
-                  color: AppColors.primary,
-                ),
-                Text(
-                  saved ? 'Progress saved' : 'All exercises completed',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Text('${widget.workout.exercises.length} exercises completed'),
-                if (error != null)
-                  Text(error!, style: const TextStyle(color: Colors.red)),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: saving
-                      ? null
-                      : saved
-                      ? _exit
-                      : _save,
-                  child: Text(
-                    saving
-                        ? 'Saving…'
-                        : saved
-                        ? 'Done'
-                        : 'Save completion',
-                  ),
-                ),
-              ] else ...[
-                LinearProgressIndicator(
-                  value: index / widget.workout.exercises.length,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Exercise ${index + 1} of ${widget.workout.exercises.length}',
-                ),
-                Text(
-                  rest ? 'Rest' : exercise.name,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                if (rest)
-                  Text('Next: ${widget.workout.exercises[index + 1].name}')
-                else
-                  SizedBox(
-                    width: 260,
-                    height: 260,
-                    child: ExerciseAvatar(exercise: exercise, animate: !paused),
-                  ),
-                Text(
-                  rest || exercise.timed
-                      ? '$remaining seconds'
-                      : '${widget.workout.targetAt(index)} reps',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                if (paused) const Text('Paused'),
-                const SizedBox(height: 20),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    OutlinedButton(
-                      onPressed: _pause,
-                      child: Text(paused ? 'Resume' : 'Pause'),
-                    ),
-                    FilledButton(
-                      onPressed:
-                          paused || (!rest && exercise.timed && remaining > 0)
-                          ? null
-                          : _next,
-                      child: Text(
-                        rest
-                            ? (remaining > 0 ? 'Skip rest' : 'Continue')
-                            : index == widget.workout.exercises.length - 1
-                            ? 'Finish exercise'
-                            : 'Exercise done',
+        body: preferences == null
+            ? Center(
+                child: settingsError == null
+                    ? const CircularProgressIndicator()
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(settingsError!),
+                          TextButton(
+                            onPressed: _loadSettings,
+                            child: const Text('Retry'),
+                          ),
+                        ],
                       ),
-                    ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    if (finished) ...[
+                      const Icon(
+                        Icons.check_circle,
+                        size: 80,
+                        color: AppColors.primary,
+                      ),
+                      Text(
+                        saved ? 'Progress saved' : 'All exercises completed',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      Text(
+                        '${widget.workout.exercises.length} exercises completed',
+                      ),
+                      if (error != null)
+                        Text(error!, style: const TextStyle(color: Colors.red)),
+                      const SizedBox(height: 24),
+                      FilledButton(
+                        onPressed: saving
+                            ? null
+                            : saved
+                            ? _exit
+                            : _save,
+                        child: Text(
+                          saving
+                              ? 'Saving…'
+                              : saved
+                              ? 'Done'
+                              : 'Save completion',
+                        ),
+                      ),
+                    ] else ...[
+                      LinearProgressIndicator(
+                        value: index / widget.workout.exercises.length,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Exercise ${index + 1} of ${widget.workout.exercises.length}',
+                      ),
+                      Text(
+                        preparing
+                            ? 'Get ready'
+                            : rest
+                            ? 'Rest'
+                            : exercise.name,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      if (rest)
+                        Text(
+                          'Next: ${widget.workout.exercises[index + 1].name}',
+                        )
+                      else
+                        SizedBox(
+                          width: 260,
+                          height: 260,
+                          child: ExerciseAvatar(
+                            exercise: exercise,
+                            animate: !paused,
+                          ),
+                        ),
+                      Text(
+                        preparing || rest || exercise.timed
+                            ? '$remaining seconds'
+                            : '${widget.workout.targetAt(index)} reps',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      if (paused) const Text('Paused'),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          OutlinedButton(
+                            onPressed: _pause,
+                            child: Text(paused ? 'Resume' : 'Pause'),
+                          ),
+                          FilledButton(
+                            onPressed:
+                                preparing ||
+                                    paused ||
+                                    (!rest && exercise.timed && remaining > 0)
+                                ? null
+                                : _next,
+                            child: Text(
+                              rest
+                                  ? (remaining > 0 ? 'Skip rest' : 'Continue')
+                                  : index == widget.workout.exercises.length - 1
+                                  ? 'Finish exercise'
+                                  : 'Exercise done',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
-              ],
-            ],
-          ),
-        ),
+              ),
       ),
     );
   }

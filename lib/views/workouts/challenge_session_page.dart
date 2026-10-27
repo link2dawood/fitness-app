@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/settings/settings_record.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/settings/challenge_audio.dart';
 import '../../core/settings/tts_service.dart';
@@ -82,7 +82,7 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
   Future<void> loadMedia() async {
     try {
       await audio?.load();
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SettingsRecord.load('settings_');
       voice = prefs.getBool('settings_voice') ?? true;
       effects = prefs.getBool('settings_effect') ?? true;
       mute = prefs.getBool('settings_mute') ?? false;
@@ -266,10 +266,8 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
     controller.pause();
     await Navigator.pushNamed(context, AppRoutes.workoutSettings);
     if (!mounted) return;
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getString('settings_rest_mode') == 'Custom'
-        ? (prefs.getInt('settings_rest_seconds') ?? 30).clamp(0, 600)
-        : 30;
+    final prefs = await SettingsRecord.load('settings_');
+    final seconds = prefs.restFor(30);
     if (seconds != controller.restSeconds) controller.setRest(seconds);
     await loadMedia();
   }
@@ -277,7 +275,9 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
   Future<void> editRest() async {
     controller.pause();
     var seconds = controller.restSeconds;
-    final result = await showModalBottomSheet<int>(
+    var savingRest = false;
+    String? restError;
+    await showModalBottomSheet<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, update) => SafeArea(
@@ -312,8 +312,37 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
                     ),
                   ],
                 ),
+                if (restError != null)
+                  Text(restError!, style: const TextStyle(color: Colors.red)),
                 FilledButton(
-                  onPressed: () => Navigator.pop(ctx, seconds),
+                  onPressed: savingRest
+                      ? null
+                      : () async {
+                          update(() {
+                            savingRest = true;
+                            restError = null;
+                          });
+                          try {
+                            final prefs = await SettingsRecord.load(
+                              'settings_',
+                            );
+                            await prefs.update({
+                              'settings_rest_mode': 'Custom',
+                              'settings_rest_seconds': seconds,
+                            });
+                            if (!mounted || !ctx.mounted) return;
+                            controller.setRest(seconds);
+                            Navigator.pop(ctx);
+                          } catch (_) {
+                            if (ctx.mounted) {
+                              update(() {
+                                savingRest = false;
+                                restError =
+                                    'Rest time could not be saved. Retry.';
+                              });
+                            }
+                          }
+                        },
                   child: const Text('Save'),
                 ),
               ],
@@ -322,17 +351,6 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
         ),
       ),
     );
-    if (result != null && mounted) {
-      final prefs = await SharedPreferences.getInstance();
-      final saved =
-          await prefs.setString('settings_rest_mode', 'Custom') &&
-          await prefs.setInt('settings_rest_seconds', result);
-      if (saved) {
-        controller.setRest(result);
-      } else {
-        setState(() => error = 'Rest time could not be saved.');
-      }
-    }
   }
 
   Future<void> music() async {
@@ -524,14 +542,24 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
                 foregroundColor: rest ? Colors.white : Colors.black,
               ),
               onPressed: () async {
-                setState(() => mute = !mute);
-                await (await SharedPreferences.getInstance()).setBool(
-                  'settings_mute',
-                  mute,
-                );
-                if (audio != null) await audio!.setVolume(audio!.volume);
-                if (mute && widget.enableMedia) {
-                  await TtsService().action('stop').catchError((Object _) {});
+                final nextMute = !mute;
+                try {
+                  await (await SettingsRecord.load(
+                    'settings_',
+                  )).setBool('settings_mute', nextMute);
+                  if (!mounted) return;
+                  setState(() => mute = nextMute);
+                  if (audio != null) await audio!.setVolume(audio!.volume);
+                  if (mute && widget.enableMedia) {
+                    await TtsService().action('stop').catchError((Object _) {});
+                  }
+                } catch (_) {
+                  if (mounted) {
+                    setState(
+                      () => error =
+                          'Mute preference could not be saved. Please retry.',
+                    );
+                  }
                 }
               },
               icon: Icon(

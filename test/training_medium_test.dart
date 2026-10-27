@@ -70,10 +70,14 @@ void main() {
         throwsArgumentError,
       );
       await expectLater(
-        repository.saveTrainingPreferences(5, 'FRIDAY'),
+        repository.saveTrainingPreferences(5, 'INVALID'),
         throwsArgumentError,
       );
       expect((await repository.loadProfile())!.workoutDaysPerWeek, 6);
+      for (final first in TrainingCalendar.firstDays) {
+        await repository.saveTrainingPreferences(6, first);
+        expect((await repository.loadProfile())!.firstDayOfWeek, first);
+      }
     },
   );
   test('Calendar aligns Sunday/Monday across weeks, months and leap years', () {
@@ -271,7 +275,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         tester
-            .widgetList<TrainingWorkoutTile>(find.byType(TrainingWorkoutTile))
+            .widgetList<TrainingChallengeCard>(
+              find.byType(TrainingChallengeCard),
+            )
             .first
             .workout
             .id,

@@ -10,6 +10,7 @@ class RulerPicker extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.decimalValue,
+    this.semanticLabel,
     this.onDecimalChanged,
     this.step = 1,
     this.labelInterval = 10,
@@ -17,6 +18,7 @@ class RulerPicker extends StatefulWidget {
     this.stepWidth = 12.0,
   });
 
+  final String? semanticLabel;
   final int min;
   final int max;
   final int value;
@@ -38,7 +40,8 @@ class _RulerPickerState extends State<RulerPicker> {
   double _currentDecimalValue = 0.0;
 
   double get _subTickWidth =>
-      widget.stepWidth / (widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep : 1);
+      widget.stepWidth /
+      (widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep : 1);
 
   @override
   void initState() {
@@ -46,7 +49,8 @@ class _RulerPickerState extends State<RulerPicker> {
     _currentValue = widget.value;
     _currentDecimalValue = widget.decimalValue ?? widget.value.toDouble();
     final activeVal = widget.decimalValue ?? widget.value.toDouble();
-    final initialOffset = ((activeVal - widget.min) / widget.step) * widget.stepWidth;
+    final initialOffset =
+        ((activeVal - widget.min) / widget.step) * widget.stepWidth;
     _scrollController = ScrollController(initialScrollOffset: initialOffset);
     _scrollController.addListener(_onScroll);
   }
@@ -55,13 +59,16 @@ class _RulerPickerState extends State<RulerPicker> {
   void didUpdateWidget(covariant RulerPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.decimalValue != null) {
-      final factor = widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep.toDouble() : 10.0;
+      final factor = widget.visualTicksPerStep > 0
+          ? widget.visualTicksPerStep.toDouble()
+          : 10.0;
       final threshold = 0.5 / factor;
       if ((widget.decimalValue! - _currentDecimalValue).abs() > threshold) {
         _currentDecimalValue = widget.decimalValue!;
         _currentValue = widget.decimalValue!.round();
         final offset =
-            ((_currentDecimalValue - widget.min) / widget.step) * widget.stepWidth;
+            ((_currentDecimalValue - widget.min) / widget.step) *
+            widget.stepWidth;
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
             offset,
@@ -73,7 +80,8 @@ class _RulerPickerState extends State<RulerPicker> {
     } else if (widget.value != _currentValue) {
       _currentValue = widget.value;
       _currentDecimalValue = widget.value.toDouble();
-      final offset = ((_currentValue - widget.min) / widget.step) * widget.stepWidth;
+      final offset =
+          ((_currentValue - widget.min) / widget.step) * widget.stepWidth;
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           offset,
@@ -88,9 +96,12 @@ class _RulerPickerState extends State<RulerPicker> {
     final offset = _scrollController.offset;
     if (widget.onDecimalChanged != null) {
       final subIndex = (offset / _subTickWidth).round();
-      final newDecimal = (widget.min + (subIndex / widget.visualTicksPerStep) * widget.step)
-          .clamp(widget.min.toDouble(), widget.max.toDouble());
-      final factor = widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep.toDouble() : 10.0;
+      final newDecimal =
+          (widget.min + (subIndex / widget.visualTicksPerStep) * widget.step)
+              .clamp(widget.min.toDouble(), widget.max.toDouble());
+      final factor = widget.visualTicksPerStep > 0
+          ? widget.visualTicksPerStep.toDouble()
+          : 10.0;
       final roundedDecimal = (newDecimal * factor).round() / factor;
       final threshold = 0.5 / factor;
       if ((roundedDecimal - _currentDecimalValue).abs() >= threshold) {
@@ -102,9 +113,15 @@ class _RulerPickerState extends State<RulerPicker> {
       }
     } else {
       final index = (offset / widget.stepWidth).round();
-      final newValue = (widget.min + index * widget.step).clamp(widget.min, widget.max);
+      final newValue = (widget.min + index * widget.step).clamp(
+        widget.min,
+        widget.max,
+      );
       if (newValue != _currentValue) {
-        setState(() => _currentValue = newValue);
+        setState(() {
+          _currentValue = newValue;
+          _currentDecimalValue = newValue.toDouble();
+        });
         HapticFeedback.selectionClick();
         widget.onChanged(_currentValue);
       }
@@ -118,8 +135,80 @@ class _RulerPickerState extends State<RulerPicker> {
     super.dispose();
   }
 
+  bool _focused = false;
+  double get _increment => widget.onDecimalChanged != null
+      ? widget.step /
+            (widget.visualTicksPerStep > 0 ? widget.visualTicksPerStep : 1)
+      : widget.step.toDouble();
+  void _adjust(int direction) {
+    if (!_scrollController.hasClients) return;
+    final next = (_currentDecimalValue + direction * _increment).clamp(
+      widget.min.toDouble(),
+      widget.max.toDouble(),
+    );
+    _scrollController.jumpTo(
+      ((next - widget.min) / widget.step) * widget.stepWidth,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.semanticLabel == null) return _buildRuler(context);
+    final current = widget.onDecimalChanged != null
+        ? _currentDecimalValue.toStringAsFixed(1)
+        : '$_currentValue';
+    return Focus(
+      onFocusChange: (value) => setState(() => _focused = value),
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+        if ([
+          LogicalKeyboardKey.arrowRight,
+          LogicalKeyboardKey.arrowUp,
+        ].contains(event.logicalKey)) {
+          _adjust(1);
+          return KeyEventResult.handled;
+        }
+        if ([
+          LogicalKeyboardKey.arrowLeft,
+          LogicalKeyboardKey.arrowDown,
+        ].contains(event.logicalKey)) {
+          _adjust(-1);
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Semantics(
+        label: widget.semanticLabel,
+        value: current,
+        increasedValue: (_currentDecimalValue + _increment)
+            .clamp(widget.min.toDouble(), widget.max.toDouble())
+            .toStringAsFixed(widget.onDecimalChanged != null ? 1 : 0),
+        decreasedValue: (_currentDecimalValue - _increment)
+            .clamp(widget.min.toDouble(), widget.max.toDouble())
+            .toStringAsFixed(widget.onDecimalChanged != null ? 1 : 0),
+        slider: true,
+        focusable: true,
+        focused: _focused,
+        onIncrease: _currentDecimalValue < widget.max ? () => _adjust(1) : null,
+        onDecrease: _currentDecimalValue > widget.min
+            ? () => _adjust(-1)
+            : null,
+        excludeSemantics: true,
+        child: DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            border: _focused
+                ? Border.all(color: AppColors.primary, width: 2)
+                : null,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _buildRuler(context),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRuler(BuildContext context) {
     final count = ((widget.max - widget.min) / widget.step).floor() + 1;
 
     return LayoutBuilder(
@@ -135,10 +224,12 @@ class _RulerPickerState extends State<RulerPicker> {
                   if (notif is ScrollEndNotification) {
                     final double targetOffset;
                     if (widget.onDecimalChanged != null) {
-                      final subIndex = (_scrollController.offset / _subTickWidth).round();
+                      final subIndex =
+                          (_scrollController.offset / _subTickWidth).round();
                       targetOffset = subIndex * _subTickWidth;
                     } else {
-                      final index = (_scrollController.offset / widget.stepWidth).round();
+                      final index =
+                          (_scrollController.offset / widget.stepWidth).round();
                       targetOffset = index * widget.stepWidth;
                     }
                     Future.microtask(() {
@@ -162,7 +253,8 @@ class _RulerPickerState extends State<RulerPicker> {
                   itemBuilder: (context, index) {
                     final val = widget.min + index * widget.step;
                     final isLabel = val % widget.labelInterval == 0;
-                    final isHalfLabel = val % (widget.labelInterval / 2) == 0 && !isLabel;
+                    final isHalfLabel =
+                        val % (widget.labelInterval / 2) == 0 && !isLabel;
 
                     return SizedBox(
                       width: widget.stepWidth,
@@ -171,37 +263,49 @@ class _RulerPickerState extends State<RulerPicker> {
                         children: [
                           // Render visual ticks inside this step
                           for (int i = 0; i < widget.visualTicksPerStep; i++)
-                            Builder(builder: (context) {
-                              // Only draw the first tick if it's the last item and we have visual sub-ticks
-                              if (index == count - 1 && i > 0) return const SizedBox();
+                            Builder(
+                              builder: (context) {
+                                // Only draw the first tick if it's the last item and we have visual sub-ticks
+                                if (index == count - 1 && i > 0) {
+                                  return const SizedBox();
+                                }
 
-                              final tickOffset = i * (widget.stepWidth / widget.visualTicksPerStep);
-                              final isMainTick = i == 0;
-                              final isMiddleTick = i == widget.visualTicksPerStep ~/ 2;
+                                final tickOffset =
+                                    i *
+                                    (widget.stepWidth /
+                                        widget.visualTicksPerStep);
+                                final isMainTick = i == 0;
+                                final isMiddleTick =
+                                    i == widget.visualTicksPerStep ~/ 2;
 
-                              double height = 24;
-                              if (isMainTick) {
-                                height = isLabel ? 40 : (isHalfLabel ? 32 : 24);
-                              } else if (isMiddleTick) {
-                                height = 32;
-                              }
+                                double height = 24;
+                                if (isMainTick) {
+                                  height = isLabel
+                                      ? 40
+                                      : (isHalfLabel ? 32 : 24);
+                                } else if (isMiddleTick) {
+                                  height = 32;
+                                }
 
-                              return Positioned(
-                                left: tickOffset - 1, // center the 2px tick
-                                bottom: 0,
-                                child: Container(
-                                  width: 2,
-                                  height: height,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.border,
-                                    borderRadius: BorderRadius.circular(1),
+                                return Positioned(
+                                  left: tickOffset - 1, // center the 2px tick
+                                  bottom: 0,
+                                  child: Container(
+                                    width: 2,
+                                    height: height,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.border,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
                                   ),
-                                ),
-                              );
-                            }),
+                                );
+                              },
+                            ),
 
                           // Render the text label
-                          if (isLabel || (val == widget.min) || (val == widget.max))
+                          if (isLabel ||
+                              (val == widget.min) ||
+                              (val == widget.max))
                             Positioned(
                               left: -25, // Center a 50px wide box over x=0
                               top: -4,

@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -17,13 +18,12 @@ class GenderStep extends StatelessWidget {
 
     return StepScaffold(
       title: "What's your gender?",
-      subtitle: 'Let us know you better to customize your plan.',
+      subtitle: 'Tell us about yourself to set up your workout preferences.',
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Bounded height ensures the cards stay balanced and proportional
           // on tall Android screens instead of stretching excessively.
-          final cardHeight =
-              (constraints.maxHeight * 0.72).clamp(270.0, 330.0);
+          final cardHeight = (constraints.maxHeight * 0.72).clamp(270.0, 330.0);
 
           return Center(
             child: SizedBox(
@@ -80,7 +80,8 @@ class _AvatarCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const activeColor = AppColors.primary;
 
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();
@@ -89,9 +90,7 @@ class _AvatarCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         decoration: BoxDecoration(
-          color: selected
-              ? activeColor.withValues(alpha: 0.10)
-              : Colors.white,
+          color: selected ? activeColor.withValues(alpha: 0.10) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: selected ? activeColor : AppColors.border,

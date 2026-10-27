@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'settings_record.dart';
 
 class ChallengeAudio extends ChangeNotifier {
   final player = AudioPlayer();
@@ -27,7 +27,8 @@ class ChallengeAudio extends ChangeNotifier {
   double volume = .4;
   String? error;
   Future<void> load() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await SettingsRecord.load('settings_');
+    if (disposed) return;
     enabled = prefs.getBool('settings_music') ?? true;
     volume = (prefs.getDouble('settings_music_volume') ?? .4).clamp(0, 1);
     for (final raw
@@ -44,6 +45,7 @@ class ChallengeAudio extends ChangeNotifier {
         /* Leave an invalid imported track out of playback. */
       }
     }
+    if (disposed) return;
     final saved = prefs.getString('settings_current_track');
     final found = tracks.indexWhere((t) => t.$2 == saved);
     if (found >= 0) index = found;
@@ -58,6 +60,7 @@ class ChallengeAudio extends ChangeNotifier {
       if (!disposed && enabled && !repeat) unawaited(select(index + 1));
     });
     await player.setReleaseMode(repeat ? ReleaseMode.loop : ReleaseMode.stop);
+    if (disposed) return;
     await player.setVolume(prefs.getBool('settings_mute') == true ? 0 : volume);
     if (!disposed) notifyListeners();
   }
@@ -90,31 +93,42 @@ class ChallengeAudio extends ChangeNotifier {
 
   Future<void> select(int value) async {
     if (disposed) return;
-    index = (value + tracks.length) % tracks.length;
+    final selected = (value + tracks.length) % tracks.length;
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('settings_current_track', tracks[index].$2);
+      final prefs = await SettingsRecord.load('settings_');
+      await prefs.setString('settings_current_track', tracks[selected].$2);
+      if (disposed) return;
+      index = selected;
     } catch (_) {
       error = 'The selected music could not be saved.';
+      if (!disposed) notifyListeners();
+      return;
     }
     await play();
   }
 
   Future<void> toggle(bool value) async {
-    enabled = value;
-    await (await SharedPreferences.getInstance()).setBool(
-      'settings_music',
-      value,
-    );
-    await play(value);
+    try {
+      await (await SettingsRecord.load(
+        'settings_',
+      )).setBool('settings_music', value);
+      if (disposed) return;
+      enabled = value;
+      await play(value);
+    } catch (_) {
+      error = 'Music preference could not be saved.';
+      if (!disposed) notifyListeners();
+    }
   }
 
   Future<void> setVolume(double value) async {
     if (disposed) return;
-    volume = value.clamp(0, 1);
+    final nextVolume = value.clamp(0.0, 1.0);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setDouble('settings_music_volume', volume);
+      final prefs = await SettingsRecord.load('settings_');
+      await prefs.setDouble('settings_music_volume', nextVolume);
+      if (disposed) return;
+      volume = nextVolume;
       await player.setVolume(
         prefs.getBool('settings_mute') == true ? 0 : volume,
       );
@@ -126,12 +140,13 @@ class ChallengeAudio extends ChangeNotifier {
 
   Future<void> toggleRepeat() async {
     if (disposed) return;
-    repeat = !repeat;
+    final nextRepeat = !repeat;
     try {
-      await (await SharedPreferences.getInstance()).setBool(
-        'settings_music_repeat',
-        repeat,
-      );
+      await (await SettingsRecord.load(
+        'settings_',
+      )).setBool('settings_music_repeat', nextRepeat);
+      if (disposed) return;
+      repeat = nextRepeat;
       await player.setReleaseMode(repeat ? ReleaseMode.loop : ReleaseMode.stop);
     } catch (_) {
       error = 'Music repeat could not be changed on this device.';

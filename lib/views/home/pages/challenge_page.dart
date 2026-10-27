@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../data/models/exercise.dart';
-import '../../../data/models/training_workout.dart';
-import 'training_collection_page.dart';
-import 'training_profile_builder.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../data/models/training_challenges.dart';
 import '../../../data/models/user_profile.dart';
-import '../../../data/models/training_recommendations.dart';
+import '../../../widgets/training_feature_cards.dart';
+import '../../workouts/challenge_day_page.dart';
+import 'training_profile_builder.dart';
 
 class ChallengePage extends StatefulWidget {
   const ChallengePage({super.key, this.profile});
@@ -15,113 +15,113 @@ class ChallengePage extends StatefulWidget {
 
 class _ChallengePageState extends State<ChallengePage> {
   String category = 'All';
+  static const double _cardHeight = 210;
+  static const colors = [
+    Color(0xFF7E22CE),
+    Color(0xFFF97316),
+    Color(0xFF279C88),
+    Color(0xFF0062FF),
+  ];
+  Color _cardColor(TrainingChallenge item) => item.customized
+      ? trainingCardBlue
+      : colors[(TrainingChallenges.catalog.indexWhere(
+                      (entry) => entry.workoutId == item.workoutId,
+                    ) -
+                    1)
+                .abs() %
+            colors.length];
+
   @override
-  Widget build(BuildContext context) {
-    final routines = trainingWorkouts
-        .where(
-          (w) => w.title.toLowerCase().contains(
-            RegExp('challenge|shred|calisthenics|ripped'),
-          ),
-        )
-        .where((w) {
-          final name = w.title.toLowerCase();
-          return switch (category) {
-            'Abs' => w.focus.contains(ExerciseFocus.abs),
-            'Upper Body' => w.focus.any(
-              (e) => [
-                ExerciseFocus.arm,
-                ExerciseFocus.chest,
-                ExerciseFocus.shoulder,
-                ExerciseFocus.back,
-              ].contains(e),
-            ),
-            'Lower Body' => w.focus.any(
-              (e) => [ExerciseFocus.leg, ExerciseFocus.glutes].contains(e),
-            ),
-            'Dumbbell' => w.equipment.contains(ExerciseEquipment.dumbbell),
-            'Calisthenics' => name.contains('calisthenics'),
-            'Lose Weight' => name.contains(RegExp('lose|burn|shred')),
-            'Build Muscle' => name.contains(RegExp('muscle|body|ripped')),
-            'Full Body' => w.focus.length > 3,
-            _ => true,
-          };
-        })
-        .toList();
-    return TrainingProfileBuilder(
-      profile: widget.profile,
-      builder: (context, profile) {
-        final recommended = TrainingRecommendations.forProfile(profile);
-        return Scaffold(
-          appBar: AppBar(title: const Text('Challenge')),
-          body: CustomScrollView(
-            slivers: [
-              if (category == 'All')
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Customized for you',
-                          style: TextStyle(fontWeight: FontWeight.w800),
+  Widget build(BuildContext context) => TrainingProfileBuilder(
+    profile: widget.profile,
+    builder: (context, profile) {
+      final all = TrainingChallenges.forProfile(profile);
+      final cards = all.where((item) => item.matches(category)).toList();
+      return Scaffold(
+        appBar: AppBar(title: const Text('Challenge')),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Row(
+                  children: [
+                    for (final filter in TrainingChallenges.filters)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: ChoiceChip(
+                          key: ValueKey('challenge-filter-$filter'),
+                          label: Text(filter),
+                          selectedColor: AppColors.primary,
+                          selected: category == filter,
+                          labelStyle: TextStyle(
+                            color: category == filter
+                                ? AppColors.onPrimary
+                                : AppColors.textPrimary,
+                          ),
+                          onSelected: (_) => setState(() => category = filter),
                         ),
-                        if (recommended.isEmpty)
-                          const Text(
-                            'Complete your fitness profile to see personalized workouts.',
-                          )
-                        else
-                          TrainingWorkoutTile(workout: recommended.first),
-                      ],
-                    ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    '${cards.length} ${cards.length == 1 ? 'challenge' : 'challenges'}',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-              SliverToBoxAdapter(
+              ),
+            ),
+            if (cards.isEmpty)
+              const SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final value in [
-                        'All',
-                        'Lose Weight',
-                        'Build Muscle',
-                        'Full Body',
-                        'Abs',
-                        'Upper Body',
-                        'Lower Body',
-                        'Calisthenics',
-                        'Dumbbell',
-                      ])
-                        ChoiceChip(
-                          label: Text(value),
-                          selected: value == category,
-                          onSelected: (_) => setState(() => category = value),
-                        ),
-                    ],
+                  padding: EdgeInsets.all(24),
+                  child: Text(
+                    'No challenges match this category. Choose another badge.',
                   ),
                 ),
               ),
-              if (routines.isEmpty)
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text('No routines match this category.'),
-                  ),
-                ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList.builder(
-                  itemCount: routines.length,
-                  itemBuilder: (_, i) =>
-                      TrainingWorkoutTile(workout: routines[i]),
-                ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              sliver: SliverList.builder(
+                itemCount: cards.length,
+                itemBuilder: (context, index) {
+                  final item = cards[index];
+                  final scaler = MediaQuery.textScalerOf(context);
+                  // Very large accessibility text switches the card to a
+                  // stacked layout, so let it size naturally there.
+                  final largeText = scaler.scale(16) > 22;
+                  final Widget card = item.referenceDay
+                      ? const ReferenceChallengeCard()
+                      : TrainingChallengeCard(
+                          workout: item.workout,
+                          customized: item.customized,
+                          compact: true,
+                          color: _cardColor(item),
+                        );
+                  return Padding(
+                    key: ValueKey('challenge-card-${item.workoutId}'),
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: largeText
+                        ? card
+                        : SizedBox(
+                            height: scaler.scale(_cardHeight),
+                            child: card,
+                          ),
+                  );
+                },
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

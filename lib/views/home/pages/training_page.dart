@@ -1,3 +1,5 @@
+import '../../../data/models/training_challenges.dart';
+import '../../../core/widgets/date_rollover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/routes/app_routes.dart';
@@ -18,7 +20,8 @@ import '../../workouts/training_workout_page.dart';
 import '../../workouts/challenge_day_page.dart';
 
 class TrainingPage extends StatefulWidget {
-  const TrainingPage({super.key});
+  const TrainingPage({super.key, this.now});
+  final DateTime Function()? now;
   @override
   State<TrainingPage> createState() => _TrainingPageState();
 }
@@ -36,38 +39,48 @@ class _TrainingPageState extends State<TrainingPage> {
     'Shoulder & Back',
   ];
   void _streak() {
-    final count = TrainingHistoryRepository.instance.streak(DateTime.now());
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.local_fire_department_rounded,
-                color: AppColors.primary,
-                size: 52,
+      builder: (ctx) => AnimatedBuilder(
+        animation: TrainingHistoryRepository.instance,
+        builder: (ctx, child) => DateRolloverBuilder(
+          now: widget.now,
+          builder: (ctx) {
+            final count = TrainingHistoryRepository.instance.streak(
+              widget.now?.call() ?? DateTime.now(),
+            );
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.local_fire_department_rounded,
+                      color: AppColors.primary,
+                      size: 52,
+                    ),
+                    Text(
+                      '$count Day Streak!',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    Text(
+                      count == 0
+                          ? 'Complete your first workout to begin a streak.'
+                          : 'Complete a workout today to keep your streak going.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('KEEP GOING'),
+                    ),
+                  ],
+                ),
               ),
-              Text(
-                '$count Day Streak!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Text(
-                count == 0
-                    ? 'Complete your first workout to begin a streak.'
-                    : 'Complete a workout today to keep your streak going.',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('KEEP GOING'),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -108,10 +121,13 @@ class _TrainingPageState extends State<TrainingPage> {
     ),
   );
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      DateRolloverBuilder(now: widget.now, builder: _buildTraining);
+
+  Widget _buildTraining(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final history = TrainingHistoryRepository.instance;
-    final now = DateTime.now();
+    final now = widget.now?.call() ?? DateTime.now();
     final firstDay = vm.profile?.firstDayOfWeek ?? 'SUNDAY';
     final today = TrainingHistoryRepository.day(now);
     final dates = TrainingCalendar.week(now, firstDay);
@@ -119,13 +135,7 @@ class _TrainingPageState extends State<TrainingPage> {
         .map((e) => TrainingHistoryRepository.day(e.finishedAt))
         .toSet();
     final recommended = TrainingRecommendations.forProfile(vm.profile);
-    final challenges = trainingWorkouts
-        .where(
-          (w) => w.title.toLowerCase().contains(
-            RegExp('challenge|calisthenics|ripped'),
-          ),
-        )
-        .take(3);
+    final challenges = TrainingChallenges.featured.map((item) => item.workout);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -237,63 +247,73 @@ class _TrainingPageState extends State<TrainingPage> {
                         children: [
                           for (final date in dates)
                             Expanded(
-                              child: InkWell(
-                                onTap: vm.isLoading || vm.historyError != null
-                                    ? null
-                                    : () => showTrainingHistory(
-                                        context,
-                                        date,
-                                        firstDay: firstDay,
-                                      ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
+                              child: Semantics(
+                                label: '${date.year}/${date.month}/${date.day}',
+                                selected: date == today,
+                                child: InkWell(
+                                  key: ValueKey(
+                                    'training-day-${date.year}-${date.month}-${date.day}',
                                   ),
-                                  child: Column(
-                                    children: [
-                                      FittedBox(
-                                        child: Text(
-                                          [
-                                            'Mon',
-                                            'Tue',
-                                            'Wed',
-                                            'Thu',
-                                            'Fri',
-                                            'Sat',
-                                            'Sun',
-                                          ][date.weekday - 1],
-                                          style: const TextStyle(fontSize: 11),
+                                  onTap: vm.isLoading || vm.historyError != null
+                                      ? null
+                                      : () => showTrainingHistory(
+                                          context,
+                                          date,
+                                          firstDay: firstDay,
+                                          now: widget.now,
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: date == today
-                                              ? AppColors.primary
-                                              : null,
-                                        ),
-                                        child: Text(
-                                          '${date.day}',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: date == today
-                                                ? Colors.white
-                                                : AppColors.textPrimary,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        FittedBox(
+                                          child: Text(
+                                            [
+                                              'Mon',
+                                              'Tue',
+                                              'Wed',
+                                              'Thu',
+                                              'Fri',
+                                              'Sat',
+                                              'Sun',
+                                            ][date.weekday - 1],
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Icon(
-                                        completed.contains(date)
-                                            ? Icons.check_circle
-                                            : Icons.circle_outlined,
-                                        size: 12,
-                                        color: completed.contains(date)
-                                            ? AppColors.primary
-                                            : Colors.grey,
-                                      ),
-                                    ],
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: date == today
+                                                ? AppColors.primary
+                                                : null,
+                                          ),
+                                          child: Text(
+                                            '${date.day}',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: date == today
+                                                  ? Colors.white
+                                                  : AppColors.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        Icon(
+                                          completed.contains(date)
+                                              ? Icons.check_circle
+                                              : Icons.circle_outlined,
+                                          size: 12,
+                                          color: completed.contains(date)
+                                              ? AppColors.primary
+                                              : Colors.grey,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -309,6 +329,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                   context,
                                   today,
                                   firstDay: firstDay,
+                                  now: widget.now,
                                 ),
                           icon: const Icon(Icons.history),
                           label: const Text('Workout history'),
@@ -331,8 +352,13 @@ class _TrainingPageState extends State<TrainingPage> {
                         Padding(
                           padding: const EdgeInsets.only(right: 14),
                           child: SizedBox(
-                            width: (MediaQuery.sizeOf(context).width - 56)
-                                .clamp(240.0, 320.0),
+                            width:
+                                MediaQuery.textScalerOf(context).scale(16) > 22
+                                ? (MediaQuery.sizeOf(context).width - 48).clamp(
+                                    240.0,
+                                    320.0,
+                                  )
+                                : 240.0,
                             child: const ReferenceChallengeCard(),
                           ),
                         ),
@@ -340,8 +366,12 @@ class _TrainingPageState extends State<TrainingPage> {
                           Padding(
                             padding: const EdgeInsets.only(right: 14),
                             child: SizedBox(
-                              width: (MediaQuery.sizeOf(context).width - 56)
-                                  .clamp(240.0, 320.0),
+                              width:
+                                  MediaQuery.textScalerOf(context).scale(16) >
+                                      22
+                                  ? (MediaQuery.sizeOf(context).width - 48)
+                                        .clamp(240.0, 320.0)
+                                  : 240.0,
                               child: TrainingChallengeCard(
                                 workout: recommended.first,
                                 customized: true,
@@ -352,8 +382,12 @@ class _TrainingPageState extends State<TrainingPage> {
                           Padding(
                             padding: const EdgeInsets.only(right: 14),
                             child: SizedBox(
-                              width: (MediaQuery.sizeOf(context).width - 56)
-                                  .clamp(240.0, 320.0),
+                              width:
+                                  MediaQuery.textScalerOf(context).scale(16) >
+                                      22
+                                  ? (MediaQuery.sizeOf(context).width - 48)
+                                        .clamp(240.0, 320.0)
+                                  : 240.0,
                               child: TrainingChallengeCard(
                                 workout: workout,
                                 color: [
@@ -427,22 +461,29 @@ class _TrainingPageState extends State<TrainingPage> {
                   'Complete your fitness profile to see personalized workouts.',
                 ),
               if (recommended.isNotEmpty)
-                TrainingPhotoCard(
-                  title: recommended.first.title.toUpperCase(),
-                  image: recommended.first.image,
-                  subtitle:
-                      '${recommended.first.summary}\nPersonalized for your training profile',
-                  recommended: true,
-                  actionLabel: 'VIEW WORKOUT',
-                  onTap: () => openTrainingWorkout(context, recommended.first),
+                SizedBox(
+                  width: double.infinity,
+                  child: TrainingPhotoCard(
+                    title: recommended.first.title.toUpperCase(),
+                    image: recommended.first.image,
+                    subtitle:
+                        '${recommended.first.summary}\nPersonalized for your training profile',
+                    recommended: true,
+                    actionLabel: 'VIEW WORKOUT',
+                    onTap: () =>
+                        openTrainingWorkout(context, recommended.first),
+                  ),
                 )
               else
-                TrainingPhotoCard(
-                  title: 'Find your next workout',
-                  image: 'assets/images/ui/recommended_height.jpg',
-                  subtitle: 'Browse animated workout routines',
-                  actionLabel: 'EXPLORE',
-                  onTap: _search,
+                SizedBox(
+                  width: double.infinity,
+                  child: TrainingPhotoCard(
+                    title: 'Find your next workout',
+                    image: 'assets/images/ui/recommended_height.jpg',
+                    subtitle: 'Browse animated workout routines',
+                    actionLabel: 'EXPLORE',
+                    onTap: _search,
+                  ),
                 ),
               _section('Just For You', route: AppRoutes.justForYou),
               _routines(recommended.skip(1).take(2)),
@@ -493,6 +534,19 @@ class _TrainingPageState extends State<TrainingPage> {
                 ],
               ),
               _routines(goalWorkouts(goal).take(3)),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: TrainingPhotoCard(
+                  title: 'Explore more\nworkouts',
+                  image: 'assets/images/workouts/hiit_fat_burning.jpg',
+                  subtitle: 'Discover more ways to train',
+                  collage: true,
+                  actionLabel: 'Go',
+                  onTap: () => vm.setTab(1),
+                ),
+              ),
+              const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -514,15 +568,6 @@ class _TrainingPageState extends State<TrainingPage> {
                   icon: const Icon(Icons.feedback_outlined),
                   label: const Text('Tell us what you need'),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TrainingPhotoCard(
-                title: 'Explore more\nworkouts',
-                image: 'assets/images/workouts/hiit_fat_burning.jpg',
-                subtitle: 'Discover more ways to train',
-                collage: true,
-                actionLabel: 'Go',
-                onTap: () => vm.setTab(1),
               ),
             ],
           ),

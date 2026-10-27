@@ -12,29 +12,45 @@ class TrainingChallengeCard extends StatelessWidget {
     required this.workout,
     this.customized = false,
     this.color = trainingCardBlue,
+    this.compact = true,
   });
   final TrainingWorkout workout;
   final bool customized;
   final Color color;
-  Widget stat(IconData icon, String value, String caption) => Row(
+  final bool compact;
+  Widget stat(
+    IconData icon,
+    String value,
+    String caption, {
+    bool compact = false,
+  }) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Icon(icon, size: 20, color: Colors.white),
-      const SizedBox(width: 8),
+      Icon(icon, size: compact ? 16 : 20, color: Colors.white),
+      SizedBox(width: compact ? 6 : 8),
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               value,
-              style: const TextStyle(
+              maxLines: compact ? 1 : null,
+              overflow: compact ? TextOverflow.ellipsis : null,
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
+                fontSize: compact ? 12 : 14,
               ),
             ),
             Text(
               caption,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
+              maxLines: compact ? 1 : null,
+              overflow: compact ? TextOverflow.ellipsis : null,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: compact ? 10 : 12,
+              ),
             ),
           ],
         ),
@@ -50,24 +66,34 @@ class TrainingChallengeCard extends StatelessWidget {
     final large = MediaQuery.textScalerOf(context).scale(16) > 22;
     final title = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 7 : 8,
+            vertical: compact ? 3 : 5,
+          ),
           decoration: BoxDecoration(
             color: const Color(0xFFFFDFB5),
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(compact ? 5 : 6),
           ),
           child: Text(
             customized ? 'CUSTOMIZED FOR YOU' : 'CHALLENGE',
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+            style: TextStyle(
+              fontSize: compact ? 9 : 10,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF1E293B),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: compact ? 6 : 12),
         Text(
           workout.title.toUpperCase(),
-          style: const TextStyle(
+          maxLines: compact ? 2 : null,
+          overflow: compact ? TextOverflow.ellipsis : null,
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 22,
+            fontSize: compact ? 16 : 22,
             height: 1.15,
             fontWeight: FontWeight.w900,
           ),
@@ -75,12 +101,12 @@ class TrainingChallengeCard extends StatelessWidget {
       ],
     );
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(compact ? 14 : 18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [color, Color.lerp(color, Colors.black, .25)!],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(compact ? 20 : 24),
         boxShadow: [
           BoxShadow(
             color: color.withValues(alpha: .22),
@@ -95,14 +121,14 @@ class TrainingChallengeCard extends StatelessWidget {
         children: [
           if (large) ...[
             title,
-            const SizedBox(height: 12),
+            SizedBox(height: compact ? 8 : 12),
             ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(compact ? 10 : 14),
               child: Image.asset(
                 customized
                     ? 'assets/images/ui/plan_athlete.jpg'
                     : workout.image,
-                height: 120,
+                height: compact ? 70 : 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
@@ -112,49 +138,68 @@ class TrainingChallengeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: title),
-                const SizedBox(width: 10),
+                SizedBox(width: compact ? 8 : 10),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(compact ? 10 : 14),
                   child: Image.asset(
                     customized
                         ? 'assets/images/ui/plan_athlete.jpg'
                         : workout.image,
-                    width: 94,
-                    height: 110,
+                    width: compact ? 56 : 94,
+                    height: compact ? 56 : 110,
                     fit: BoxFit.cover,
                   ),
                 ),
               ],
             ),
-          const SizedBox(height: 20),
-          for (var row = 0; row < (large ? 4 : 2); row++) ...[
-            if (row > 0) const SizedBox(height: 14),
+          SizedBox(height: compact ? 10 : 20),
+          for (
+            var row = 0;
+            row < (compact ? (large ? 2 : 1) : (large ? 4 : 2));
+            row++
+          ) ...[
+            if (row > 0) SizedBox(height: compact ? 6 : 14),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (var column = 0; column < (large ? 1 : 2); column++) ...[
-                  if (column > 0) const SizedBox(width: 12),
+                  if (column > 0) SizedBox(width: compact ? 8 : 12),
                   Expanded(
                     child: switch (row * (large ? 1 : 2) + column) {
                       0 => stat(
                         Icons.schedule,
                         '~${workout.estimatedMinutes} min',
                         'Workout time',
+                        compact: compact,
                       ),
-                      1 => stat(
-                        Icons.bar_chart,
-                        workout.difficulty.label,
-                        'Level',
-                      ),
+                      1 =>
+                        compact
+                            ? stat(
+                                Icons.track_changes,
+                                workout.focus
+                                    .map((f) => f.label)
+                                    .take(2)
+                                    .join(' & '),
+                                'Target area',
+                                compact: compact,
+                              )
+                            : stat(
+                                Icons.bar_chart,
+                                workout.difficulty.label,
+                                'Level',
+                                compact: compact,
+                              ),
                       2 => stat(
                         Icons.track_changes,
                         workout.focus.map((f) => f.label).take(2).join(' & '),
                         'Target area',
+                        compact: compact,
                       ),
                       _ => stat(
                         Icons.fitness_center,
                         equipment.isEmpty ? 'No equipment' : equipment,
                         'Equipment',
+                        compact: compact,
                       ),
                     },
                   ),
@@ -162,23 +207,44 @@ class TrainingChallengeCard extends StatelessWidget {
               ],
             ),
           ],
-          const SizedBox(height: 16),
+          SizedBox(height: compact ? 8 : 16),
           Text(
-            '${workout.exerciseIds.length} exercises with animated demonstrations',
-            style: const TextStyle(color: Colors.white, height: 1.4),
+            compact
+                ? '${workout.exerciseIds.length} exercises with animations'
+                : '${workout.exerciseIds.length} exercises with animated demonstrations',
+            maxLines: compact ? 1 : null,
+            overflow: compact ? TextOverflow.ellipsis : null,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: compact ? 0.85 : 1.0),
+              fontSize: compact ? 11 : 14,
+              height: compact ? 1.2 : 1.4,
+            ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: compact ? 10 : 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: color,
-                minimumSize: const Size(0, 48),
+                minimumSize: Size(0, compact ? 36 : 48),
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? 10 : 16,
+                  vertical: compact ? 6 : 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(compact ? 20 : 24),
+                ),
               ),
               onPressed: () => openTrainingWorkout(context, workout),
-              icon: const Icon(Icons.arrow_circle_right),
-              label: const Text('START WORKOUT'),
+              icon: Icon(Icons.arrow_circle_right, size: compact ? 16 : 20),
+              label: Text(
+                'START WORKOUT',
+                style: TextStyle(
+                  fontSize: compact ? 11 : 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
         ],
@@ -276,11 +342,12 @@ class TrainingPhotoCard extends StatelessWidget {
     required this.onTap,
     this.recommended = false,
     this.collage = false,
+    this.compact = false,
     this.actionLabel,
   });
   final String title, image, subtitle;
   final VoidCallback onTap;
-  final bool recommended, collage;
+  final bool recommended, collage, compact;
   final String? actionLabel;
   @override
   Widget build(BuildContext context) => Semantics(
@@ -289,7 +356,7 @@ class TrainingPhotoCard extends StatelessWidget {
     onTap: onTap,
     child: ExcludeSemantics(
       child: Material(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(compact ? 20 : 22),
         clipBehavior: Clip.antiAlias,
         color: recommended ? const Color(0xFF86B5E7) : Colors.black,
         child: InkWell(
@@ -299,6 +366,7 @@ class TrainingPhotoCard extends StatelessWidget {
               Positioned.fill(
                 child: collage
                     ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           for (final path in [
                             'assets/images/workouts/hiit_fat_burning.jpg',
@@ -334,7 +402,7 @@ class TrainingPhotoCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(compact ? 14 : 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -352,24 +420,34 @@ class TrainingPhotoCard extends StatelessWidget {
                     ],
                     Text(
                       title,
+                      maxLines: compact ? 2 : null,
+                      overflow: compact ? TextOverflow.ellipsis : null,
                       style: TextStyle(
-                        fontSize: recommended || collage ? 23 : 19,
+                        fontSize: compact
+                            ? 17
+                            : (recommended || collage ? 23 : 19),
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
-                        height: 1.2,
+                        height: 1.15,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: compact ? 6 : 12),
                     Text(
                       subtitle,
-                      style: const TextStyle(color: Colors.white, height: 1.4),
+                      maxLines: compact ? 2 : null,
+                      overflow: compact ? TextOverflow.ellipsis : null,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: compact ? 12 : 14,
+                        height: compact ? 1.3 : 1.4,
+                      ),
                     ),
                     if (actionLabel != null) ...[
-                      const SizedBox(height: 16),
+                      SizedBox(height: compact ? 10 : 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 9,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: compact ? 16 : 20,
+                          vertical: compact ? 7 : 9,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -377,9 +455,10 @@ class TrainingPhotoCard extends StatelessWidget {
                         ),
                         child: Text(
                           actionLabel!,
-                          style: const TextStyle(
+                          style: TextStyle(
+                            fontSize: compact ? 11 : 14,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111827),
+                            color: const Color(0xFF111827),
                           ),
                         ),
                       ),

@@ -32,8 +32,9 @@ class _WheelPickerState extends State<WheelPicker> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        FixedExtentScrollController(initialItem: widget.value - widget.min);
+    _controller = FixedExtentScrollController(
+      initialItem: widget.value - widget.min,
+    );
   }
 
   @override
@@ -91,8 +92,9 @@ class _WheelPickerState extends State<WheelPicker> {
                         '$number',
                         style: TextStyle(
                           fontSize: selected ? 24 : 18,
-                          fontWeight:
-                              selected ? FontWeight.w800 : FontWeight.w500,
+                          fontWeight: selected
+                              ? FontWeight.w800
+                              : FontWeight.w500,
                           color: selected
                               ? AppColors.primary
                               : AppColors.textSecondary,

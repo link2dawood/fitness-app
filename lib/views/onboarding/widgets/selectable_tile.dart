@@ -1,3 +1,4 @@
+import '../../../widgets/app_action.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,7 +23,8 @@ class SelectableTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AppAction(
+      selected: selected,
       onTap: () {
         HapticFeedback.selectionClick();
         onTap();

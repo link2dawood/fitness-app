@@ -28,8 +28,12 @@ class OnboardingHeader extends StatelessWidget {
             width: 48,
             child: showBack
                 ? IconButton(
+                    tooltip: 'Previous step',
                     onPressed: onBack,
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 20,
+                    ),
                   )
                 : null,
           ),
@@ -44,11 +48,13 @@ class OnboardingHeader extends StatelessWidget {
                     duration: const Duration(milliseconds: 350),
                     curve: Curves.easeOutCubic,
                     builder: (_, value, _) => LinearProgressIndicator(
+                      semanticsLabel: 'Onboarding progress',
                       value: value,
                       minHeight: 6,
                       backgroundColor: AppColors.border,
-                      valueColor:
-                          const AlwaysStoppedAnimation(AppColors.primary),
+                      valueColor: const AlwaysStoppedAnimation(
+                        AppColors.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -64,7 +70,7 @@ class OnboardingHeader extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 64,
+            width: 80,
             child: TextButton(onPressed: onSkip, child: const Text('Skip')),
           ),
         ],

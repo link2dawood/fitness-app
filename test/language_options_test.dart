@@ -1,3 +1,4 @@
+import 'package:fitness_pro/core/settings/settings_record.dart';
 import 'package:fitness_pro/core/settings/general_settings.dart';
 import 'package:fitness_pro/data/models/app_language.dart';
 import 'package:fitness_pro/views/settings/language_options_dialog.dart';
@@ -43,7 +44,7 @@ void main() {
       await tester.tap(find.text('العربية'));
       await tester.pumpAndSettle();
       expect(find.byType(LanguageOptionsDialog), findsNothing);
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SettingsRecord.load('general_');
       expect(prefs.getString('general_language'), 'ar');
       await GeneralSettings.instance.load();
       expect(GeneralSettings.instance.language, AppLanguage.arabic);
