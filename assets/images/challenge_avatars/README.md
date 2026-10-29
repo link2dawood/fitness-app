@@ -1,5 +1,33 @@
 # Day 1 realistic exercise avatars
 
+## Calisthenics additions — 2026-10-28
+
+Eight further sheets were created using the built-in `image_gen.imagegen` tool, matching the existing original demonstrator and studio brief below. All 22 Calisthenics entries now use realistic frame loops in the exercise list, detail sheet and session player. Repeated sets reuse their exercise frames; Cat Cow reuses atlas 5. These are generated discrete-pose animations, not filmed video.
+
+| File | First eight cells | Last eight cells |
+| --- | --- | --- |
+| atlas_6.png | Cross-Body Shoulder Stretch | Elbow Rotations |
+| atlas_7.png | Alternating Side Bends | Spinal Roll Down |
+| atlas_8.png | Standing Hip Rotations Left | Kneeling Push-Ups |
+| atlas_9.png | Bird Dog | Reverse Hip Raise |
+| atlas_10.png | Superman | Leg Scissors |
+| atlas_11.png | Suitcase Crunch | Left Pivot Step Lunge |
+| atlas_12.png | Prisoner Squat | Hip Flexor Stretch Left |
+| atlas_13.png | Straight Arm Plank To Downward Dog | Child's Pose |
+
+The same shared prompt brief below was used with these eight exercise pairs: eight successive controlled movement phases per exercise, including start, extension/flexion and return, with the full body visible. Atlas 8 was regenerated to improve named-leg consistency. Runtime frame orders exclude inconsistent leg/camera cells in hip rotations and spinal roll down, and select returning poses for shoulder stretch, side bends and bird dog. Right-side variants mirror the left-side frames. Playback repeats every 2.8 seconds and respects pause, reduced motion, hidden routes and application lifecycle.
+
+Source outputs in the generated-images directory listed below, in atlas order 6–13:
+
+- `exec-ed4ec32d-959c-4a97-a4f9-76a17bd15207.png`
+- `exec-85488a8b-6649-49f9-9f78-27fc82fb6187.png`
+- `exec-3fe50324-f1f0-4541-a309-e50778b152ee.png`
+- `exec-c4e594f2-9100-4d20-a696-581ceaf23266.png`
+- `exec-2e69d3a8-95d9-4336-8002-68abb00b2801.png`
+- `exec-c70daef7-6db2-4af5-92c8-ef98bc52d920.png`
+- `exec-49cd1528-a412-44ee-a3ac-8e554f80fcbd.png`
+- `exec-7e668f15-5083-4ea5-9624-ba32d403cb8e.png`
+
 Created on 2026-10-20 using the built-in `image_gen.imagegen` tool and the imagegen skill. These are original generated human illustrations arranged as animation frames. They are not recordings or extracted artwork from the reference app. No third-party animation pack was imported.
 
 ## Saved production assets

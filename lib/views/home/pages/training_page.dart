@@ -56,11 +56,7 @@ class _TrainingPageState extends State<TrainingPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.local_fire_department_rounded,
-                      color: AppColors.primary,
-                      size: 52,
-                    ),
+                    const Text('🔥', style: TextStyle(fontSize: 52)),
                     Text(
                       '$count Day Streak!',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -164,9 +160,9 @@ class _TrainingPageState extends State<TrainingPage> {
                         onPressed: vm.isLoading || vm.historyError != null
                             ? null
                             : _streak,
-                        icon: const Icon(
-                          Icons.local_fire_department_rounded,
-                          color: AppColors.primary,
+                        icon: const Text(
+                          '🔥',
+                          style: TextStyle(fontSize: 24, height: 1),
                         ),
                       ),
                       IconButton(
@@ -404,17 +400,21 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               _section('Body Focus'),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final value in areas)
-                    ChoiceChip(
-                      label: Text(value),
-                      selected: area == value,
-                      onSelected: (_) => setState(() => area = value),
-                    ),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final value in areas)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(value),
+                          selected: area == value,
+                          onSelected: (_) => setState(() => area = value),
+                        ),
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               _routines(
@@ -429,24 +429,28 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               _section('Workout Types'),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final label in [
-                    'Build Muscle',
-                    'Stretch',
-                    'Burn Fat',
-                    'Keep Fit',
-                    'Beginner',
-                    'With Equipment',
-                    'Warm-Up',
-                  ])
-                    ActionChip(
-                      label: Text(label),
-                      onPressed: () => _search(label),
-                    ),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final label in [
+                      'Build Muscle',
+                      'Stretch',
+                      'Burn Fat',
+                      'Keep Fit',
+                      'Beginner',
+                      'With Equipment',
+                      'Warm-Up',
+                    ])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ActionChip(
+                          label: Text(label),
+                          onPressed: () => _search(label),
+                        ),
+                      ),
+                  ],
+                ),
               ),
               _section('Custom Workout'),
               TrainingCustomCard(
@@ -490,34 +494,38 @@ class _TrainingPageState extends State<TrainingPage> {
               _section('Stretch & Warm Up', route: AppRoutes.stretchWarmUp),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final (index, workout)
-                        in trainingWorkouts
-                            .where((w) => w.type != ExerciseType.training)
-                            .take(4)
-                            .indexed)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 14),
-                        child: SizedBox(
-                          width: MediaQuery.textScalerOf(context).scale(16) > 22
-                              ? (MediaQuery.sizeOf(context).width - 48).clamp(
-                                  240.0,
-                                  320.0,
-                                )
-                              : 190,
-                          child: TrainingPhotoCard(
-                            title: workout.title,
-                            image: index.isEven
-                                ? 'assets/images/workouts/stretch_warmup.jpg'
-                                : 'assets/images/workouts/stretch_sleepy.jpg',
-                            subtitle: workout.summary,
-                            onTap: () => openTrainingWorkout(context, workout),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (index, workout)
+                          in trainingWorkouts
+                              .where((w) => w.type != ExerciseType.training)
+                              .take(4)
+                              .indexed)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 14),
+                          child: SizedBox(
+                            width:
+                                MediaQuery.textScalerOf(context).scale(16) > 22
+                                ? (MediaQuery.sizeOf(context).width - 48).clamp(
+                                    240.0,
+                                    320.0,
+                                  )
+                                : 190,
+                            child: TrainingPhotoCard(
+                              title: workout.title,
+                              image: index.isEven
+                                  ? 'assets/images/workouts/stretch_warmup.jpg'
+                                  : 'assets/images/workouts/stretch_sleepy.jpg',
+                              subtitle: workout.summary,
+                              onTap: () =>
+                                  openTrainingWorkout(context, workout),
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               _section('Popular Goals'),
@@ -547,26 +555,30 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    goal == 'Burn Fat'
-                        ? AppRoutes.burnFatMore
-                        : goal == 'Build Muscle'
-                        ? AppRoutes.buildMuscleMore
-                        : AppRoutes.keepFitMore,
+              Center(
+                child: Opacity(
+                  opacity: 0.6,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          goal == 'Burn Fat'
+                              ? AppRoutes.burnFatMore
+                              : goal == 'Build Muscle'
+                              ? AppRoutes.buildMuscleMore
+                              : AppRoutes.keepFitMore,
+                        ),
+                        child: Text('More $goal workouts'),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => showFeatureSuggestions(context),
+                        icon: const Icon(Icons.feedback_outlined),
+                        label: const Text('Tell us what you need'),
+                      ),
+                    ],
                   ),
-                  child: Text('More $goal workouts'),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: () => showFeatureSuggestions(context),
-                  icon: const Icon(Icons.feedback_outlined),
-                  label: const Text('Tell us what you need'),
                 ),
               ),
             ],

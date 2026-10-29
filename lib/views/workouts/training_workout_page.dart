@@ -1,3 +1,4 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/settings/settings_record.dart';
 import '../../core/settings/challenge_audio.dart';
 import '../../core/settings/tts_service.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/training_workout.dart';
 import '../../data/repositories/training_history_repository.dart';
-import '../../widgets/exercises/exercise_avatar.dart';
+import '../../widgets/exercises/challenge_avatar.dart';
 import 'exercise_detail.dart';
 
 Future<void> openTrainingWorkout(
@@ -27,6 +28,9 @@ class TrainingWorkoutPage extends StatefulWidget {
 class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
   bool loading = true;
   String? error;
+  Set<int> _completedIndices = {};
+  String get _storageKey => 'workout_done_${widget.workout.id}';
+
   @override
   void initState() {
     super.initState();
@@ -36,8 +40,26 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
   Future<void> _load() async {
     try {
       await TrainingHistoryRepository.instance.load();
+      final prefs = await SharedPreferences.getInstance();
+      final savedList = prefs.getStringList(_storageKey);
+      final historyDone = TrainingHistoryRepository.instance.entries
+          .any((e) => e.workoutId == widget.workout.id);
+
+      final Set<int> indices;
+      if (savedList != null) {
+        indices = savedList.map(int.tryParse).whereType<int>().toSet();
+      } else if (historyDone) {
+        indices = List.generate(
+          widget.workout.exercises.length,
+          (i) => i,
+        ).toSet();
+      } else {
+        indices = {};
+      }
+
       if (mounted) {
         setState(() {
+          _completedIndices = indices;
           loading = false;
           error = null;
         });
@@ -50,6 +72,23 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
         });
       }
     }
+  }
+
+  Future<void> _toggleDone(int index) async {
+    setState(() {
+      if (_completedIndices.contains(index)) {
+        _completedIndices.remove(index);
+      } else {
+        _completedIndices.add(index);
+      }
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(
+        _storageKey,
+        _completedIndices.map((i) => i.toString()).toList(),
+      );
+    } catch (_) {}
   }
 
   @override
@@ -81,22 +120,85 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
               const SizedBox(height: 12),
               for (final (entryIndex, exercise)
                   in widget.workout.exercises.indexed)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: SizedBox(
-                    width: 56,
-                    height: 56,
-                    child: ExerciseAvatar(exercise: exercise, animate: false),
-                  ),
-                  title: Text(exercise.name),
-                  subtitle: Text(
-                    exercise.timed
-                        ? '${widget.workout.targetAt(entryIndex)} seconds'
-                        : '${widget.workout.targetAt(entryIndex)} reps',
-                  ),
-                  trailing: const Icon(Icons.info_outline),
-                  onTap: () => showExercisePreview(context, exercise),
-                ),
+                () {
+                  final isDone = _completedIndices.contains(entryIndex);
+                  return ListTile(
+                    key: ValueKey(
+                      'training-exercise-${widget.workout.id}-$entryIndex',
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                    leading: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        SizedBox(
+                          width: 56,
+                          height: 56,
+                          child: ChallengeAvatar(exercise: exercise),
+                        ),
+                        if (isDone)
+                          Positioned(
+                            right: -2,
+                            bottom: -2,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check_circle,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    title: Text(
+                      exercise.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: isDone
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      exercise.timed
+                          ? '${widget.workout.targetAt(entryIndex)} seconds'
+                          : '${widget.workout.targetAt(entryIndex)} reps',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: isDone
+                              ? 'Mark as incomplete'
+                              : 'Mark as completed',
+                          icon: Icon(
+                            isDone
+                                ? Icons.check_circle
+                                : Icons.circle_outlined,
+                            color: isDone
+                                ? AppColors.primary
+                                : Colors.grey.shade400,
+                            size: 26,
+                          ),
+                          onPressed: () => _toggleDone(entryIndex),
+                        ),
+                        IconButton(
+                          tooltip: 'Exercise details',
+                          icon: const Icon(
+                            Icons.info_outline,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () =>
+                              showExercisePreview(context, exercise),
+                        ),
+                      ],
+                    ),
+                    onTap: () => showExercisePreview(context, exercise),
+                  );
+                }(),
             ],
           ),
     bottomNavigationBar: loading || error != null
@@ -105,12 +207,17 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: FilledButton(
-                onPressed: () => Navigator.of(context).push<void>(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        TrainingSessionPage(workout: widget.workout),
-                  ),
-                ),
+                onPressed: () async {
+                  await Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          TrainingSessionPage(workout: widget.workout),
+                    ),
+                  );
+                  if (mounted) {
+                    _load();
+                  }
+                },
                 child: const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('Start workout'),
@@ -274,6 +381,19 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
       phase.start();
     }
   });
+  void _markExerciseDone(int exerciseIndex) {
+    unawaited(() async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final key = 'workout_done_${widget.workout.id}';
+        final savedList = prefs.getStringList(key) ?? [];
+        final set = savedList.map(int.tryParse).whereType<int>().toSet();
+        set.add(exerciseIndex);
+        await prefs.setStringList(key, set.map((i) => i.toString()).toList());
+      } catch (_) {}
+    }());
+  }
+
   void _next() {
     if (preferences == null ||
         preparing ||
@@ -288,11 +408,13 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
         rest = false;
         index++;
       } else if (index == widget.workout.exercises.length - 1) {
+        _markExerciseDone(index);
         finished = true;
         completedAt = DateTime.now();
         active.stop();
         phase.stop();
       } else {
+        _markExerciseDone(index);
         rest = preferences!.restFor(widget.workout.restAfter(index)) > 0;
         if (!rest) index++;
       }
@@ -318,6 +440,14 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
           seconds: active.elapsed.inSeconds,
         ),
       );
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final all = List.generate(
+          widget.workout.exercises.length,
+          (i) => i.toString(),
+        );
+        await prefs.setStringList('workout_done_${widget.workout.id}', all);
+      } catch (_) {}
       if (mounted) {
         setState(() {
           saved = true;
@@ -458,7 +588,7 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
                         SizedBox(
                           width: 260,
                           height: 260,
-                          child: ExerciseAvatar(
+                          child: ChallengeAvatar(
                             exercise: exercise,
                             animate: !paused,
                           ),

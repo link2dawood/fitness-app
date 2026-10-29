@@ -53,14 +53,14 @@ void main() {
   test(
     'Every starter exercise has a unique original motion and default target',
     () {
-      expect(exerciseCatalog.length, 366);
+      expect(exerciseCatalog.length, 384);
       expect(
         exerciseCatalog.map((exercise) => exercise.id).toSet().length,
-        366,
+        384,
       );
       expect(
         exerciseCatalog.map((exercise) => exercise.motion).toSet().length,
-        366,
+        384,
       );
       expect(
         exerciseCatalog.where((exercise) => exercise.recommended).length,
@@ -419,7 +419,7 @@ void main() {
   test(
     'W and X batch saves 13 entries with rep-based kickback holds',
     () async {
-      final batch = exerciseCatalog.skip(353).toList();
+      final batch = exerciseCatalog.skip(353).take(13).toList();
       expect(batch.length, 13);
       expect(batch.where((e) => e.timed).length, 5);
       for (final id in [
@@ -528,7 +528,7 @@ void main() {
     );
     await tester.tap(find.text('Open picker'));
     await tester.pumpAndSettle();
-    expect(find.text('All Exercises (366)'), findsOneWidget);
+    expect(find.text('All Exercises (384)'), findsOneWidget);
     await tester.tap(find.text('Filters'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Abs'));

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/settings/settings_record.dart';
 import '../../core/routes/app_routes.dart';
+import '../../core/theme/app_colors.dart';
 import '../../data/models/challenge_day.dart';
 import '../../data/repositories/challenge_day_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
@@ -35,7 +36,7 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
       final day = snapshot.data;
       return TrainingPhotoCard(
         title: 'INTENSE\nBELLY FAT BURN',
-        image: 'assets/images/workouts/belly_fat_burn.jpg',
+        image: 'assets/images/workouts/challenge_intense_belly_fat_burn.png',
         subtitle: snapshot.hasError
             ? 'Open Day 1 to retry loading your saved plan.'
             : 'DAY 1 • ${day?.entries.length ?? 21} Exercises\nTimed training, exercise editing and saved progress',
@@ -453,6 +454,11 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
                 itemCount: day!.entries.length,
                 itemBuilder: (context, index) {
                   final entry = day!.entries[index];
+                  final saved = day!.progress;
+                  final isDone = saved != null &&
+                      (saved.credited ||
+                          saved.phase == ChallengePhase.complete ||
+                          index < saved.index);
                   return ReorderableDelayedDragStartListener(
                     key: ValueKey(entry.id),
                     index: index,
@@ -477,46 +483,84 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                SizedBox(
-                                  width: 76,
-                                  height: 76,
-                                  child: ChallengeAvatar(
-                                    exercise: entry.exercise,
-                                    animate: false,
-                                  ),
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    SizedBox(
+                                      width: 76,
+                                      height: 76,
+                                      child: ChallengeAvatar(
+                                        exercise: entry.exercise,
+                                        animate: false,
+                                      ),
+                                    ),
+                                    if (isDone)
+                                      Positioned(
+                                        right: -2,
+                                        bottom: -2,
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                            Icons.check_circle,
+                                            color: AppColors.primary,
+                                            size: 22,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ],
                             ),
                             title: Text(
                               entry.exercise.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w800,
+                                color: isDone
+                                    ? AppColors.textSecondary
+                                    : AppColors.textPrimary,
                               ),
                             ),
                             subtitle: Text(challengeTime(entry.seconds)),
                             onTap: busy ? null : () => details(index),
-                            trailing: IconButton(
-                              tooltip: 'Replace ${entry.exercise.name}',
-                              onPressed: busy
-                                  ? null
-                                  : () async {
-                                      if (!await confirmReset() ||
-                                          !context.mounted) {
-                                        return;
-                                      }
-                                      final replacement =
-                                          await replaceChallengeExercise(
-                                            context,
-                                          );
-                                      if (replacement != null && mounted) {
-                                        final entries = [...day!.entries];
-                                        entries[index] = entry.copyWith(
-                                          exerciseId: replacement.id,
-                                        );
-                                        await savePlan(entries);
-                                      }
-                                    },
-                              icon: const Icon(Icons.swap_horiz),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isDone)
+                                  const Padding(
+                                    padding: EdgeInsets.only(right: 6),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: AppColors.primary,
+                                      size: 24,
+                                    ),
+                                  ),
+                                IconButton(
+                                  tooltip: 'Replace ${entry.exercise.name}',
+                                  onPressed: busy
+                                      ? null
+                                      : () async {
+                                          if (!await confirmReset() ||
+                                              !context.mounted) {
+                                            return;
+                                          }
+                                          final replacement =
+                                              await replaceChallengeExercise(
+                                                context,
+                                              );
+                                          if (replacement != null && mounted) {
+                                            final entries = [...day!.entries];
+                                            entries[index] = entry.copyWith(
+                                              exerciseId: replacement.id,
+                                            );
+                                            await savePlan(entries);
+                                          }
+                                        },
+                                  icon: const Icon(Icons.swap_horiz),
+                                ),
+                              ],
                             ),
                           ),
                           const Divider(indent: 108, color: Colors.black12),

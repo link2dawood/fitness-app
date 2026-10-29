@@ -94,6 +94,10 @@ void main() {
         MaterialApp(
           theme: AppTheme.light,
           onGenerateRoute: AppRoutes.onGenerateRoute,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: child!,
+          ),
           home: const DiscoverPage(),
         ),
       );

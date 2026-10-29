@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/exercise.dart';
 import '../../data/models/exercise_guidance.dart';
-import '../../widgets/exercises/exercise_avatar.dart';
+import '../../widgets/exercises/challenge_avatar.dart';
 import '../../widgets/exercises/exercise_focus_illustration.dart';
 
 Future<void> showExercisePreview(
@@ -132,7 +132,7 @@ class _ExerciseDetailCardState extends State<ExerciseDetailCard> {
                                   height: 260,
                                   child:
                                       widget.avatar ??
-                                      ExerciseAvatar(exercise: exercise),
+                                      ChallengeAvatar(exercise: exercise),
                                 ),
                               )
                             : view == 1

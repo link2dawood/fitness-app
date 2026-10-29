@@ -125,9 +125,7 @@ class TrainingChallengeCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(compact ? 10 : 14),
               child: Image.asset(
-                customized
-                    ? 'assets/images/ui/plan_athlete.jpg'
-                    : workout.image,
+                workout.image,
                 height: compact ? 70 : 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -142,9 +140,7 @@ class TrainingChallengeCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(compact ? 10 : 14),
                   child: Image.asset(
-                    customized
-                        ? 'assets/images/ui/plan_athlete.jpg'
-                        : workout.image,
+                    workout.image,
                     width: compact ? 56 : 94,
                     height: compact ? 56 : 110,
                     fit: BoxFit.cover,
@@ -362,6 +358,9 @@ class TrainingPhotoCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Stack(
+            alignment: compact
+                ? AlignmentDirectional.bottomStart
+                : AlignmentDirectional.topStart,
             children: [
               Positioned.fill(
                 child: collage
@@ -388,10 +387,22 @@ class TrainingPhotoCard extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
+                      begin: compact
+                          ? Alignment.bottomCenter
+                          : Alignment.centerLeft,
+                      end: compact
+                          ? Alignment.topCenter
+                          : Alignment.centerRight,
                       colors: recommended
                           ? [
                               const Color(0xFF548FD2),
                               const Color(0xFF548FD2).withValues(alpha: .35),
+                            ]
+                          : compact
+                          ? [
+                              Colors.black.withValues(alpha: .9),
+                              Colors.black.withValues(alpha: .55),
+                              Colors.black.withValues(alpha: .05),
                             ]
                           : [
                               Colors.black.withValues(alpha: .8),
@@ -434,7 +445,7 @@ class TrainingPhotoCard extends StatelessWidget {
                     SizedBox(height: compact ? 6 : 12),
                     Text(
                       subtitle,
-                      maxLines: compact ? 2 : null,
+                      maxLines: compact ? 3 : null,
                       overflow: compact ? TextOverflow.ellipsis : null,
                       style: TextStyle(
                         color: Colors.white,

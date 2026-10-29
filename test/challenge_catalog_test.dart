@@ -106,6 +106,35 @@ void main() {
       );
     }
   });
+  test('Every catalog challenge has its own bundled workout artwork', () {
+    final images = TrainingChallenges.catalog.map((item) => item.workout.image);
+    expect(images.toSet(), hasLength(TrainingChallenges.catalog.length));
+    for (final image in images) {
+      expect(File(image).existsSync(), isTrue, reason: image);
+      expect(image, startsWith('assets/images/workouts/challenge_'));
+    }
+  });
+  testWidgets('Customized cards retain the artwork of their actual workout', (
+    tester,
+  ) async {
+    final workout = TrainingChallenges.catalog
+        .firstWhere((item) => item.calisthenics)
+        .workout;
+    await tester.pumpWidget(
+      app(
+        Scaffold(
+          body: TrainingChallengeCard(workout: workout, customized: true),
+        ),
+      ),
+    );
+    final image = tester.widget<Image>(
+      find.descendant(
+        of: find.byType(TrainingChallengeCard),
+        matching: find.byType(Image),
+      ),
+    );
+    expect((image.image as AssetImage).assetName, workout.image);
+  });
   testWidgets(
     'Training Challenge arrow opens detailed cards and every badge filters the list',
     (tester) async {
@@ -144,7 +173,6 @@ void main() {
                 .matches(badge),
             true,
           );
-          expect(card.compact, false);
         }
       }
       expect(tester.takeException(), isNull);

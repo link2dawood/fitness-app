@@ -226,6 +226,105 @@ _Pose _pose(ExerciseMotion motion, double progress) {
   final angle = progress * math.pi * 2;
   final wave = (1 - math.cos(angle)) / 2;
   switch (motion) {
+    case ExerciseMotion.crossBodyShoulderStretch:
+      final q = _pose(ExerciseMotion.shoulderStretch, progress);
+      return _blendPose(q, _mirrorPose(q), wave);
+    case ExerciseMotion.elbowRotations:
+      p.wl = p.sl + const Offset(-.015, .01);
+      p.wr = p.sr + const Offset(.015, .01);
+      p.el = p.sl + Offset(-.11 * math.cos(angle), .11 * math.sin(angle));
+      p.er = p.sr + Offset(.11 * math.cos(angle), .11 * math.sin(angle));
+    case ExerciseMotion.alternatingSideBends:
+      final lean = .11 * math.sin(angle);
+      p.sl += Offset(lean, .015 * lean.abs());
+      p.sr += Offset(lean, .015 * lean.abs());
+      p.neck += Offset(lean * 1.3, .01);
+      p.head += Offset(lean * 1.5, .01);
+      if (lean >= 0) {
+        p.wl = p.head + const Offset(.08, -.09);
+        p.el = p.sl + const Offset(-.03, -.13);
+        p.wr = p.hr + const Offset(.04, .14);
+        p.er = _mix(p.sr, p.wr, .5);
+      } else {
+        p.wr = p.head + const Offset(-.08, -.09);
+        p.er = p.sr + const Offset(.03, -.13);
+        p.wl = p.hl + const Offset(-.04, .14);
+        p.el = _mix(p.sl, p.wl, .5);
+      }
+    case ExerciseMotion.spinalRollDown:
+      final q = _pose(ExerciseMotion.hipHinge, progress);
+      q.neck += Offset(.02 * wave, .035 * wave);
+      q.head += Offset(.025 * wave, .065 * wave);
+      return q;
+    case ExerciseMotion.standingHipRotationsLeft:
+      return _pose(ExerciseMotion.singleHipRotation, progress);
+    case ExerciseMotion.standingHipRotationsRight:
+      return _mirrorPose(_pose(ExerciseMotion.singleHipRotation, progress));
+    case ExerciseMotion.kneelingPushUps:
+      return _pose(ExerciseMotion.kneePushUps, progress);
+    case ExerciseMotion.birdDogTimed:
+      return _pose(ExerciseMotion.birdDog, progress);
+    case ExerciseMotion.reverseHipRaise:
+      final q = _pose(ExerciseMotion.backBowPulls, 0);
+      q.hl -= Offset(0, .035 * wave);
+      q.hr -= Offset(0, .035 * wave);
+      q.kl = Offset(.29, .80 - .065 * wave);
+      q.kr = q.kl + const Offset(.02, -.015);
+      q.al = q.kl + const Offset(.01, -.19);
+      q.ar = q.kr + const Offset(.01, -.19);
+      q.wl = const Offset(.80, .82);
+      q.wr = const Offset(.82, .80);
+      q.el = const Offset(.65, .83);
+      q.er = const Offset(.67, .81);
+      return q;
+    case ExerciseMotion.supermanTimed:
+      return _pose(ExerciseMotion.superman, progress);
+    case ExerciseMotion.legScissors:
+      final q = _pose(ExerciseMotion.legRaises, 0);
+      q.al = q.hl + _polar(.36, -.20 - .95 * wave);
+      q.ar = q.hr + _polar(.36, -.20 - .95 * (1 - wave));
+      q.kl = _mix(q.hl, q.al, .5);
+      q.kr = _mix(q.hr, q.ar, .5);
+      return q;
+    case ExerciseMotion.suitcaseCrunch:
+      final q = _pose(ExerciseMotion.crunchKicks, progress);
+      q.sl = Offset(.34 + .12 * wave, .68 - .16 * wave);
+      q.sr = q.sl + const Offset(.02, -.02);
+      q.neck = q.sl + const Offset(-.025, -.035);
+      q.head = q.sl + const Offset(-.06, -.10);
+      q.wl = Offset(.60, .64 - .08 * wave);
+      q.wr = q.wl + const Offset(.02, -.02);
+      q.el = _mix(q.sl, q.wl, .5);
+      q.er = _mix(q.sr, q.wr, .5);
+      return q;
+    case ExerciseMotion.leftPivotStepLunge:
+    case ExerciseMotion.rightPivotStepLunge:
+      final q = _pose(ExerciseMotion.backwardLungeKickRight, wave * .25);
+      q.wl = q.sl + const Offset(.10, .06);
+      q.wr = q.wl + const Offset(.02, -.02);
+      q.el = _joint(q.sl, q.wl, .15, .14, 1);
+      q.er = _joint(q.sr, q.wr, .15, .14, -1);
+      q.sl += Offset(-.025 * wave, 0);
+      q.sr += Offset(.025 * wave, 0);
+      return motion == ExerciseMotion.leftPivotStepLunge ? _mirrorPose(q) : q;
+    case ExerciseMotion.prisonerSquat:
+      final q = _pose(ExerciseMotion.squats, progress);
+      q.wl = q.head + const Offset(-.045, .025);
+      q.wr = q.head + const Offset(.045, .025);
+      q.el = q.sl + const Offset(-.13, -.01);
+      q.er = q.sr + const Offset(.13, -.01);
+      return q;
+    case ExerciseMotion.hipFlexorStretchLeft:
+      return _pose(ExerciseMotion.kneelLungeLeft, progress);
+    case ExerciseMotion.hipFlexorStretchRight:
+      return _pose(ExerciseMotion.kneelLungeRight, progress);
+    case ExerciseMotion.plankToDownwardDog:
+      return _blendPose(
+        _pose(ExerciseMotion.straightPlank, 0),
+        _pose(ExerciseMotion.downDog, 0),
+        wave,
+      );
+
     case ExerciseMotion.wallPushUp:
       p.side = true;
       p.sl = Offset(.54 + .12 * wave, .31 + .025 * wave);
@@ -948,13 +1047,23 @@ _Pose _pose(ExerciseMotion motion, double progress) {
       p.wl += shift;
       p.wr += shift;
     case ExerciseMotion.claspBehind:
+      // Side view, standing tall: hands clasped at the lower back, then the
+      // straight arms lift gently away from the body to open the chest.
       p.side = true;
-      p.sl = const Offset(.51, .30);
-      p.sr = const Offset(.53, .29);
-      p.wl = const Offset(.37, .56);
-      p.wr = p.wl;
-      p.el = _mix(p.sl, p.wl, .5);
-      p.er = _mix(p.sr, p.wr, .5);
+      p.hl = const Offset(.49, .55);
+      p.hr = const Offset(.51, .545);
+      p.kl = const Offset(.49, .705);
+      p.kr = const Offset(.51, .70);
+      p.al = const Offset(.48, .86);
+      p.ar = const Offset(.50, .855);
+      p.sl = Offset(.505 + .01 * wave, .30);
+      p.sr = p.sl + const Offset(.02, -.006);
+      p.neck = p.sl + const Offset(.012, -.037);
+      p.head = p.neck + Offset(.012, -.072 - .004 * wave);
+      p.wl = _mix(const Offset(.43, .575), const Offset(.37, .51), wave);
+      p.wr = p.wl + const Offset(.012, -.008);
+      p.el = _joint(p.sl, p.wl, .145, .14, 1);
+      p.er = _joint(p.sr, p.wr, .145, .14, 1);
     case ExerciseMotion.chairBendLeft:
     case ExerciseMotion.chairBendRight:
       p.chair = true;

@@ -117,8 +117,7 @@ class _SplashViewState extends State<SplashView>
             ),
           ),
 
-          // ── Cinematic dark overlay matching reference ──
-          // Heavy at top & bottom, lighter in the mid-torso zone
+          // Light shading reveals the photo; the bottom retains text contrast.
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -126,15 +125,11 @@ class _SplashViewState extends State<SplashView>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withValues(alpha: 0.82), // very dark top
-                    Colors.black.withValues(
-                      alpha: 0.55,
-                    ), // lighter at chest zone
-                    Colors.black.withValues(alpha: 0.70), // mid-body
-                    Colors.black.withValues(alpha: 0.90), // dark lower area
-                    Colors.black.withValues(
-                      alpha: 0.97,
-                    ), // near-black at bottom
+                    Colors.black.withValues(alpha: 0.35),
+                    Colors.black.withValues(alpha: 0.15),
+                    Colors.black.withValues(alpha: 0.25),
+                    Colors.black.withValues(alpha: 0.50),
+                    Colors.black.withValues(alpha: 0.70),
                   ],
                   stops: const [0.0, 0.25, 0.55, 0.78, 1.0],
                 ),
