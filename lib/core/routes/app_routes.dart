@@ -67,12 +67,13 @@ class AppRoutes {
         final profile = settings.arguments as UserProfile?;
         return _fade(settings, PlanReadyView(profile: profile));
       case home:
+        final showRateCard = settings.arguments == true;
         return _fade(
           settings,
           ChangeNotifierProvider(
             create: (ctx) =>
                 HomeViewModel(ctx.read<OnboardingRepository>())..load(),
-            child: const HomeView(),
+            child: HomeView(showRateCardOnOpen: showRateCard),
           ),
         );
       case pro:

@@ -15,6 +15,7 @@ import '../../workouts/training_goal_sheet.dart';
 import '../../workouts/training_history_sheet.dart';
 import '../../settings/feature_suggestions_sheet.dart';
 import 'training_collection_page.dart';
+import '../../../widgets/rate_collection_dialog.dart';
 import '../../../widgets/training_feature_cards.dart';
 import '../../workouts/training_workout_page.dart';
 import '../../workouts/challenge_day_page.dart';
@@ -571,6 +572,11 @@ class _TrainingPageState extends State<TrainingPage> {
                               : AppRoutes.keepFitMore,
                         ),
                         child: Text('More $goal workouts'),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => showRateCollectionDialog(context),
+                        icon: const Icon(Icons.star_outline_rounded),
+                        label: const Text('Rate us'),
                       ),
                       TextButton.icon(
                         onPressed: () => showFeatureSuggestions(context),

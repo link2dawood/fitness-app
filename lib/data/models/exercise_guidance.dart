@@ -15,6 +15,8 @@ class ExerciseGuidance {
   final String breathing;
 
   static ExerciseGuidance forExercise(ExerciseDefinition exercise) {
+    final specific = _referenceGuidance[exercise.id];
+    if (specific != null) return specific;
     final name = exercise.name.toLowerCase();
     if (exercise.id == 'abdominal_crunches') {
       return const ExerciseGuidance(
@@ -128,3 +130,76 @@ class ExerciseGuidance {
     );
   }
 }
+
+const _referenceGuidance = <String, ExerciseGuidance>{
+  'mountain_climber_timed': ExerciseGuidance(
+    'Begin in a high plank with hands beneath your shoulders, legs extended and abdomen braced.',
+    'Draw one knee toward your chest, return it, then switch legs. Keep your shoulders above your hands and your hips level. Slow down to maintain control.',
+    [
+      'Lifting the hips or letting the lower back sag.',
+      'Bouncing through the shoulders instead of keeping them stable.',
+      'Moving faster than you can control each knee drive.',
+    ],
+    'Breathe steadily; exhale during the knee drive without holding your breath.',
+  ),
+  'squats': ExerciseGuidance(
+    'Stand with feet about shoulder-width apart and toes turned slightly outward. Reach your arms forward for balance.',
+    'Sit your hips back and bend your knees, keeping your whole foot grounded. Lower as far as you can comfortably control, then push through your feet to stand.',
+    [
+      'Letting the knees collapse inward instead of tracking with the toes.',
+      'Lifting the heels or shifting all your weight onto the toes.',
+      'Rounding the back or forcing a deeper squat than you can control.',
+    ],
+    'Inhale as you lower and exhale as you stand.',
+  ),
+  'high_stepping': ExerciseGuidance(
+    'Stand tall with feet hip-width apart, elbows bent and shoulders relaxed.',
+    'March or jog in place, alternating a knee lift with the opposite arm. Lift each knee only as high as is comfortable and land softly beneath your hips.',
+    [
+      'Leaning backward or rounding the upper back.',
+      'Landing heavily with locked knees.',
+      'Forcing the knees higher while losing balance or trunk control.',
+    ],
+    'Keep an even breathing rhythm through the alternating steps.',
+  ),
+  'reverse_crunches': ExerciseGuidance(
+    'Lie on your back on a mat. Bend your hips and knees to roughly 90 degrees. Keep your neck relaxed and rest your hands beside you for support.',
+    'Use your abdomen to curl your pelvis gently toward your ribs, lifting your tailbone slightly. Lower slowly without swinging your legs. A small controlled lift is enough.',
+    [
+      'Swinging the legs to create momentum.',
+      'Pulling the head or neck with the hands.',
+      'Arching the lower back or dropping the hips on the return.',
+    ],
+    'Exhale as you curl your hips upward; inhale as you lower with control.',
+  ),
+  'push_ups': ExerciseGuidance(
+    'Place your hands slightly wider than your shoulders and extend your legs. Brace your abdomen so your head, hips and heels stay aligned.',
+    'Bend your elbows diagonally back to lower your chest toward the floor. Press through your palms to return as one unit. Use your knees or an elevated support if needed.',
+    [
+      'Letting the hips sag or rise ahead of the chest.',
+      'Flaring the elbows straight out to the sides.',
+      'Jutting the head forward or dropping down without control.',
+    ],
+    'Inhale while lowering and exhale while pressing up.',
+  ),
+  'plank': ExerciseGuidance(
+    'Place your forearms on a mat with elbows beneath your shoulders. Extend your legs and support yourself on your toes.',
+    'Gently tighten your abdomen and glutes. Hold a straight line from head to heels with your gaze down. Lower your knees if you cannot maintain that position.',
+    [
+      'Letting the lower back sag.',
+      'Lifting the hips too high or craning the neck upward.',
+      'Holding your breath or shrugging into the shoulders.',
+    ],
+    'Take steady, relaxed breaths throughout the hold.',
+  ),
+  'cobra_stretch': ExerciseGuidance(
+    'Lie face down with your legs extended and the tops of your feet resting on the mat. Place palms beneath your shoulders with elbows close to your sides.',
+    'Gently lift your chest using your back and light hand support. Keep your pelvis grounded, elbows soft and shoulders away from your ears. Stay within a comfortable range, then lower slowly.',
+    [
+      'Forcing the arms straight or compressing the lower back.',
+      'Lifting the pelvis off the mat.',
+      'Shrugging the shoulders or throwing the head backward.',
+    ],
+    'Inhale as you gently lift the chest; breathe evenly while holding and exhale as you lower.',
+  ),
+};

@@ -10,6 +10,7 @@ import '../../data/repositories/challenge_day_repository.dart';
 import '../../data/repositories/training_history_repository.dart';
 import '../../viewmodels/challenge_session_controller.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
+import '../../widgets/rate_collection_dialog.dart';
 import '../../widgets/training_feature_cards.dart';
 import 'challenge_plan_editor.dart';
 
@@ -180,7 +181,10 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
       );
       controller.credited = true;
       await repository.save(controller.snapshot());
-      if (mounted) setState(() => error = null);
+      if (mounted) {
+        setState(() => error = null);
+        unawaited(showRateCollectionDialog(context));
+      }
     } catch (_) {
       controller.credited = false;
       if (mounted) {

@@ -10,6 +10,7 @@ class TrainingWorkout {
     required this.exerciseIds,
     this.targets,
     this.restSeconds,
+    this.planVersion = 1,
   });
   final String id, title, image;
   final ExerciseDifficulty difficulty;
@@ -17,7 +18,27 @@ class TrainingWorkout {
   final List<String> exerciseIds;
   final List<int>? targets;
   final List<int>? restSeconds;
+  final int planVersion;
+  String get progressStorageKey =>
+      'workout_done_$id${planVersion == 1 ? '' : '_v$planVersion'}';
   int targetAt(int index) => targets?[index] ?? exercises[index].target;
+  ExerciseDefinition exerciseAt(int index) {
+    final base = exercises[index];
+    return ExerciseDefinition(
+      id: base.id,
+      name: base.name,
+      motion: base.motion,
+      area: base.area,
+      timed: base.timed,
+      target: targetAt(index),
+      description: base.description,
+      focus: base.focus,
+      difficulty: base.difficulty,
+      type: base.type,
+      equipment: base.equipment,
+    );
+  }
+
   int restAfter(int index) => restSeconds?[index] ?? 15;
   List<ExerciseDefinition> get exercises =>
       exerciseIds.map(exerciseById).toList();
@@ -1019,20 +1040,26 @@ const trainingWorkouts = <TrainingWorkout>[
   ),
   TrainingWorkout(
     id: 'lose_weight_for_men',
+    planVersion: 2,
     title: "LOSE WEIGHT FOR MEN",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
     image: 'assets/images/workouts/challenge_lose_weight_for_men.png',
     exerciseIds: [
-      'thread_needle_right',
-      'up_down_plank',
-      'v_crunch',
-      'v_hold',
-      'wide_arm_push_ups',
-      'wall_sit',
-      'wall_calf_raises',
-      'wall_resisting_single_leg_calf_raise_left',
+      'mountain_climber_timed',
+      'squats',
+      'high_stepping',
+      'reverse_crunches',
+      'push_ups',
+      'plank',
+      'squats',
+      'high_stepping',
+      'reverse_crunches',
+      'push_ups',
+      'plank',
+      'cobra_stretch',
     ],
+    targets: [30, 16, 30, 16, 10, 30, 16, 30, 16, 10, 30, 30],
   ),
   TrainingWorkout(
     id: 'lower_body',

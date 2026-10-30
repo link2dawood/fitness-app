@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
+import '../../../widgets/rate_collection_dialog.dart';
 import '../../settings/feature_suggestions_sheet.dart';
 import '../../settings/language_options_dialog.dart';
 import '../../../core/settings/general_settings.dart';
@@ -225,10 +226,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   iconBgColor: const Color(0xFF607D8B),
                   icon: Icons.star_rounded,
                   title: 'Rate us',
-                  onTap: () => _showUnavailable(
-                    'Rate us',
-                    'Rating requires a published app store listing.',
-                  ),
+                  onTap: () => showRateCollectionDialog(context),
                 ),
                 const Divider(color: Color(0xFFF9FAFB), height: 1),
                 _buildSettingTile(

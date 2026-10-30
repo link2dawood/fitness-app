@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../data/models/training_workout.dart';
 import '../../data/repositories/training_history_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
+import '../../widgets/rate_collection_dialog.dart';
 import 'exercise_detail.dart';
 
 Future<void> openTrainingWorkout(
@@ -29,7 +30,7 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
   bool loading = true;
   String? error;
   Set<int> _completedIndices = {};
-  String get _storageKey => 'workout_done_${widget.workout.id}';
+  String get _storageKey => widget.workout.progressStorageKey;
 
   @override
   void initState() {
@@ -42,13 +43,14 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
       await TrainingHistoryRepository.instance.load();
       final prefs = await SharedPreferences.getInstance();
       final savedList = prefs.getStringList(_storageKey);
-      final historyDone = TrainingHistoryRepository.instance.entries
-          .any((e) => e.workoutId == widget.workout.id);
+      final historyDone = TrainingHistoryRepository.instance.entries.any(
+        (e) => e.workoutId == widget.workout.id,
+      );
 
       final Set<int> indices;
       if (savedList != null) {
         indices = savedList.map(int.tryParse).whereType<int>().toSet();
-      } else if (historyDone) {
+      } else if (historyDone && widget.workout.planVersion == 1) {
         indices = List.generate(
           widget.workout.exercises.length,
           (i) => i,
@@ -175,9 +177,7 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
                               ? 'Mark as incomplete'
                               : 'Mark as completed',
                           icon: Icon(
-                            isDone
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
+                            isDone ? Icons.check_circle : Icons.circle_outlined,
                             color: isDone
                                 ? AppColors.primary
                                 : Colors.grey.shade400,
@@ -191,12 +191,17 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
                             Icons.info_outline,
                             color: Colors.grey,
                           ),
-                          onPressed: () =>
-                              showExercisePreview(context, exercise),
+                          onPressed: () => showExercisePreview(
+                            context,
+                            widget.workout.exerciseAt(entryIndex),
+                          ),
                         ),
                       ],
                     ),
-                    onTap: () => showExercisePreview(context, exercise),
+                    onTap: () => showExercisePreview(
+                      context,
+                      widget.workout.exerciseAt(entryIndex),
+                    ),
                   );
                 }(),
             ],
@@ -385,7 +390,7 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
     unawaited(() async {
       try {
         final prefs = await SharedPreferences.getInstance();
-        final key = 'workout_done_${widget.workout.id}';
+        final key = widget.workout.progressStorageKey;
         final savedList = prefs.getStringList(key) ?? [];
         final set = savedList.map(int.tryParse).whereType<int>().toSet();
         set.add(exerciseIndex);
@@ -446,13 +451,14 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
           widget.workout.exercises.length,
           (i) => i.toString(),
         );
-        await prefs.setStringList('workout_done_${widget.workout.id}', all);
+        await prefs.setStringList(widget.workout.progressStorageKey, all);
       } catch (_) {}
       if (mounted) {
         setState(() {
           saved = true;
           saving = false;
         });
+        unawaited(showRateCollectionDialog(context));
       }
     } catch (_) {
       if (mounted) {

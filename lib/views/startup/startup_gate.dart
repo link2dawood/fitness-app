@@ -52,22 +52,26 @@ class _StartupGateState extends State<StartupGate> {
   @override
   Widget build(BuildContext context) {
     if (!_loading && !_failed) return widget.child;
+    final page = _loading
+        ? const Scaffold(body: Center(child: CircularProgressIndicator()))
+        : StorageRecoveryView(
+            title: 'Could not load app settings',
+            message:
+                'Your saved profile and workout records have not been changed. Retry, or reset only general app settings.',
+            onRetry: _load,
+            onReset: _reset,
+            resetLabel: 'Reset app settings',
+            resetDescription:
+                'Reset units, language preference and screen-on settings? Your profile, workouts, weight history and reminders will be kept.',
+          );
     return MaterialApp(
       key: const ValueKey('startup-recovery-app'),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: _loading
-          ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-          : StorageRecoveryView(
-              title: 'Could not load app settings',
-              message:
-                  'Your saved profile and workout records have not been changed. Retry, or reset only general app settings.',
-              onRetry: _load,
-              onReset: _reset,
-              resetLabel: 'Reset app settings',
-              resetDescription:
-                  'Reset units, language preference and screen-on settings? Your profile, workouts, weight history and reminders will be kept.',
-            ),
+      onGenerateInitialRoutes: (_) => [
+        MaterialPageRoute<void>(builder: (_) => page),
+      ],
+      onGenerateRoute: (_) => MaterialPageRoute<void>(builder: (_) => page),
     );
   }
 }

@@ -96,18 +96,10 @@ void main() {
     try {
       final model = HomeViewModel(OnboardingRepository());
       await model.load();
-      // Exercise the real navigation chrome independently of unrelated tab pages.
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: model,
-          child: app(
-            Builder(
-              builder: (context) {
-                final shell = const HomeView().build(context) as Scaffold;
-                return Scaffold(bottomNavigationBar: shell.bottomNavigationBar);
-              },
-            ),
-          ),
+          child: app(const HomeView()),
         ),
       );
       await tester.pumpAndSettle();

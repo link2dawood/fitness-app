@@ -309,7 +309,10 @@ class PlanReadyView extends StatelessWidget {
 
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+                    Navigator.of(context).pushReplacementNamed(
+                      AppRoutes.home,
+                      arguments: true,
+                    );
                   },
                   child: const Text(
                     'Go to homepage',

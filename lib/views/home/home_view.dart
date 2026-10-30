@@ -6,13 +6,16 @@ import '../../viewmodels/home_viewmodel.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/storage_recovery_view.dart';
 import '../../core/routes/app_routes.dart';
+import '../../widgets/rate_collection_dialog.dart';
 import 'pages/discover_page.dart';
 import 'pages/report_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/training_page.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+  const HomeView({super.key, this.showRateCardOnOpen = false});
+
+  final bool showRateCardOnOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +49,13 @@ class HomeView extends StatelessWidget {
       SettingsPage(),
     ];
 
+    final content = IndexedStack(index: vm.currentTab, children: pages);
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: IndexedStack(index: vm.currentTab, children: pages),
+      body: showRateCardOnOpen
+          ? _RateCardOnOpenTrigger(child: content)
+          : content,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -159,4 +166,33 @@ class HomeView extends StatelessWidget {
       ),
     );
   }
+}
+
+class _RateCardOnOpenTrigger extends StatefulWidget {
+  const _RateCardOnOpenTrigger({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_RateCardOnOpenTrigger> createState() => _RateCardOnOpenTriggerState();
+}
+
+class _RateCardOnOpenTriggerState extends State<_RateCardOnOpenTrigger> {
+  bool _shown = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_shown) {
+      _shown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          showRateCollectionDialog(context);
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

@@ -4,6 +4,13 @@ import '../../data/models/exercise.dart';
 import 'exercise_avatar.dart';
 
 const challengeAvatarFrames = <String, (int, int, bool)>{
+  'mountain_climber_timed': (14, 0, false),
+  'squats': (15, 0, false),
+  'high_stepping': (16, 0, false),
+  'reverse_crunches': (17, 0, false),
+  'push_ups': (18, 0, false),
+  'plank': (19, 0, false),
+  'cobra_stretch': (20, 0, false),
   'cross_body_shoulder_stretch': (6, 0, false),
   'elbow_rotations': (6, 8, false),
   'alternating_side_bends': (7, 0, false),
@@ -40,6 +47,17 @@ const challengeAvatarFrames = <String, (int, int, bool)>{
   'lying_twist_stretch_right': (5, 8, true),
 };
 
+// User-supplied reference footage: 32 frames in an 8 x 4 atlas.
+const referenceAvatarDurations = <String, int>{
+  'mountain_climber_timed': 3600,
+  'squats': 3600,
+  'high_stepping': 1650,
+  'reverse_crunches': 2600,
+  'push_ups': 2350,
+  'plank': 2600,
+  'cobra_stretch': 2000,
+};
+
 // Select consistent return poses and exclude generated cells that switch legs.
 const challengeAvatarFrameOrder = <String, List<int>>{
   'cross_body_shoulder_stretch': [0, 1, 2, 3, 2, 1, 0, 0],
@@ -51,6 +69,9 @@ const challengeAvatarFrameOrder = <String, List<int>>{
 };
 
 int challengeAvatarFrameFor(String exerciseId, double progress) {
+  if (referenceAvatarDurations.containsKey(exerciseId)) {
+    return (progress * 32).floor().clamp(0, 31);
+  }
   final step = (progress * 8).floor().clamp(0, 7);
   return challengeAvatarFrames[exerciseId]!.$2 +
       (challengeAvatarFrameOrder[exerciseId]?[step] ?? step);
@@ -100,6 +121,9 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
   }
 
   void load() {
+    controller.duration = Duration(
+      milliseconds: referenceAvatarDurations[widget.exercise.id] ?? 2800,
+    );
     final record = challengeAvatarFrames[widget.exercise.id];
     if (stream != null && listener != null) stream!.removeListener(listener!);
     imageInfo?.dispose();
@@ -169,6 +193,7 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
               atlas!,
               challengeAvatarFrameFor(widget.exercise.id, controller.value),
               record.$3,
+              referenceAvatarDurations.containsKey(widget.exercise.id) ? 8 : 4,
             ),
             size: Size.infinite,
           ),
@@ -179,16 +204,17 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
 }
 
 class _AtlasPainter extends CustomPainter {
-  const _AtlasPainter(this.image, this.frame, this.mirror);
+  const _AtlasPainter(this.image, this.frame, this.mirror, this.columns);
   final ui.Image image;
   final int frame;
   final bool mirror;
+  final int columns;
   @override
   void paint(Canvas canvas, Size size) {
-    final width = image.width / 4, height = image.height / 4;
+    final width = image.width / columns, height = image.height / 4;
     final source = Rect.fromLTWH(
-      (frame % 4) * width + 3,
-      (frame ~/ 4) * height + 3,
+      (frame % columns) * width + 3,
+      (frame ~/ columns) * height + 3,
       width - 6,
       height - 6,
     );
@@ -216,5 +242,6 @@ class _AtlasPainter extends CustomPainter {
   bool shouldRepaint(_AtlasPainter oldDelegate) =>
       oldDelegate.image != image ||
       oldDelegate.frame != frame ||
+      oldDelegate.columns != columns ||
       oldDelegate.mirror != mirror;
 }

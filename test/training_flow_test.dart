@@ -76,7 +76,11 @@ void main() {
         expect(
           workout.exerciseIds.toSet(),
           hasLength(
-            workout.id == 'calisthenics_plan' ? 20 : workout.exerciseIds.length,
+            switch (workout.id) {
+              'calisthenics_plan' => 20,
+              'lose_weight_for_men' => 7, // Reference includes repeated sets.
+              _ => workout.exerciseIds.length,
+            },
           ),
         );
         expect(
