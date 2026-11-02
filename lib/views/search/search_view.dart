@@ -2,9 +2,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../../data/models/exercise.dart';
+import '../../data/models/abs_workouts.dart';
+import '../../data/models/arm_workouts.dart';
+import '../../data/models/full_body_workouts.dart';
 import '../../data/models/training_search.dart';
+import '../../data/models/workout_type_collections.dart';
 import '../home/pages/training_collection_page.dart';
+import '../home/pages/training_profile_builder.dart';
 import '../settings/feature_suggestions_sheet.dart';
+import 'body_focus_results_view.dart';
 
 class SearchView extends StatefulWidget {
   const SearchView({super.key, this.initialQuery = ''});
@@ -32,11 +38,7 @@ class _SearchViewState extends State<SearchView> {
       asset: 'assets/images/body/abs.png',
       focus: ExerciseFocus.abs,
     ),
-    (
-      label: 'Full Body',
-      asset: 'assets/images/body/fullbody.png',
-      focus: null,
-    ),
+    (label: 'Full Body', asset: 'assets/images/body/fullbody.png', focus: null),
     (
       label: 'Arm',
       asset: 'assets/images/body/arm.png',
@@ -309,7 +311,9 @@ class _SearchViewState extends State<SearchView> {
                                   '${results.length} workouts',
                                   key: const ValueKey('workout-search-count'),
                                   style: TextStyle(
-                                    fontSize: _hasActiveSearchOrFilter ? 16 : 13,
+                                    fontSize: _hasActiveSearchOrFilter
+                                        ? 16
+                                        : 13,
                                     fontWeight: FontWeight.w800,
                                     color: _hasActiveSearchOrFilter
                                         ? const Color(0xFF111827)
@@ -397,6 +401,34 @@ class _SearchViewState extends State<SearchView> {
           return GestureDetector(
             key: ValueKey<String>('search-body-focus-${item.label}'),
             onTap: () {
+              if (bodyFocusWorkouts.containsKey(item.label)) {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        BodyFocusResultsView(focusLabel: item.label),
+                  ),
+                );
+                return;
+              }
+              if (const {'Abs', 'Full Body', 'Arm'}.contains(item.label)) {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) => TrainingProfileBuilder(
+                      builder: (_, profile) => TrainingCollectionPage(
+                        title: item.label,
+                        workouts: switch (item.label) {
+                          'Abs' => absWorkouts,
+                          'Arm' => armWorkouts,
+                          _ => fullBodyWorkouts,
+                        },
+                        gender: profile?.gender,
+                        useReferenceChallengeDay: true,
+                      ),
+                    ),
+                  ),
+                );
+                return;
+              }
               setState(() {
                 _selectedBodyFocus = isSelected ? null : item.label;
               });
@@ -501,6 +533,21 @@ class _SearchViewState extends State<SearchView> {
     return GestureDetector(
       key: ValueKey<String>('search-workout-type-${item.id}'),
       onTap: () {
+        if (workoutTypeCollectionIds.containsKey(item.id)) {
+          Navigator.of(context).push<void>(
+            MaterialPageRoute(
+              builder: (_) => TrainingProfileBuilder(
+                builder: (_, profile) => TrainingCollectionPage(
+                  title: workoutTypeCollectionTitles[item.id]!,
+                  workouts: workoutTypeCollection(item.id),
+                  gender: profile?.gender,
+                  useReferenceChallengeDay: true,
+                ),
+              ),
+            ),
+          );
+          return;
+        }
         setState(() {
           _selectedWorkoutType = isSelected ? null : item.id;
         });

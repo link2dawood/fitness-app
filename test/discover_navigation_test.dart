@@ -108,9 +108,14 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Tabata');
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
-      find.byType(TrainingWorkoutTile),
+        find.byType(TrainingWorkoutTile),
         250,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: find
+            .descendant(
+              of: find.byType(CustomScrollView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
       );
       await tester.pumpAndSettle();
       expect(
@@ -134,7 +139,7 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.text('Tabata'), findsWidgets);
-      await tester.pageBack();
+      await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
       expect(find.byType(DiscoverPage), findsOneWidget);
     },

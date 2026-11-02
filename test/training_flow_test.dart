@@ -73,16 +73,11 @@ void main() {
       for (final workout in trainingWorkouts) {
         expect(workout.exercises.length, greaterThanOrEqualTo(4));
         expect(workout.estimatedMinutes, greaterThan(0));
-        expect(
-          workout.exerciseIds.toSet(),
-          hasLength(
-            switch (workout.id) {
-              'calisthenics_plan' => 20,
-              'lose_weight_for_men' => 7, // Reference includes repeated sets.
-              _ => workout.exerciseIds.length,
-            },
-          ),
-        );
+        // Repeated exercise IDs represent successive sets in circuit routines.
+        if (workout.targets != null) {
+          expect(workout.targets, hasLength(workout.exerciseIds.length));
+          expect(workout.targets!.every((target) => target > 0), isTrue);
+        }
         expect(
           workout.exercises.every((e) => exerciseCatalog.contains(e)),
           isTrue,

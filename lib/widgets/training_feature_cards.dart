@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/models/exercise.dart';
+import '../data/models/challenge_artwork.dart';
+import '../data/models/user_profile.dart';
 import '../data/models/training_workout.dart';
 import '../views/workouts/training_workout_page.dart';
 
@@ -13,8 +15,10 @@ class TrainingChallengeCard extends StatelessWidget {
     this.customized = false,
     this.color = trainingCardBlue,
     this.compact = true,
+    this.gender,
   });
   final TrainingWorkout workout;
+  final Gender? gender;
   final bool customized;
   final Color color;
   final bool compact;
@@ -125,7 +129,7 @@ class TrainingChallengeCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(compact ? 10 : 14),
               child: Image.asset(
-                workout.image,
+                challengeArtwork(workout, gender),
                 height: compact ? 70 : 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -140,7 +144,7 @@ class TrainingChallengeCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(compact ? 10 : 14),
                   child: Image.asset(
-                    workout.image,
+                    challengeArtwork(workout, gender),
                     width: compact ? 56 : 94,
                     height: compact ? 56 : 110,
                     fit: BoxFit.cover,

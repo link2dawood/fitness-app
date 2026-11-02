@@ -226,6 +226,31 @@ _Pose _pose(ExerciseMotion motion, double progress) {
   final angle = progress * math.pi * 2;
   final wave = (1 - math.cos(angle)) / 2;
   switch (motion) {
+    case ExerciseMotion.dumbbellSquat:
+      final q = _pose(ExerciseMotion.squats, progress);
+      q.weights = true;
+      return q;
+    case ExerciseMotion.dumbbellReverseLunge:
+      final q = _pose(ExerciseMotion.backwardLunge, progress);
+      q.weights = true;
+      return q;
+    case ExerciseMotion.dumbbellDeadliftLeft:
+    case ExerciseMotion.dumbbellDeadliftRight:
+      final q = _pose(
+        motion == ExerciseMotion.dumbbellDeadliftLeft
+            ? ExerciseMotion.deadliftLeft
+            : ExerciseMotion.deadliftRight,
+        progress,
+      );
+      q.weights = true;
+      return q;
+    case ExerciseMotion.dumbbellFloorPress:
+      final q = _pose(ExerciseMotion.dbLyingTriceps, 0);
+      q.wl = Offset(.36, .53 - .23 * wave);
+      q.wr = q.wl + const Offset(.035, -.02);
+      q.el = _mix(const Offset(.44, .63), const Offset(.35, .46), wave);
+      q.er = q.el + const Offset(.035, -.02);
+      return q;
     case ExerciseMotion.crossBodyShoulderStretch:
       final q = _pose(ExerciseMotion.shoulderStretch, progress);
       return _blendPose(q, _mirrorPose(q), wave);

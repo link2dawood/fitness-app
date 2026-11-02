@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:fitness_pro/core/routes/app_routes.dart';
 import 'package:fitness_pro/data/models/exercise.dart';
+import 'package:fitness_pro/data/models/challenge_artwork.dart';
 import 'package:fitness_pro/data/models/training_challenges.dart';
 import 'package:fitness_pro/data/models/user_profile.dart';
 import 'package:fitness_pro/data/repositories/onboarding_repository.dart';
@@ -112,6 +113,47 @@ void main() {
     for (final image in images) {
       expect(File(image).existsSync(), isTrue, reason: image);
       expect(image, startsWith('assets/images/workouts/challenge_'));
+    }
+  });
+  test('Male artwork is unique, bundled and preserves other selections', () {
+    final images = <String>{};
+    for (final item in TrainingChallenges.catalog) {
+      final image = challengeArtwork(item.workout, Gender.male);
+      expect(File(image).existsSync(), isTrue, reason: image);
+      images.add(image);
+      if (maleChallengeArtworkIds.contains(item.workoutId)) {
+        expect(image, endsWith('_male.png'));
+        expect(image, isNot(item.workout.image));
+      }
+      expect(challengeArtwork(item.workout, Gender.female), item.workout.image);
+      expect(challengeArtwork(item.workout, null), item.workout.image);
+    }
+    expect(images, hasLength(TrainingChallenges.catalog.length));
+  });
+  testWidgets('Male selection is used when rendering challenge thumbnails', (
+    tester,
+  ) async {
+    final workout = TrainingChallenges.catalog
+        .firstWhere((item) => item.workoutId == 'get_ripped_with_dumbbell')
+        .workout;
+    for (final gender in [Gender.male, Gender.female]) {
+      await tester.pumpWidget(
+        app(
+          Scaffold(
+            body: TrainingChallengeCard(workout: workout, gender: gender),
+          ),
+        ),
+      );
+      final image = tester.widget<Image>(
+        find.descendant(
+          of: find.byType(TrainingChallengeCard),
+          matching: find.byType(Image),
+        ),
+      );
+      expect(
+        (image.image as AssetImage).assetName,
+        challengeArtwork(workout, gender),
+      );
     }
   });
   testWidgets('Customized cards retain the artwork of their actual workout', (

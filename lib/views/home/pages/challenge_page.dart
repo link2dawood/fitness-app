@@ -102,6 +102,7 @@ class _ChallengePageState extends State<ChallengePage> {
                       ? const ReferenceChallengeCard()
                       : TrainingChallengeCard(
                           workout: item.workout,
+                          gender: profile?.gender,
                           customized: item.customized,
                           compact: true,
                           color: _cardColor(item),

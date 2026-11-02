@@ -371,6 +371,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                   : 240.0,
                               child: TrainingChallengeCard(
                                 workout: recommended.first,
+                                gender: vm.profile?.gender,
                                 customized: true,
                               ),
                             ),
@@ -387,6 +388,7 @@ class _TrainingPageState extends State<TrainingPage> {
                                   : 240.0,
                               child: TrainingChallengeCard(
                                 workout: workout,
+                                gender: vm.profile?.gender,
                                 color: [
                                   const Color(0xFF00ACC1),
                                   const Color(0xFF7E22CE),

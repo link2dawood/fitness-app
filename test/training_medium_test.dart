@@ -305,8 +305,18 @@ void main() {
         await tester.scrollUntilVisible(
           find.text('Tell us what you need'),
           500,
-          scrollable: find.byType(Scrollable).first,
+          scrollable: source == 'Search'
+              ? find
+                    .descendant(
+                      of: find.byType(CustomScrollView),
+                      matching: find.byType(Scrollable),
+                    )
+                    .first
+              : find.byType(Scrollable).first,
         );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Tell us what you need'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Tell us what you need'));
         await tester.pumpAndSettle();
         final option = find.widgetWithText(FilterChip, 'Customize workout');
