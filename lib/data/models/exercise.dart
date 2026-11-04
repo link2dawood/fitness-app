@@ -3878,7 +3878,7 @@ const exerciseCatalog = <ExerciseDefinition>[
     focus: {ExerciseFocus.leg},
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    equipment: {ExerciseEquipment.none},
+    equipment: {ExerciseEquipment.bench},
     timed: false,
     target: 10,
     description:

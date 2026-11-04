@@ -11,6 +11,7 @@ class TrainingWorkout {
     this.targets,
     this.restSeconds,
     this.planVersion = 1,
+    this.timedExercises = false,
   });
   final String id, title, image;
   final ExerciseDifficulty difficulty;
@@ -19,6 +20,9 @@ class TrainingWorkout {
   final List<int>? targets;
   final List<int>? restSeconds;
   final int planVersion;
+
+  /// Some challenge days prescribe time for otherwise repetition-based moves.
+  final bool timedExercises;
   String get progressStorageKey =>
       'workout_done_$id${planVersion == 1 ? '' : '_v$planVersion'}';
   int targetAt(int index) => targets?[index] ?? exercises[index].target;
@@ -40,8 +44,30 @@ class TrainingWorkout {
   }
 
   int restAfter(int index) => restSeconds?[index] ?? 15;
-  List<ExerciseDefinition> get exercises =>
-      exerciseIds.map(exerciseById).toList();
+  List<ExerciseDefinition> get exercises => [
+    for (final (index, id) in exerciseIds.indexed)
+      if (!timedExercises)
+        exerciseById(id)
+      else
+        _timedExercise(exerciseById(id), targets?[index]),
+  ];
+  static ExerciseDefinition _timedExercise(
+    ExerciseDefinition base,
+    int? target,
+  ) => ExerciseDefinition(
+    id: base.id,
+    name: base.name,
+    motion: base.motion,
+    area: base.area,
+    timed: true,
+    target: target ?? base.target,
+    description: base.description,
+    focus: base.focus,
+    difficulty: base.difficulty,
+    type: base.type,
+    equipment: base.equipment,
+    recommended: base.recommended,
+  );
   Set<ExerciseFocus> get focus => exercises.expand((e) => e.focus).toSet();
   Set<ExerciseEquipment> get equipment =>
       exercises.expand((e) => e.equipment).toSet();
@@ -4516,7 +4542,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "CALISTHENICS PLAN",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_calisthenics_plan.png',
+    image: 'assets/images/workouts/beginner_beginner_push_up.png',
     exerciseIds: [
       'cross_body_shoulder_stretch',
       'elbow_rotations',
@@ -4703,20 +4729,27 @@ const trainingWorkouts = <TrainingWorkout>[
   ),
   TrainingWorkout(
     id: 'full_body_challenge',
+    planVersion: 2,
+    timedExercises: true,
     title: "FULL BODY CHALLENGE",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
     image: 'assets/images/workouts/challenge_full_body_challenge.png',
     exerciseIds: [
-      'squat_jacks',
-      'side_lunges_timed',
-      'swimmer_superman_timed',
-      'straight_leg_raise_left',
-      'straight_leg_raise_right',
-      'spiderman_plank',
-      'straight_arm_knee_plank',
-      'side_lying_kickback_left',
+      'knee_to_elbow_crunches',
+      'plie_squats',
+      'squat_kicks',
+      'incline_push_ups',
+      'triceps_dips',
+      'back_bow_pulls',
+      'straight_arm_plank_to_pike',
+      'leg_in_and_outs',
+      'abdominal_crunches',
+      'clasp_hands_behind_back',
+      'right_quad_stretch_wall',
+      'left_quad_stretch_wall',
     ],
+    targets: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
   ),
   TrainingWorkout(
     id: 'fat_burning_hiit',
@@ -5009,7 +5042,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Full Body Shred",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_full_body_shred.png',
+    image: 'assets/images/workouts/advanced_body_calorie_burner.png',
     exerciseIds: [
       'glute_kick_back_right',
       'glute_kickback_crossover_left',
@@ -5068,7 +5101,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "INTENSE BELLY FAT BURN",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_intense_belly_fat_burn.png',
+    image: 'assets/images/workouts/beginner_killer_core_hiit_beginner.png',
     exerciseIds: [
       'back_bow_pulls',
       'back_arches',
@@ -5179,7 +5212,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "LOSE WEIGHT FOR MEN",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_lose_weight_for_men.png',
+    image: 'assets/images/workouts/advanced_belly_fat_burner_hiit_advanced.png',
     exerciseIds: [
       'mountain_climber_timed',
       'squats',
@@ -5218,7 +5251,8 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "LOWER BODY CHALLENGE",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_lower_body_challenge.png',
+    image:
+        'assets/images/workouts/intermediate_intense_leg_power_challenge.png',
     exerciseIds: [
       'right_lunge_knee_hops',
       'reverse_flutter_kicks',
@@ -5570,7 +5604,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "MASSIVE BODY CHALLENGE",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_massive_body_challenge.png',
+    image: 'assets/images/workouts/advanced_leg_advanced.png',
     exerciseIds: [
       'bent_knee_side_hip_raises_right',
       'bent_knee_side_hip_raises_left',
@@ -5729,7 +5763,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "SIX PACK CHALLENGE",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/challenge_six_pack_challenge.png',
+    image: 'assets/images/workouts/advanced_ripped_v_cut_abs_advanced.png',
     exerciseIds: [
       'plank_hip_dips',
       'quick_feet',

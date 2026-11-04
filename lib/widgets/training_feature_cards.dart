@@ -107,6 +107,17 @@ class TrainingChallengeCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(compact ? 14 : 18),
       decoration: BoxDecoration(
+        image: customized
+            ? DecorationImage(
+                image: AssetImage(customizedChallengeArtwork(workout, gender)),
+                fit: BoxFit.cover,
+                alignment: Alignment.centerRight,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withValues(alpha: .55),
+                  BlendMode.darken,
+                ),
+              )
+            : null,
         gradient: LinearGradient(
           colors: [color, Color.lerp(color, Colors.black, .25)!],
         ),
@@ -123,7 +134,15 @@ class TrainingChallengeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (large) ...[
+          if (customized)
+            ConstrainedBox(
+              constraints: BoxConstraints(minHeight: compact ? 56 : 110),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 40),
+                child: title,
+              ),
+            )
+          else if (large) ...[
             title,
             SizedBox(height: compact ? 8 : 12),
             ClipRRect(

@@ -112,7 +112,7 @@ void main() {
     expect(images.toSet(), hasLength(TrainingChallenges.catalog.length));
     for (final image in images) {
       expect(File(image).existsSync(), isTrue, reason: image);
-      expect(image, startsWith('assets/images/workouts/challenge_'));
+      expect(image, startsWith('assets/images/workouts/'));
     }
   });
   test('Male artwork is unique, bundled and preserves other selections', () {
@@ -156,7 +156,7 @@ void main() {
       );
     }
   });
-  testWidgets('Customized cards retain the artwork of their actual workout', (
+  testWidgets('Customized cards show a photo matched to their actual workout', (
     tester,
   ) async {
     final workout = TrainingChallenges.catalog
@@ -169,13 +169,23 @@ void main() {
         ),
       ),
     );
-    final image = tester.widget<Image>(
-      find.descendant(
-        of: find.byType(TrainingChallengeCard),
-        matching: find.byType(Image),
-      ),
+    final backgrounds = tester
+        .widgetList<Container>(
+          find.descendant(
+            of: find.byType(TrainingChallengeCard),
+            matching: find.byType(Container),
+          ),
+        )
+        .map((container) => container.decoration)
+        .whereType<BoxDecoration>()
+        .where((decoration) => decoration.image != null);
+    final image = backgrounds.single.image!;
+    expect(
+      (image.image as AssetImage).assetName,
+      customizedChallengeArtwork(workout, null),
     );
-    expect((image.image as AssetImage).assetName, workout.image);
+    expect(image.fit, BoxFit.cover);
+    expect(image.colorFilter, isNotNull);
   });
   testWidgets(
     'Training Challenge arrow opens detailed cards and every badge filters the list',

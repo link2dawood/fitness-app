@@ -15,6 +15,21 @@ class ExerciseGuidance {
   final String breathing;
 
   static ExerciseGuidance forExercise(ExerciseDefinition exercise) {
+    if (exercise.id == 'right_quad_stretch_wall' ||
+        exercise.id == 'left_quad_stretch_wall') {
+      final side = exercise.id.startsWith('right') ? 'right' : 'left';
+      final support = side == 'right' ? 'left' : 'right';
+      return ExerciseGuidance(
+        'Stand beside a wall with your $support hand on it for balance. Keep your torso upright.',
+        'Bend your $side knee and hold the $side ankle behind you with your $side hand. Keep both knees close and pointing down, gently drawing the heel toward your buttock. Release slowly.',
+        const [
+          'Arching the lower back.',
+          'Pulling the knee outward or twisting the hip.',
+          'Forcing the heel closer than feels comfortable.',
+        ],
+        'Breathe slowly and evenly while holding the stretch.',
+      );
+    }
     final specific = _referenceGuidance[exercise.id];
     if (specific != null) return specific;
     final name = exercise.name.toLowerCase();
@@ -132,6 +147,97 @@ class ExerciseGuidance {
 }
 
 const _referenceGuidance = <String, ExerciseGuidance>{
+  'knee_to_elbow_crunches': ExerciseGuidance(
+    "Stand tall with feet shoulder-width apart and fingertips lightly behind your ears.",
+    "Lift your right knee toward your left elbow with a small trunk rotation. Return to standing and alternate sides without pulling your neck.",
+    [
+      "Pulling your head forward.",
+      "Rounding your back instead of lifting the knee.",
+      "Losing balance or rushing the switch.",
+    ],
+    "Exhale as the knee rises and inhale as you return.",
+  ),
+  'plie_squats': ExerciseGuidance(
+    "Stand wider than shoulder width, toes turned outward comfortably and hands on hips.",
+    "Bend both knees in line with your toes and lower your hips between your feet. Keep heels down, then press through your feet to stand.",
+    [
+      "Letting knees collapse inward.",
+      "Lifting heels off the floor.",
+      "Forcing a deep squat or excessive turnout.",
+    ],
+    "Inhale as you lower and exhale as you stand.",
+  ),
+  'squat_kicks': ExerciseGuidance(
+    "Stand with feet shoulder-width apart and hands together in front of your chest.",
+    "Sit back into a controlled squat. Stand and extend one leg forward in a low kick, return the foot, then repeat with the other leg.",
+    [
+      "Leaning far backward during the kick.",
+      "Locking the kicking knee forcefully.",
+      "Letting the supporting knee collapse inward.",
+    ],
+    "Inhale during the squat and exhale as you stand and kick.",
+  ),
+  'incline_push_ups': ExerciseGuidance(
+    "Place both hands on a sturdy, non-sliding bench. Step your feet back until your body forms a straight line.",
+    "Bend your elbows diagonally back to bring your chest toward the bench. Press through your palms to return, moving your shoulders and hips together.",
+    [
+      "Using an unstable support.",
+      "Dropping the hips or arching the lower back.",
+      "Flaring elbows directly sideways.",
+    ],
+    "Inhale as you lower; exhale as you press away.",
+  ),
+  'triceps_dips': ExerciseGuidance(
+    "Sit on the edge of a stable chair with palms beside your hips. Plant your feet, bend your knees and slide your hips just in front of the seat.",
+    "Bend your elbows backward to lower a short, comfortable distance. Keep hips close to the chair and press through your hands to lift again.",
+    [
+      "Shrugging the shoulders.",
+      "Moving hips far away from the seat.",
+      "Lowering deeper than your shoulders comfortably allow.",
+    ],
+    "Inhale as you lower and exhale as you press up.",
+  ),
+  'back_bow_pulls': ExerciseGuidance(
+    "Lie face down on a mat, legs extended and arms reaching overhead. Keep your gaze down.",
+    "Lift the chest slightly, draw both elbows toward your ribs and gently squeeze the shoulder blades together. Reach forward again with control.",
+    [
+      "Throwing the head upward.",
+      "Arching excessively through the lower back.",
+      "Jerking the arms or holding your breath.",
+    ],
+    "Exhale as you pull the elbows back and inhale as you reach forward.",
+  ),
+  'straight_arm_plank_to_pike': ExerciseGuidance(
+    "Start in a high plank with hands beneath shoulders, arms straight and feet hip-width apart.",
+    "Keep your hands and feet planted as you lift your hips up and back into an inverted V. Return slowly to a straight plank without letting your back sag.",
+    [
+      "Bending the elbows to collapse toward the floor.",
+      "Sagging the lower back on the return.",
+      "Forcing heels down or rounding the shoulders.",
+    ],
+    "Exhale as you lift your hips and inhale as you return to plank.",
+  ),
+  'leg_in_and_outs': ExerciseGuidance(
+    "Sit on a mat with palms just behind your hips. Lean back slightly, brace your abdomen and bend both knees.",
+    "Bring your knees toward your chest, then extend both legs together without touching the floor. Use a smaller range or touch heels down if needed to keep control.",
+    [
+      "Rounding or arching the lower back excessively.",
+      "Swinging the legs with momentum.",
+      "Shrugging into the supporting shoulders.",
+    ],
+    "Exhale as knees come in and inhale as legs extend.",
+  ),
+  'clasp_hands_behind_back': ExerciseGuidance(
+    "Stand tall with feet hip-width apart. Clasp your hands behind your pelvis with elbows relaxed.",
+    "Gently reach your hands down and slightly back to open the chest. Keep ribs stacked above hips and shoulders away from your ears. Hold comfortably.",
+    [
+      "Forcing the arms too high.",
+      "Arching the lower back to exaggerate the stretch.",
+      "Shrugging or locking the elbows.",
+    ],
+    "Take slow, relaxed breaths throughout the stretch.",
+  ),
+
   'mountain_climber_timed': ExerciseGuidance(
     'Begin in a high plank with hands beneath your shoulders, legs extended and abdomen braced.',
     'Draw one knee toward your chest, return it, then switch legs. Keep your shoulders above your hands and your hips level. Slow down to maintain control.',

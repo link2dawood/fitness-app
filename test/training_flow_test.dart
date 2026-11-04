@@ -79,7 +79,9 @@ void main() {
           expect(workout.targets!.every((target) => target > 0), isTrue);
         }
         expect(
-          workout.exercises.every((e) => exerciseCatalog.contains(e)),
+          workout.exercises.every(
+            (e) => exerciseCatalog.any((base) => base.id == e.id),
+          ),
           isTrue,
         );
       }

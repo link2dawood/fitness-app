@@ -4,6 +4,25 @@ import '../../data/models/exercise.dart';
 import 'exercise_avatar.dart';
 
 const challengeAvatarFrames = <String, (int, int, bool)>{
+  'right_lunge_knee_hops': (27, 0, false),
+  'reverse_flutter_kicks': (27, 8, false),
+  'roundhouse_squat_kicks': (28, 0, false),
+  'right_side_lying_forward_leg_lift': (28, 8, false),
+  'runners_lunge_left': (29, 0, false),
+  'runners_lunge_right': (29, 0, true),
+  'straight_arm_plank': (29, 8, false),
+  'knee_to_elbow_crunches': (21, 0, false),
+  'plie_squats': (21, 8, false),
+  'squat_kicks': (22, 0, false),
+  'incline_push_ups': (22, 8, false),
+  'triceps_dips': (23, 0, false),
+  'back_bow_pulls': (23, 8, false),
+  'straight_arm_plank_to_pike': (24, 0, false),
+  'leg_in_and_outs': (24, 8, false),
+  'abdominal_crunches': (25, 0, false),
+  'clasp_hands_behind_back': (25, 8, false),
+  'right_quad_stretch_wall': (26, 0, false),
+  'left_quad_stretch_wall': (26, 0, true),
   'mountain_climber_timed': (14, 0, false),
   'squats': (15, 0, false),
   'high_stepping': (16, 0, false),
@@ -60,6 +79,9 @@ const referenceAvatarDurations = <String, int>{
 
 // Select consistent return poses and exclude generated cells that switch legs.
 const challengeAvatarFrameOrder = <String, List<int>>{
+  'back_bow_pulls': [0, 1, 2, 3, 4, 2, 1, 0],
+  'straight_arm_plank_to_pike': [0, 1, 2, 3, 3, 2, 1, 0],
+  'abdominal_crunches': [0, 1, 2, 2, 1, 1, 0, 0],
   'cross_body_shoulder_stretch': [0, 1, 2, 3, 2, 1, 0, 0],
   'alternating_side_bends': [0, 1, 2, 1, 0, 6, 7, 6],
   'spinal_roll_down': [0, 1, 2, 3, 3, 2, 1, 0],

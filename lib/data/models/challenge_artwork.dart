@@ -1,5 +1,17 @@
 import 'training_workout.dart';
 import 'user_profile.dart';
+import 'beginner_workouts.dart';
+import 'intermediate_workouts.dart';
+import 'advanced_workouts.dart';
+
+/// Prefer the exercise-specific photos already bundled for search collections.
+String customizedChallengeArtwork(TrainingWorkout workout, Gender? gender) {
+  if (gender == Gender.female) return challengeArtwork(workout, gender);
+  return advancedArtwork[workout.id] ??
+      beginnerArtwork[workout.id] ??
+      intermediateArtwork[workout.id] ??
+      challengeArtwork(workout, gender);
+}
 
 /// Male variants for challenge artwork whose default demonstrator is female.
 const maleChallengeArtworkIds = {

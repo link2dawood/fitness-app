@@ -3,6 +3,7 @@ import '../../core/settings/settings_record.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/challenge_day.dart';
+import '../../data/models/training_workout.dart';
 import '../../data/repositories/challenge_day_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
 import '../../widgets/training_feature_cards.dart';
@@ -36,7 +37,9 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
       final day = snapshot.data;
       return TrainingPhotoCard(
         title: 'INTENSE\nBELLY FAT BURN',
-        image: 'assets/images/workouts/challenge_intense_belly_fat_burn.png',
+        image: trainingWorkouts
+            .singleWhere((workout) => workout.id == 'intense_belly_fat_burn')
+            .image,
         subtitle: snapshot.hasError
             ? 'Open Day 1 to retry loading your saved plan.'
             : 'DAY 1 • ${day?.entries.length ?? 21} Exercises\nTimed training, exercise editing and saved progress',
@@ -455,7 +458,8 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
                 itemBuilder: (context, index) {
                   final entry = day!.entries[index];
                   final saved = day!.progress;
-                  final isDone = saved != null &&
+                  final isDone =
+                      saved != null &&
                       (saved.credited ||
                           saved.phase == ChallengePhase.complete ||
                           index < saved.index);
