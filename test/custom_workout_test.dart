@@ -53,14 +53,14 @@ void main() {
   test(
     'Every starter exercise has a unique original motion and default target',
     () {
-      expect(exerciseCatalog.length, 389);
+      expect(exerciseCatalog.length, 392);
       expect(
         exerciseCatalog.map((exercise) => exercise.id).toSet().length,
-        389,
+        392,
       );
       expect(
         exerciseCatalog.map((exercise) => exercise.motion).toSet().length,
-        389,
+        392,
       );
       expect(
         exerciseCatalog.where((exercise) => exercise.recommended).length,
@@ -528,7 +528,7 @@ void main() {
     );
     await tester.tap(find.text('Open picker'));
     await tester.pumpAndSettle();
-    expect(find.text('All Exercises (389)'), findsOneWidget);
+    expect(find.text('All Exercises (392)'), findsOneWidget);
     await tester.tap(find.text('Filters'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Abs'));

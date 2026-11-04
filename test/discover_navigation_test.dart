@@ -139,7 +139,7 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
       expect(find.text('Tabata'), findsWidgets);
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.byTooltip('Cancel'));
       await tester.pumpAndSettle();
       expect(find.byType(DiscoverPage), findsOneWidget);
     },

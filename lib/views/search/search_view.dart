@@ -6,6 +6,13 @@ import '../../data/models/abs_workouts.dart';
 import '../../data/models/arm_workouts.dart';
 import '../../data/models/full_body_workouts.dart';
 import '../../data/models/training_search.dart';
+import '../../data/models/beginner_workouts.dart';
+import '../../data/models/intermediate_workouts.dart';
+import '../../data/models/advanced_workouts.dart';
+import '../../data/models/short_workouts.dart';
+import '../../data/models/medium_duration_workouts.dart';
+import '../../data/models/long_duration_workouts.dart';
+import '../../data/models/extended_duration_workouts.dart';
 import '../../data/models/workout_type_collections.dart';
 import '../home/pages/training_collection_page.dart';
 import '../home/pages/training_profile_builder.dart';
@@ -185,11 +192,17 @@ class _SearchViewState extends State<SearchView> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Top Search Bar & Cancel Button ────────────────────────────
+            // ── Back Button & Full-width Search Bar ───────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
+                  IconButton(
+                    tooltip: 'Cancel',
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const Icon(Icons.arrow_back_rounded),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Container(
                       height: 46,
@@ -238,18 +251,6 @@ class _SearchViewState extends State<SearchView> {
                             vertical: 12,
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).maybePop(),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF0055FF),
                       ),
                     ),
                   ),
@@ -612,6 +613,33 @@ class _SearchViewState extends State<SearchView> {
                 return GestureDetector(
                   key: ValueKey<String>('search-level-${item.label}'),
                   onTap: () {
+                    if (const {
+                      'Beginner',
+                      'Intermediate',
+                      'Advanced',
+                    }.contains(item.label)) {
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute(
+                          builder: (_) => TrainingProfileBuilder(
+                            builder: (_, profile) => TrainingCollectionPage(
+                              title: item.label,
+                              workouts: switch (item.label) {
+                                'Beginner' => beginnerWorkouts,
+                                'Intermediate' => intermediateWorkouts,
+                                _ => advancedWorkouts,
+                              },
+                              artwork: switch (item.label) {
+                                'Beginner' => beginnerArtwork,
+                                'Intermediate' => intermediateArtwork,
+                                _ => advancedArtwork,
+                              },
+                              gender: profile?.gender,
+                            ),
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                     setState(() {
                       _selectedLevel = isSelected ? null : item.label;
                     });
@@ -663,9 +691,33 @@ class _SearchViewState extends State<SearchView> {
           return GestureDetector(
             key: ValueKey<String>('search-duration-${item.range}'),
             onTap: () {
-              setState(() {
-                _selectedDurationBand = isSelected ? null : item.band;
-              });
+              Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) => TrainingProfileBuilder(
+                    builder: (_, profile) => TrainingCollectionPage(
+                      title: switch (item.band) {
+                        0 => '≤10 Mins',
+                        1 => '11–20 Mins',
+                        2 => '21–30 Mins',
+                        _ => '>30 Mins',
+                      },
+                      workouts: switch (item.band) {
+                        0 => shortWorkouts,
+                        1 => mediumDurationWorkouts,
+                        2 => longDurationWorkouts,
+                        _ => extendedDurationWorkouts,
+                      },
+                      artwork: switch (item.band) {
+                        0 => shortWorkoutArtwork,
+                        1 => mediumDurationArtwork,
+                        2 => longDurationArtwork,
+                        _ => extendedDurationArtwork,
+                      },
+                      gender: profile?.gender,
+                    ),
+                  ),
+                ),
+              );
             },
             child: Container(
               width: 118,

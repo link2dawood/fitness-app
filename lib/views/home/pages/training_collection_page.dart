@@ -13,11 +13,13 @@ class TrainingCollectionPage extends StatelessWidget {
     required this.workouts,
     this.gender,
     this.useReferenceChallengeDay = false,
+    this.artwork = const {},
   });
   final String title;
   final List<TrainingWorkout> workouts;
   final Gender? gender;
   final bool useReferenceChallengeDay;
+  final Map<String, String> artwork;
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(title)),
@@ -27,6 +29,7 @@ class TrainingCollectionPage extends StatelessWidget {
       itemBuilder: (context, i) => TrainingWorkoutTile(
         workout: workouts[i],
         gender: gender,
+        imagePath: artwork[workouts[i].id],
         onOpen:
             useReferenceChallengeDay &&
                 workouts[i].id == 'intense_belly_fat_burn'
@@ -45,10 +48,12 @@ class TrainingWorkoutTile extends StatelessWidget {
     required this.workout,
     this.gender,
     this.onOpen,
+    this.imagePath,
   });
   final TrainingWorkout workout;
   final Gender? gender;
   final VoidCallback? onOpen;
+  final String? imagePath;
   @override
   Widget build(BuildContext context) => Semantics(
     container: true,
@@ -83,7 +88,8 @@ class TrainingWorkoutTile extends StatelessWidget {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    challengeArtwork(workout, gender),
+                    imagePath ?? challengeArtwork(workout, gender),
+                    cacheWidth: 224,
                     width: 56,
                     height: 56,
                     fit: BoxFit.cover,

@@ -128,6 +128,8 @@ class _Pose {
   bool side = false;
   bool floor = false;
   bool weights = false;
+  bool resistanceBand = false;
+  bool bandAtKnees = false;
   bool singleWeight = false;
   bool bench = false;
   bool chair = false;
@@ -226,6 +228,21 @@ _Pose _pose(ExerciseMotion motion, double progress) {
   final angle = progress * math.pi * 2;
   final wave = (1 - math.cos(angle)) / 2;
   switch (motion) {
+    case ExerciseMotion.bandSquat:
+      final q = _pose(ExerciseMotion.squats, progress);
+      q.resistanceBand = true;
+      q.bandAtKnees = true;
+      return q;
+    case ExerciseMotion.bandCurl:
+      final q = _pose(ExerciseMotion.alternateHammerCurl, progress);
+      q.weights = false;
+      q.resistanceBand = true;
+      return q;
+    case ExerciseMotion.bandRow:
+      final q = _pose(ExerciseMotion.bentOverRow, progress);
+      q.weights = false;
+      q.resistanceBand = true;
+      return q;
     case ExerciseMotion.dumbbellSquat:
       final q = _pose(ExerciseMotion.squats, progress);
       q.weights = true;
@@ -3574,6 +3591,27 @@ class _AvatarPainter extends CustomPainter {
     );
     line(p.neck, p.head, skin, .033);
     arm(p.sl, p.el, p.wl, false);
+    if (p.resistanceBand) {
+      const bandColor = Color(0xFF168A70);
+      if (p.bandAtKnees) {
+        line(
+          p.kl + const Offset(0, -.025),
+          p.kr + const Offset(0, -.025),
+          bandColor,
+          .018,
+        );
+        line(
+          p.kl + const Offset(0, .005),
+          p.kr + const Offset(0, .005),
+          bandColor,
+          .012,
+        );
+      } else {
+        line(p.al, p.wl, bandColor, .012);
+        line(p.ar, p.wr, bandColor, .012);
+        line(p.al, p.ar, bandColor, .012);
+      }
+    }
     if (p.weights) {
       for (final wrist in [p.wl, if (!p.singleWeight) p.wr]) {
         line(

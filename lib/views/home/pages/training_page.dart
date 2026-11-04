@@ -177,12 +177,15 @@ class _TrainingPageState extends State<TrainingPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: _search,
-                icon: const Icon(Icons.search),
-                label: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  child: Text('Search workouts, plans…'),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _search,
+                  icon: const Icon(Icons.search),
+                  label: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    child: Text('Search workouts, plans…'),
+                  ),
                 ),
               ),
               if (vm.historyError != null) ...[

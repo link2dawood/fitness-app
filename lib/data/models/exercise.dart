@@ -1,4 +1,7 @@
 enum ExerciseMotion {
+  bandSquat,
+  bandCurl,
+  bandRow,
   dumbbellSquat,
   dumbbellReverseLunge,
   dumbbellDeadliftLeft,
@@ -6487,6 +6490,48 @@ const exerciseCatalog = <ExerciseDefinition>[
     target: 10,
     description:
         'Lie on a mat with knees bent and dumbbells above the chest. Lower until the upper arms gently reach the floor, then press upward with control.',
+  ),
+  ExerciseDefinition(
+    id: 'band_squat',
+    name: 'Resistance Band Squat',
+    motion: ExerciseMotion.bandSquat,
+    area: ExerciseArea.legs,
+    focus: {ExerciseFocus.leg, ExerciseFocus.glutes},
+    difficulty: ExerciseDifficulty.easy,
+    type: ExerciseType.training,
+    equipment: {ExerciseEquipment.band},
+    timed: false,
+    target: 10,
+    description:
+        'Place a loop band above the knees, keep the knees tracking over the feet, squat with control and stand.',
+  ),
+  ExerciseDefinition(
+    id: 'band_curl',
+    name: 'Resistance Band Curl',
+    motion: ExerciseMotion.bandCurl,
+    area: ExerciseArea.arms,
+    focus: {ExerciseFocus.arm},
+    difficulty: ExerciseDifficulty.easy,
+    type: ExerciseType.training,
+    equipment: {ExerciseEquipment.band},
+    timed: false,
+    target: 10,
+    description:
+        'Stand securely on the middle of a long resistance band, hold the ends and curl with elbows beside the torso.',
+  ),
+  ExerciseDefinition(
+    id: 'band_row',
+    name: 'Resistance Band Row',
+    motion: ExerciseMotion.bandRow,
+    area: ExerciseArea.arms,
+    focus: {ExerciseFocus.back, ExerciseFocus.arm},
+    difficulty: ExerciseDifficulty.easy,
+    type: ExerciseType.training,
+    equipment: {ExerciseEquipment.band},
+    timed: false,
+    target: 10,
+    description:
+        'Stand securely on a long resistance band, hinge at the hips and pull the ends toward the waist with a controlled trunk.',
   ),
 ];
 
