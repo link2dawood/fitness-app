@@ -15,7 +15,7 @@ class ChallengePage extends StatefulWidget {
 
 class _ChallengePageState extends State<ChallengePage> {
   String category = 'All';
-  static const double _cardHeight = 210;
+  static const double _cardHeight = 312;
   static const colors = [
     Color(0xFF7E22CE),
     Color(0xFFF97316),
@@ -112,8 +112,10 @@ class _ChallengePageState extends State<ChallengePage> {
                     padding: const EdgeInsets.only(bottom: 14),
                     child: largeText
                         ? card
-                        : SizedBox(
-                            height: scaler.scale(_cardHeight),
+                        : ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: scaler.scale(_cardHeight),
+                            ),
                             child: card,
                           ),
                   );

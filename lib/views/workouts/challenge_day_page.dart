@@ -4,9 +4,11 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/challenge_day.dart';
 import '../../data/models/training_workout.dart';
+import '../../data/models/challenge_poster.dart';
 import '../../data/repositories/challenge_day_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
 import '../../widgets/training_feature_cards.dart';
+import '../../widgets/challenge_poster_card.dart';
 import 'challenge_plan_editor.dart';
 import 'challenge_session_page.dart';
 
@@ -35,20 +37,26 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
     future: future,
     builder: (context, snapshot) {
       final day = snapshot.data;
-      return TrainingPhotoCard(
+      return ChallengePosterCard(
         title: 'INTENSE\nBELLY FAT BURN',
-        image: trainingWorkouts
-            .singleWhere((workout) => workout.id == 'intense_belly_fat_burn')
-            .image,
-        subtitle: snapshot.hasError
+        kicker: 'DAY 1',
+        color: challengePosterColor('intense_belly_fat_burn'),
+        image: challengePosterArtwork(
+          trainingWorkouts.singleWhere(
+            (workout) => workout.id == 'intense_belly_fat_burn',
+          ),
+          null,
+        ),
+        description: snapshot.hasError
             ? 'Open Day 1 to retry loading your saved plan.'
-            : 'DAY 1 • ${day?.entries.length ?? 21} Exercises\nTimed training, exercise editing and saved progress',
+            : 'Train your core with focused bodyweight exercises.',
+        metadata:
+            '${day?.entries.length ?? 21} exercises • Saved Day 1 progress',
         actionLabel: day?.progress == null
             ? 'START DAY 1'
             : day!.progress!.credited
             ? 'VIEW DAY 1'
             : 'CONTINUE DAY 1',
-        compact: true,
         onTap: open,
       );
     },

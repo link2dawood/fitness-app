@@ -5,7 +5,7 @@ import '../../data/models/exercise.dart';
 import 'exercise_filters.dart';
 export 'exercise_detail.dart' show showExercisePreview;
 import 'exercise_detail.dart';
-import '../../widgets/exercises/exercise_avatar.dart';
+import '../../widgets/exercises/challenge_avatar.dart';
 
 Future<List<ExerciseDefinition>?> pickExercises(BuildContext context) =>
     showModalBottomSheet<List<ExerciseDefinition>>(
@@ -182,7 +182,7 @@ class _ExercisePickerState extends State<_ExercisePicker> {
                               child: SizedBox(
                                 width: 58,
                                 height: 64,
-                                child: ExerciseAvatar(exercise: exercise),
+                                child: ChallengeAvatar(exercise: exercise),
                               ),
                             ),
                             title: Text(

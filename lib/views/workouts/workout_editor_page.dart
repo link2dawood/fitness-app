@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/exercise.dart';
 import '../../data/repositories/custom_workout_repository.dart';
-import '../../widgets/exercises/exercise_avatar.dart';
+import '../../widgets/exercises/challenge_avatar.dart';
 import 'exercise_picker.dart';
 
 Future<(String, String)?> configureWorkout(
@@ -403,7 +403,7 @@ class _WorkoutEditorPageState extends State<WorkoutEditorPage> {
                           child: SizedBox(
                             width: 70,
                             height: 88,
-                            child: ExerciseAvatar(exercise: entry.exercise),
+                            child: ChallengeAvatar(exercise: entry.exercise),
                           ),
                         ),
                         const SizedBox(width: 12),

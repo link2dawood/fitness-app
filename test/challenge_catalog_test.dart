@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:fitness_pro/core/routes/app_routes.dart';
 import 'package:fitness_pro/data/models/exercise.dart';
 import 'package:fitness_pro/data/models/challenge_artwork.dart';
+import 'package:fitness_pro/data/models/challenge_poster.dart';
+import 'package:fitness_pro/widgets/challenge_poster_card.dart';
 import 'package:fitness_pro/data/models/training_challenges.dart';
 import 'package:fitness_pro/data/models/user_profile.dart';
 import 'package:fitness_pro/data/repositories/onboarding_repository.dart';
@@ -115,6 +117,20 @@ void main() {
       expect(image, startsWith('assets/images/workouts/'));
     }
   });
+  test(
+    'Every poster has unique bundled artwork for each profile selection',
+    () {
+      for (final gender in [Gender.male, Gender.female, null]) {
+        final images = TrainingChallenges.catalog
+            .map((item) => challengePosterArtwork(item.workout, gender))
+            .toList();
+        expect(images.toSet(), hasLength(TrainingChallenges.catalog.length));
+        for (final image in images) {
+          expect(File(image).existsSync(), isTrue, reason: image);
+        }
+      }
+    },
+  );
   test('Male artwork is unique, bundled and preserves other selections', () {
     final images = <String>{};
     for (final item in TrainingChallenges.catalog) {
@@ -151,12 +167,12 @@ void main() {
         ),
       );
       expect(
-        (image.image as AssetImage).assetName,
-        challengeArtwork(workout, gender),
+        ((image.image as ResizeImage).imageProvider as AssetImage).assetName,
+        challengePosterArtwork(workout, gender),
       );
     }
   });
-  testWidgets('Customized cards show a photo matched to their actual workout', (
+  testWidgets('Customized cards show a large avatar matched to their workout', (
     tester,
   ) async {
     final workout = TrainingChallenges.catalog
@@ -169,23 +185,19 @@ void main() {
         ),
       ),
     );
-    final backgrounds = tester
-        .widgetList<Container>(
-          find.descendant(
-            of: find.byType(TrainingChallengeCard),
-            matching: find.byType(Container),
-          ),
-        )
-        .map((container) => container.decoration)
-        .whereType<BoxDecoration>()
-        .where((decoration) => decoration.image != null);
-    final image = backgrounds.single.image!;
-    expect(
-      (image.image as AssetImage).assetName,
-      customizedChallengeArtwork(workout, null),
+    final poster = tester.widget<ChallengePosterCard>(
+      find.byType(ChallengePosterCard),
     );
-    expect(image.fit, BoxFit.cover);
-    expect(image.colorFilter, isNotNull);
+    expect(poster.image, challengePosterArtwork(workout, null));
+    expect(poster.kicker, 'CUSTOMIZED FOR YOU');
+    final avatar = tester.getRect(
+      find.byKey(const ValueKey('challenge-poster-avatar')),
+    );
+    final surface = tester.getRect(
+      find.byKey(const ValueKey('challenge-poster-surface')),
+    );
+    expect(avatar.top, lessThan(surface.top));
+    expect(avatar.height, 190);
   });
   testWidgets(
     'Training Challenge arrow opens detailed cards and every badge filters the list',

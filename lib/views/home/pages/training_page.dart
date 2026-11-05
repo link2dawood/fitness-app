@@ -345,20 +345,15 @@ class _TrainingPageState extends State<TrainingPage> {
                 clipBehavior: Clip.none,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: IntrinsicHeight(
+                  child: SizedBox(
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(right: 14),
                           child: SizedBox(
-                            width:
-                                MediaQuery.textScalerOf(context).scale(16) > 22
-                                ? (MediaQuery.sizeOf(context).width - 48).clamp(
-                                    240.0,
-                                    320.0,
-                                  )
-                                : 240.0,
+                            width: (MediaQuery.sizeOf(context).width - 48)
+                                .clamp(248.0, 400.0),
                             child: const ReferenceChallengeCard(),
                           ),
                         ),
@@ -366,12 +361,8 @@ class _TrainingPageState extends State<TrainingPage> {
                           Padding(
                             padding: const EdgeInsets.only(right: 14),
                             child: SizedBox(
-                              width:
-                                  MediaQuery.textScalerOf(context).scale(16) >
-                                      22
-                                  ? (MediaQuery.sizeOf(context).width - 48)
-                                        .clamp(240.0, 320.0)
-                                  : 240.0,
+                              width: (MediaQuery.sizeOf(context).width - 48)
+                                  .clamp(248.0, 400.0),
                               child: TrainingChallengeCard(
                                 workout: recommended.first,
                                 gender: vm.profile?.gender,
@@ -383,12 +374,8 @@ class _TrainingPageState extends State<TrainingPage> {
                           Padding(
                             padding: const EdgeInsets.only(right: 14),
                             child: SizedBox(
-                              width:
-                                  MediaQuery.textScalerOf(context).scale(16) >
-                                      22
-                                  ? (MediaQuery.sizeOf(context).width - 48)
-                                        .clamp(240.0, 320.0)
-                                  : 240.0,
+                              width: (MediaQuery.sizeOf(context).width - 48)
+                                  .clamp(248.0, 400.0),
                               child: TrainingChallengeCard(
                                 workout: workout,
                                 gender: vm.profile?.gender,
