@@ -2,9 +2,11 @@ import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:fitness_pro/data/models/training_challenges.dart';
 import 'package:fitness_pro/data/models/training_workout.dart';
+import 'package:fitness_pro/data/models/exercise.dart';
 import 'package:fitness_pro/widgets/exercises/challenge_avatar.dart';
 import 'package:fitness_pro/widgets/exercises/exercise_avatar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -115,4 +117,59 @@ void main() {
     expect(decoded.length, greaterThanOrEqualTo(16));
     await tester.pumpWidget(const SizedBox());
   });
+  testWidgets(
+    'Missing realistic assets show Retry and recover without a cartoon',
+    (tester) async {
+      final bundle = _RetryAvatarBundle();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DefaultAssetBundle(
+            bundle: bundle,
+            child: MediaQuery(
+              data: const MediaQueryData(disableAnimations: true),
+              child: SizedBox(
+                width: 260,
+                height: 260,
+                child: ChallengeAvatar(exercise: exerciseById('leg_raises')),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Reload realistic avatar'), findsOneWidget);
+      expect(find.byType(ExerciseAvatar), findsNothing);
+      bundle.fail = false;
+      await tester.tap(find.byTooltip('Reload realistic avatar'));
+      await tester.runAsync(() async {
+        await precacheImage(
+          const AssetImage('assets/images/challenge_avatars/atlas_46.png'),
+          tester.element(find.byType(ChallengeAvatar)),
+        );
+      });
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Reload realistic avatar'), findsNothing);
+      expect(find.byType(ExerciseAvatar), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(ChallengeAvatar),
+          matching: find.byType(AnimatedBuilder),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+}
+
+class _RetryAvatarBundle extends CachingAssetBundle {
+  bool fail = true;
+  @override
+  Future<ByteData> load(String key) {
+    if (fail && key.endsWith('atlas_46.png')) {
+      return Future.error(FlutterError('Simulated missing realistic asset'));
+    }
+    return rootBundle.load(key);
+  }
 }

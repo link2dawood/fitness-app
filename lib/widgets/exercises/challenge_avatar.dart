@@ -1,9 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import '../../data/models/exercise.dart';
+import '../../data/models/realistic_avatar_frames.dart';
 import 'exercise_avatar.dart';
 
 const challengeAvatarFrames = <String, (int, int, bool)>{
+  ...additionalAvatarFrames,
   'back_arches': (30, 0, false),
   'calf_raises': (30, 8, false),
   'chest_press_pulse': (31, 0, false),
@@ -115,6 +117,7 @@ const challengeAvatarFrames = <String, (int, int, bool)>{
 
 // User-supplied reference footage: 32 frames in an 8 x 4 atlas.
 const referenceAvatarDurations = <String, int>{
+  ...additionalReferenceDurations,
   'cobras': 2000,
   'mountain_climber_timed': 3600,
   'squats': 3600,
@@ -143,13 +146,25 @@ const challengeAvatarFrameOrder = <String, List<int>>{
 };
 
 int challengeAvatarFrameFor(String exerciseId, double progress) {
-  if (referenceAvatarDurations.containsKey(exerciseId)) {
+  final frameCount = realisticAvatarFrameCountFor(exerciseId);
+  if (frameCount == 32) {
     return (progress * 32).floor().clamp(0, 31);
   }
   final step = (progress * 8).floor().clamp(0, 7);
+  if (frameCount == 4) {
+    const phases = [0, 1, 2, 2, 3, 3, 0, 0];
+    return challengeAvatarFrames[exerciseId]!.$2 + phases[step];
+  }
   return challengeAvatarFrames[exerciseId]!.$2 +
       (challengeAvatarFrameOrder[exerciseId]?[step] ?? step);
 }
+
+int realisticAvatarFrameCountFor(String exerciseId) =>
+    referenceAvatarDurations.containsKey(exerciseId)
+    ? 32
+    : fourPhaseAtlases.contains(challengeAvatarFrames[exerciseId]?.$1)
+    ? 4
+    : 8;
 
 class ChallengeAvatar extends StatefulWidget {
   const ChallengeAvatar({
@@ -174,6 +189,7 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
   ui.Image? atlas;
   ImageInfo? imageInfo;
   bool foreground = true;
+  bool loadFailed = false;
   @override
   void initState() {
     super.initState();
@@ -203,6 +219,7 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
     imageInfo?.dispose();
     imageInfo = null;
     atlas = null;
+    loadFailed = false;
     if (record == null) return;
     stream = AssetImage(
       'assets/images/challenge_avatars/atlas_${record.$1}.png',
@@ -214,13 +231,21 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
             imageInfo?.dispose();
             imageInfo = image;
             atlas = image.image;
+            loadFailed = false;
           });
+          play();
         } else {
           image.dispose();
         }
       },
       onError: (Object _, StackTrace? _) {
-        if (mounted) setState(() => atlas = null);
+        if (mounted) {
+          setState(() {
+            atlas = null;
+            loadFailed = true;
+          });
+          play();
+        }
       },
     );
     stream!.addListener(listener!);
@@ -229,11 +254,21 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
   void play() {
     final enabled =
         foreground &&
+        atlas != null &&
         widget.animate &&
         !MediaQuery.disableAnimationsOf(context) &&
         TickerMode.valuesOf(context).enabled;
     if (enabled && !controller.isAnimating) controller.repeat();
     if (!enabled) controller.stop();
+  }
+
+  Future<void> retry() async {
+    final record = challengeAvatarFrames[widget.exercise.id];
+    if (record == null) return;
+    await AssetImage(
+      'assets/images/challenge_avatars/atlas_${record.$1}.png',
+    ).evict(configuration: createLocalImageConfiguration(context));
+    if (mounted) setState(load);
   }
 
   @override
@@ -254,8 +289,23 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
   @override
   Widget build(BuildContext context) {
     final record = challengeAvatarFrames[widget.exercise.id];
-    if (record == null || atlas == null) {
+    if (record == null) {
       return ExerciseAvatar(exercise: widget.exercise, animate: widget.animate);
+    }
+    if (atlas == null) {
+      return Center(
+        child: loadFailed
+            ? IconButton(
+                tooltip: 'Reload realistic avatar',
+                onPressed: retry,
+                icon: const Icon(Icons.refresh_rounded),
+              )
+            : const Icon(
+                Icons.image_outlined,
+                size: 18,
+                semanticLabel: 'Loading realistic avatar',
+              ),
+      );
     }
     return RepaintBoundary(
       child: ClipRRect(
@@ -267,7 +317,7 @@ class _ChallengeAvatarState extends State<ChallengeAvatar>
               atlas!,
               challengeAvatarFrameFor(widget.exercise.id, controller.value),
               record.$3,
-              referenceAvatarDurations.containsKey(widget.exercise.id) ? 8 : 4,
+              realisticAvatarFrameCountFor(widget.exercise.id) == 32 ? 8 : 4,
             ),
             size: Size.infinite,
           ),

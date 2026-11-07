@@ -1,0 +1,612 @@
+[
+  {
+    "asset": "assets/images/challenge_avatars/atlas_48.png",
+    "stage": "core",
+    "exercises": [
+      "90_90_crunch",
+      "alt_v_up",
+      "arm_curls_crunch_left",
+      "bent_leg_twist"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: 90/90 Crunch — The upper body curls toward raised legs, with knees bent in a tabletop position. Equipment: none, mat.\nROW 2: Alt V-up — Lift the torso and reach toward alternating raised legs. Equipment: none, mat.\nROW 3: Arm Curls Crunch Left — Curl the upper body toward the left hip from a side-lying position. Equipment: none, mat.\nROW 4: Bent Leg Twist — Lie on the back with arms open and gently rotate bent knees from side to side. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_49.png",
+    "stage": "core",
+    "exercises": [
+      "crunches_legs_raised",
+      "cross_knee_plank",
+      "crunch_kicks",
+      "diagonal_plank"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Crunches with Legs Raised — Curl the upper body toward legs held upright. Equipment: none, mat.\nROW 2: Cross Knee Plank — From a forearm plank, alternate drawing each knee across toward the opposite elbow. Equipment: none, mat.\nROW 3: Crunch Kicks — From a reclined crunch, draw the knees in and extend both legs outward. Equipment: none, mat.\nROW 4: Diagonal Plank — From a high plank, extend opposite arm and leg, return, and alternate sides. Equipment: none, mat.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_50.png",
+    "stage": "core",
+    "exercises": [
+      "dumbbell_v_up",
+      "elbow_plank_rotation_left",
+      "flutter_kicks",
+      "heel_touch"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Dumbbell V-up — From the floor, raise the legs and torso together while reaching a dumbbell toward the feet. Equipment: dumbbell.\nROW 2: Elbow Plank Rotation Left — Rotate from a forearm plank toward a left side plank, opening the free arm upward. Equipment: none, mat.\nROW 3: Flutter Kicks — Lie on the back and alternate small up-and-down movements of straight legs. Equipment: none.\nROW 4: Heel Touch — Lie on the back with knees bent, lift the shoulders, and alternate reaching toward each heel. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_51.png",
+    "stage": "core",
+    "exercises": [
+      "knee_plank",
+      "kneeling_side_plank_left",
+      "long_arm_crunches",
+      "leg_spreads"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Knee Plank — Hold a forearm plank with knees supported on the floor. Equipment: none, mat.\nROW 2: Kneeling Side Plank Left — Hold a left forearm-supported side plank with knees bent on the floor. Equipment: none, mat.\nROW 3: Long Arm Crunches — Lie with knees bent and arms reaching past the head, then curl the upper body upward. Equipment: none, mat.\nROW 4: Leg Spreads — Lie on the back with legs raised, open them apart, and bring them back together. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_52.png",
+    "stage": "core",
+    "exercises": [
+      "oblique_v_ups_left",
+      "oblique_crunch_reach",
+      "scissors",
+      "side_bridges_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Oblique V-ups Left — Lie on the side and curl the torso toward both raised legs, working the left side. Equipment: none, mat.\nROW 2: Oblique Crunch Reach — Hold a reclined crunch and alternate reaching toward each heel. Equipment: none, mat.\nROW 3: Scissors — Lie on the back with legs raised and cross the straight legs over and under one another. Equipment: none.\nROW 4: Side Bridges Left — From a left forearm side plank, lower and raise the hips. Equipment: none, mat.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_53.png",
+    "stage": "core",
+    "exercises": [
+      "standing_side_bend",
+      "sit_up_twist",
+      "seated_side_bend_left",
+      "seated_spinal_twist_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Standing Side Bend — Stand tall with one hand near the head and gently bend the torso from side to side. Equipment: none.\nROW 2: Sit-up Twist — Lift the torso from a bent-knee floor position and rotate toward alternate sides. Equipment: none, mat.\nROW 3: Seated Side Bend Left — Sit cross-legged, reach one arm overhead, and gently lean to the left. Equipment: none.\nROW 4: Seated Spinal Twist Left — Sit cross-legged and gently turn the torso toward the left with one hand supporting behind. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_54.png",
+    "stage": "core",
+    "exercises": [
+      "starfish_crunch",
+      "standing_oblique_crunches_left",
+      "torso_twist",
+      "trunk_rotation"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Starfish Crunch — Lie with arms and legs open, then curl up and reach toward an opposite raised foot. Equipment: none, mat.\nROW 2: Standing Oblique Crunches Left — Stand upright and draw the left knee and elbow toward each other at the side. Equipment: none, mat.\nROW 3: Torso Twist — Keep the hips steady and rotate the upper body gently from side to side. Equipment: none.\nROW 4: Trunk Rotation — Stand with arms bent in front and turn the trunk from one side to the other. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_55.png",
+    "stage": "core",
+    "exercises": [
+      "t_plank_left",
+      "twisting_piston",
+      "v_up",
+      "v_hold"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: T Plank Left — Rotate from a high plank toward the left side and reach the free arm upward before returning. Equipment: none, mat.\nROW 2: Twisting Piston — From a supported plank, draw both knees toward alternate sides of the torso and extend back. Equipment: none, mat.\nROW 3: V-up — Lift both straight legs and the torso together, reaching the hands toward the feet. Equipment: none, mat.\nROW 4: V-hold — Balance on the hips with the torso reclined and both straight legs raised, reaching the arms forward. Equipment: none.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_56.png",
+    "stage": "core",
+    "exercises": [
+      "windshield_wipers",
+      "x_man_crunch"
+    ],
+    "prompt": "Use case: scientific-educational fitness demonstration. Create a NEW photorealistic exercise animation atlas. Reference image is ONLY identity, clothing and grey studio style, not the exercise content. Same adult male black fitted tee black exercise trousers white trainers, plain grey studio grey mat when on floor. Output square 4 by 4 grid, 16 equal cells, fixed camera and consistent scale per row, complete body and equipment visible in every cell, minimal thin grey separators. Each ROW is a different exercise: four keyframes across each row show SETUP, MID-MOVEMENT, PEAK, RETURN toward setup. No extra movements. Rows in EXACT order:\nROW 1: Windshield Wipers — Lie on the back with straight legs raised and rotate them together gently from side to side. Equipment: none, mat.\nROW 2: X Man Crunch — Lie with arms and legs open, then curl the torso and reach both hands between the legs. Equipment: none, mat.\nROW 3: X Man Crunch — Lie with arms and legs open, then curl the torso and reach both hands between the legs. Equipment: none, mat.\nROW 4: X Man Crunch — Lie with arms and legs open, then curl the torso and reach both hands between the legs. Equipment: none, mat.\nFor alternating exercises use setup, left phase, neutral, right phase. For a held stretch show entering the named supported position and gently holding it, not vigorous repetitions. Show the named left/right side consistently, mirrored counterparts will be created in code. Anatomy accurate, hands feet inside own cell, no text numbers arrows logos or UI. Do not substitute another exercise or remove stated equipment. No grey cartoon figures; a lifelike human."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_57.png",
+    "stage": "upper_body",
+    "exercises": [
+      "wall_push_ups",
+      "punches",
+      "side_arm_raise",
+      "forward_arm_swings"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Wall Push-ups. A standing wall-supported pushing movement. The avatar bends and straightens its elbows while keeping its hands against the wall. Equipment: none.\nROW 2: Punches. Alternating forward punches from a standing stance. Equipment: none.\nROW 3: Side Arm Raise. Both arms lift out to the sides and return to the body. Equipment: none.\nROW 4: Forward Arm Swings. A side-view demonstration of the arms swinging forward and back. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_58.png",
+    "stage": "upper_body",
+    "exercises": [
+      "elbows_back",
+      "arm_circles",
+      "arm_raises",
+      "arm_circles_counterclockwise"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Elbows Back. With elbows bent, the arms draw back and return in a side-view loop. Equipment: none.\nROW 2: Arm Circles. Arms extend to the sides while the hands trace small circles. Equipment: none.\nROW 3: Arm Raises. Both arms lift overhead and lower back toward the sides. Equipment: none.\nROW 4: Arm Circles Counterclockwise. The arm-circle demonstration runs in the opposite direction. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_59.png",
+    "stage": "upper_body",
+    "exercises": [
+      "arm_scissors",
+      "arm_circles_clockwise",
+      "alternating_hooks",
+      "arnold_dumbbell_press"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Arm Scissors. Open the arms and cross them in front of the chest. Equipment: none.\nROW 2: Arm Circles Clockwise. Trace small clockwise circles with extended arms. Equipment: none.\nROW 3: Alternating Hooks. Alternate bent-arm hooks across the body. Equipment: none.\nROW 4: Arnold Dumbbell Press. Rotate the forearms outward and press both dumbbells overhead. Requires dumbbells. Equipment: dumbbell.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_60.png",
+    "stage": "upper_body",
+    "exercises": [
+      "alternating_dumbbell_shoulder_press",
+      "alternate_hammer_curl",
+      "box_push_ups",
+      "backward_arm_swings"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Alternating Dumbbell Shoulder Press. Press one dumbbell overhead at a time. Requires dumbbells. Equipment: dumbbell.\nROW 2: Alternate Hammer Curl. Alternate neutral-grip curls with elbows beside the torso. Requires dumbbells. Equipment: dumbbell.\nROW 3: Box Push-ups. From hands and knees, bend and straighten the elbows while keeping the hips over the knees. Equipment: none.\nROW 4: Backward Arm Swings. Circle both arms backward from the shoulders. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_61.png",
+    "stage": "upper_body",
+    "exercises": [
+      "bent_over_row",
+      "bent_over_dumbbell_rows_left",
+      "claps_over_head",
+      "clockwise_shoulder_rolls"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Bent Over Row. Hinge at the hips and pull both dumbbells toward the waist. Requires dumbbells. Equipment: dumbbell.\nROW 2: Bent Over Dumbbell Rows Left. Support the right hand and knee on a stable bench and row the left dumbbell toward the hip. Requires a bench and dumbbell. Equipment: dumbbell.\nROW 3: Claps Over Head. Raise both arms from the sides and bring the hands together overhead. Equipment: none.\nROW 4: Clockwise Shoulder Rolls. Roll both shoulders in small clockwise circles with arms relaxed. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_62.png",
+    "stage": "upper_body",
+    "exercises": [
+      "chair_triceps_side_bend_left",
+      "diamond_push_ups",
+      "decline_push_ups",
+      "dynamic_chest"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Chair Triceps Side Bend Left. Sit on a stable chair, bend one elbow overhead, and gently lean left. Equipment: chair.\nROW 2: Diamond Push-ups. Lower and raise the body in a plank with hands close together beneath the chest. Equipment: none, mat.\nROW 3: Decline Push-ups. Perform a push-up with feet raised on a stable bench. Requires a bench. Equipment: bench.\nROW 4: Dynamic Chest. Open both arms sideways and bring them together in front of the chest. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_63.png",
+    "stage": "upper_body",
+    "exercises": [
+      "doorway_curls_left",
+      "dumbbell_triceps_extension",
+      "dumbbell_side_lateral_raise",
+      "dumbbell_front_raise"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Doorway Curls Left. Hold a stable doorway with the left hand and bend the elbow to draw the body toward it. Equipment: none.\nROW 2: Dumbbell Triceps Extension. Hold a dumbbell overhead, bend the elbows behind the head, then straighten. Requires a dumbbell. Equipment: dumbbell.\nROW 3: Dumbbell Side Lateral Raise. Lift both dumbbells out to the sides and lower with control. Requires dumbbells. Equipment: dumbbell.\nROW 4: Dumbbell Front Raise. Lift both dumbbells in front to shoulder height and lower. Requires dumbbells. Equipment: dumbbell.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_64.png",
+    "stage": "upper_body",
+    "exercises": [
+      "dumbbell_upright_row",
+      "dumbbell_concentration_curl_left",
+      "floor_tricep_dips",
+      "floor_y_raises"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Dumbbell Upright-row. Draw the dumbbells upward in front of the torso with elbows leading. Requires dumbbells. Equipment: dumbbell.\nROW 2: Dumbbell Concentration Curl Left. Sit on a stable bench and curl the left dumbbell with the elbow supported inside the thigh. Equipment: dumbbell.\nROW 3: Floor Tricep Dips. Sit with hands behind the hips and knees bent, then bend and straighten the elbows to lower and lift the body. Equipment: none, mat.\nROW 4: Floor Y Raises. Lie face down with arms extended in a Y and gently lift them from the floor. Equipment: none, mat.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_65.png",
+    "stage": "upper_body",
+    "exercises": [
+      "floor_slides",
+      "hover_push_up",
+      "jumping_push_ups",
+      "modified_push_up_low_hold"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Floor Slides. Lie on the back with knees bent and slide bent arms overhead and back alongside the shoulders. Equipment: none, mat.\nROW 2: Hover Push Up. From a wide-hand plank, lower close to the floor, pause briefly, and press upward. Equipment: none, mat.\nROW 3: Jumping Push-ups. Lower from a plank and press upward so the hands briefly leave the floor. Equipment: none, mat.\nROW 4: Modified Push-up Low Hold. With knees on the floor, hold a lowered push-up position with elbows bent. Equipment: none, mat.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_66.png",
+    "stage": "upper_body",
+    "exercises": [
+      "military_push_ups",
+      "military_press",
+      "one_leg_push_ups",
+      "overhead_arm_clockwise_circles"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Military Push Ups. Keep the body in a straight plank and bend the elbows close to the torso, then press upward. Equipment: none, mat.\nROW 2: Military Press. Press both dumbbells overhead from shoulder height and lower them together. Requires dumbbells. Equipment: none.\nROW 3: One Leg Push-ups. Hold one straight leg raised behind the body while bending and straightening the elbows in a plank. Equipment: none, mat.\nROW 4: Overhead Arm Clockwise Circles. Reach both arms overhead and trace small clockwise circles with the hands. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_67.png",
+    "stage": "upper_body",
+    "exercises": [
+      "overhead_arm_counterclockwise_circles",
+      "offset_push_ups",
+      "prone_triceps_push_ups",
+      "pike_push_ups"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Overhead Arm Counterclockwise Circles. Reach both arms overhead and trace small circles in the opposite direction. Equipment: none.\nROW 2: Offset Push-ups. Perform a push-up with one hand on a stable low block and the other on the floor. Requires a stable block. Equipment: none, mat.\nROW 3: Prone Triceps Push Ups. Lie face down with hands close to the chest and extend the elbows to lift the upper body. Equipment: none, mat.\nROW 4: Pike Push Ups. Hold the hips raised in an inverted V, bend the elbows to lower the head, and press upward. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_68.png",
+    "stage": "upper_body",
+    "exercises": [
+      "push_up_hold",
+      "reverse_push_ups",
+      "reclined_rhomboid_squeezes",
+      "rhomboid_pulls"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Push Up Hold. Hold a lowered straight-body push-up position with elbows bent. Equipment: none.\nROW 2: Reverse Push-ups. Shift backward toward raised hips with arms extended, then move forward into a low push-up. Equipment: none.\nROW 3: Reclined Rhomboid Squeezes. Sit reclined with knees bent and draw the elbows back to squeeze the shoulder blades. Equipment: none.\nROW 4: Rhomboid Pulls. Hold the arms bent in front, then open the elbows and draw the shoulder blades together. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_69.png",
+    "stage": "upper_body",
+    "exercises": [
+      "reverse_snow_angels",
+      "reverse_flys",
+      "staggered_push_ups",
+      "spiderman_push_ups"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Reverse Snow Angels. Lie face down and sweep straight arms from overhead toward the hips and back. Equipment: none.\nROW 2: Reverse Flys. Hinge forward and lift both dumbbells outward with softly bent elbows. Requires dumbbells. Equipment: none.\nROW 3: Staggered Push-ups. Perform push-ups with one hand slightly farther forward than the other. Equipment: none.\nROW 4: Spiderman Push-ups. Lower into a push-up while drawing one knee toward the same-side elbow, then alternate. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_70.png",
+    "stage": "upper_body",
+    "exercises": [
+      "shoulder_shrugs",
+      "supine_push_up",
+      "shoulder_gators",
+      "shoulder_outward_rotation"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Shoulder Shrugs. Sit cross-legged and lift and lower both shoulders with the arms relaxed. Equipment: none.\nROW 2: Supine Push Up. Lie on the back with knees bent and press through the elbows to gently lift the upper chest. Equipment: none, mat.\nROW 3: Shoulder Gators. Keep the hands near the head and bring the bent elbows together and apart. Equipment: none.\nROW 4: Shoulder Outward Rotation. Sit on a stable chair with elbows beside the waist and rotate the forearms outward and back. Equipment: none.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_71.png",
+    "stage": "upper_body",
+    "exercises": [
+      "single_arm_renegade_row_left",
+      "triceps_kickbacks",
+      "wide_arm_push_ups",
+      "dumbbell_floor_press"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Single Arm Renegade Row Left. Hold a high plank on dumbbells and row the left dumbbell toward the ribs. Requires dumbbells. Equipment: dumbbell.\nROW 2: Triceps Kickbacks. Hinge forward, keep the upper arms beside the body, and straighten the elbows backward without weights. Equipment: none.\nROW 3: Wide Arm Push-ups. Perform push-ups with hands placed wider than the shoulders. Equipment: none.\nROW 4: Dumbbell Floor Press. Lie on a mat with knees bent and dumbbells above the chest. Lower until the upper arms gently reach the floor, then press upward with control. Equipment: dumbbell, mat.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_72.png",
+    "stage": "upper_body",
+    "exercises": [
+      "band_curl",
+      "band_row"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW atlas matching reference human identity, black fitted short sleeve tee, black trousers, white trainers, neutral grey studio and mat. Square EXACT 4x4 grid, each of four rows a DIFFERENT exercise; four cells across each row are setup, intermediate, peak, return. Full body and required equipment entirely inside every cell; fixed camera scale lighting within each row. Anatomically accurate photorealistic human, not cartoon. Row order:\nROW 1: Resistance Band Curl. Stand securely on the middle of a long resistance band, hold the ends and curl with elbows beside the torso. Equipment: band.\nROW 2: Resistance Band Row. Stand securely on a long resistance band, hinge at the hips and pull the ends toward the waist with a controlled trunk. Equipment: band.\nROW 3: Resistance Band Row. Stand securely on a long resistance band, hinge at the hips and pull the ends toward the waist with a controlled trunk. Equipment: band.\nROW 4: Resistance Band Row. Stand securely on a long resistance band, hinge at the hips and pull the ends toward the waist with a controlled trunk. Equipment: band.\nOnly named movement and equipment. For alternating arms show neutral then left then neutral then right. For circles show four successive points on the circle, correct direction. For stretches enter and gently hold the named position. Use consistent named active limb. Show dumbbells/band/chair/bench/wall/doorway where specified; stable supports, neutral joints. No text labels arrows logos or UI; minimal thin grid separators. Do not reuse the reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_73.png",
+    "stage": "lower_body",
+    "exercises": [
+      "bridge",
+      "backward_lunge_front_kick_left",
+      "bulgarian_split_squat_left",
+      "bottom_leg_lift_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Bridge — Lift and lower the hips with shoulders and feet supported on the floor. Equipment: none, mat.\nROW 2: Backward Lunge with Front Kick Left — Step the left leg back into a lunge, return, and kick forward. Equipment: none.\nROW 3: Bulgarian Split Squat Left — With the rear foot on a stable bench, bend and straighten the left supporting leg. Requires a bench. Equipment: bench.\nROW 4: Bottom Leg Lift Left — Lie on the side and raise the straight bottom left leg while the upper foot supports the body. Equipment: none, mat.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_74.png",
+    "stage": "lower_body",
+    "exercises": [
+      "backward_lunge",
+      "butt_kicks",
+      "calf_raise_splayed_foot",
+      "calf_raise_pigeon_toed"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Backward Lunge — Alternate stepping backward, lowering into a lunge, and returning to standing. Equipment: none.\nROW 2: Butt Kicks — Alternate lifting the heels toward the back of the hips. Equipment: none.\nROW 3: Calf Raise with Splayed Foot — Raise and lower the heels with toes turned slightly outward. Equipment: none.\nROW 4: Calf Raise with Pigeon-toed — Raise and lower the heels with toes turned slightly inward. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_75.png",
+    "stage": "lower_body",
+    "exercises": [
+      "donkey_kicks_left",
+      "donkey_kicks_left_pulse",
+      "froggy_glute_lifts",
+      "frog_press"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Donkey Kicks Left — From hands and knees, lift the bent left leg behind the body and return. Equipment: none, mat.\nROW 2: Donkey Kicks Left Pulse — Hold the bent left leg raised from hands and knees and make small upward pulses. Equipment: none, mat.\nROW 3: Froggy Glute Lifts — Lie face down with knees bent and feet together, then gently lift the thighs. Equipment: none.\nROW 4: Frog Press — Lie on the back, draw bent knees outward with heels together, and press the legs outward. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_76.png",
+    "stage": "lower_body",
+    "exercises": [
+      "flutter_kick_squats",
+      "frog_pump",
+      "glute_kick_back",
+      "hip_hinge"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Flutter Kick Squats — Lower into a squat, rise, and alternate extending a leg forward. Equipment: none.\nROW 2: Frog Pump — Lie on the back with soles together and knees open, then lift and lower the hips. Equipment: none.\nROW 3: Glute Kick Back — From hands and knees, alternate extending a straight leg backward and returning. Equipment: none.\nROW 4: Hip Hinge — Keep a small knee bend and hinge forward at the hips before returning upright. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_77.png",
+    "stage": "lower_body",
+    "exercises": [
+      "jumping_squats",
+      "knee_circle",
+      "lunges",
+      "leg_barbell_curl_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Jumping Squats — Lower into a squat, push upward into a small jump, and land with knees soft. Equipment: none.\nROW 2: Knee Circle — Stand with feet together and knees slightly bent, place hands on the thighs, and make small knee circles. Equipment: none.\nROW 3: Lunges — Alternate stepping forward, lowering into a lunge, and returning upright. Equipment: none.\nROW 4: Leg Barbell Curl Left — Stand on the right leg and use the hands to guide the bent left leg upward and back down. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_78.png",
+    "stage": "lower_body",
+    "exercises": [
+      "lying_swing_legs_left",
+      "left_leg_lateral_raise",
+      "pilates_clamshell_left",
+      "pistol_box_squat_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Lying Swing Legs Left — Lie on the side and swing the upper left leg up and down while the lower leg stays supported. Equipment: none, mat.\nROW 2: Left Leg Lateral Raise — Stand beside a stable chair and raise the straight left leg sideways before lowering it. Equipment: none.\nROW 3: Pilates Clamshell Left — Lie on the side with knees bent and feet together, then lift and lower the upper left knee. Equipment: none.\nROW 4: Pistol Box Squat Left — Lower toward a stable chair on the left supporting leg with the other leg extended, then rise. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_79.png",
+    "stage": "lower_body",
+    "exercises": [
+      "step_up_onto_chair",
+      "side_lunges",
+      "split_squat_left",
+      "standing_glute_kickbacks"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Step-up onto Chair — Step onto a stable raised platform and back down with control. Requires a stable platform. Equipment: chair.\nROW 2: Side Lunges — Shift into a wide side lunge, bending one knee while the other leg stays straighter, and alternate. Equipment: none.\nROW 3: Split Squat Left — Keep the feet in a split stance and bend and straighten the knees with the left leg leading. Equipment: none.\nROW 4: Standing Glute Kickbacks — Stand upright and alternate extending a straight leg behind the body. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_80.png",
+    "stage": "lower_body",
+    "exercises": [
+      "sumo_squat_calf_raises",
+      "sumo_squat_leg_raises",
+      "single_left_leg_calf_raises",
+      "side_leg_circles_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Sumo Squat Calf Raises — Hold a wide squat and raise and lower the heels. Equipment: none.\nROW 2: Sumo Squat & Leg Raises — Rise from a wide squat and alternate lifting a leg sideways. Equipment: none, mat.\nROW 3: Single Left Leg Calf Raises — Stand on the left foot with wall support and raise and lower the heel. Equipment: none.\nROW 4: Side Leg Circles Left — Lie on the side and trace small circles with the raised straight left leg. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_81.png",
+    "stage": "lower_body",
+    "exercises": [
+      "side_lying_leg_lift_left",
+      "single_leg_hip_rotation",
+      "side_leg_raise_left",
+      "single_leg_calf_hop_left"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Side-lying Leg Lift Left — Lie on the right side and raise and lower the straight upper left leg. Equipment: none, mat.\nROW 2: Single Leg Hip Rotation — Stand on one leg and circle the raised bent knee outward and inward. Equipment: none.\nROW 3: Side Leg Raise Left — Hold a left forearm-supported side position and lift the straight upper leg. Equipment: none, mat.\nROW 4: Single Leg Calf Hop Left — Make small controlled hops on the left foot with the other knee bent. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_82.png",
+    "stage": "lower_body",
+    "exercises": [
+      "sumo_squat_calf_raises_wall",
+      "sumo_squat",
+      "standing_glute_kickbacks_left",
+      "standing_knee_to_chest"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Sumo Squat Calf Raises with Wall — Use a wall for support, hold a wide squat, and raise and lower the heels. Equipment: none.\nROW 2: Sumo Squat — Lower and raise the hips in a wide stance with toes turned outward. Equipment: none.\nROW 3: Standing Glute Kickbacks Left — Stand on the right leg and extend the left leg behind the body before returning. Equipment: none.\nROW 4: Standing Knee to Chest — Stand on one leg and gently hold the opposite bent knee toward the chest. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_83.png",
+    "stage": "lower_body",
+    "exercises": [
+      "squat_pulses",
+      "straight_leg_raise_left",
+      "single_leg_deadlift_left",
+      "wall_sit"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Squat Pulses — Hold a squat and make small controlled upward and downward pulses. Equipment: none, mat.\nROW 2: Straight Leg Raise Left — Lie with one knee bent and lift and lower the straight left leg. Equipment: none, mat.\nROW 3: Single Leg Deadlift Left — Balance on the left leg and hinge forward while extending the other leg behind, then return upright. Equipment: none.\nROW 4: Wall Sit — Hold a seated position with the back supported by a wall and knees bent. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_84.png",
+    "stage": "lower_body",
+    "exercises": [
+      "wall_calf_raises",
+      "wall_resisting_single_leg_calf_raise_left",
+      "wall_standing_glute_kickbacks_left",
+      "walking_squats"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Wall Calf Raises — Use a wall for balance and raise and lower both heels while standing. Equipment: none.\nROW 2: Wall Resisting Single Leg Calf Raise Left — Lean against a wall for support, balance on the left foot, and raise and lower the heel. Equipment: none.\nROW 3: Wall Standing Glute Kickbacks Left — Use a wall for balance while extending the straight left leg behind the body and returning. Equipment: none.\nROW 4: Walking Squats — Maintain a squat and take small alternating steps while keeping the hips lowered. Equipment: none.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_85.png",
+    "stage": "lower_body",
+    "exercises": [
+      "wall_glute_kickback_left_hold",
+      "walk_the_dog",
+      "dumbbell_squat",
+      "dumbbell_reverse_lunge"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Wall Glute Kickback Left Hold — Lean toward a wall, extend the left leg back, pause briefly, and return. The reference uses repetitions. Equipment: none.\nROW 2: Walk the Dog — From an inverted V, alternate bending one knee while lengthening the opposite leg toward the floor. Equipment: none, mat.\nROW 3: Dumbbell Squat — Hold dumbbells at chest height, sit the hips back into a controlled squat, and stand with the feet planted. Equipment: dumbbell.\nROW 4: Dumbbell Reverse Lunge — Hold dumbbells close to the torso, step one foot back, lower both knees with control, then return and alternate legs. Equipment: dumbbell.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_86.png",
+    "stage": "lower_body",
+    "exercises": [
+      "dumbbell_deadlift_left",
+      "band_squat"
+    ],
+    "prompt": "Use case: scientific-educational fitness movement atlas. Create NEW lifelike human exercise frames, use reference ONLY for identity/style: adult male black t-shirt and trousers white trainers grey studio/mat. Exact square 4x4 grid 16 equal cells. Each row is one different exercise, four poses setup/intermediate/peak/return. Same camera distance per row, full body feet hands and equipment entirely visible within every cell. Row order:\nROW 1: Dumbbell Single Leg Deadlift Left — Hold light dumbbells, balance on the left leg and hinge at the hips as the right leg extends behind. Return with a controlled trunk. Equipment: dumbbell.\nROW 2: Resistance Band Squat — Place a loop band above the knees, keep the knees tracking over the feet, squat with control and stand. Equipment: band.\nROW 3: Resistance Band Squat — Place a loop band above the knees, keep the knees tracking over the feet, squat with control and stand. Equipment: band.\nROW 4: Resistance Band Squat — Place a loop band above the knees, keep the knees tracking over the feet, squat with control and stand. Equipment: band.\nCorrect named LEFT or RIGHT working/supporting leg consistently throughout its row, no leg switching. Show stable chair, bench, wall, resistance band or dumbbells if required, do not substitute missing supports. Standing, lying, side-lying and kneeling positions must match descriptions. Accurate joints, realistic anatomy, controlled movement, fixed floor/mat, no cropped limbs, no extra limbs. Four distinct poses; for an alternating exercise use neutral/left/neutral/right. No text numbers arrows branding or UI, only minimal grid separators. Do not copy reference exercises."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_87.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "arm_swings_lateral_steps",
+      "bird_dog",
+      "burpees",
+      "bird_dog_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Arm Swings with Lateral Steps — Step sideways while opening and crossing the arms. Equipment: none.\nROW 2: Bird Dog — From hands and knees, extend the opposite arm and leg, return, and alternate. Equipment: none, mat.\nROW 3: Burpees — Squat, extend into a plank, return to a squat, and jump. Equipment: none, mat.\nROW 4: Bird Dog Left — From hands and knees, extend the left leg and right arm, then draw them back in. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_88.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "crab_kick_up",
+      "crossbody_mountain_climber",
+      "fast_spider_lunges",
+      "hops_on_the_spot"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Crab Kick Up — From a reverse tabletop, lift the hips and kick one leg upward, alternating sides. Equipment: none.\nROW 2: Crossbody Mountain Climber — From a high plank, alternate bringing each knee toward the opposite elbow. Equipment: none, mat.\nROW 3: Fast Spider Lunges — From a high plank, alternate stepping a foot forward beside the same-side hand and returning. Equipment: none, mat.\nROW 4: Hops on the Spot — Make small two-foot hops in place with a soft knee bend on landing. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_89.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "hyperextension",
+      "half_bending_pushing_forward",
+      "high_knee_with_twist",
+      "lunge_twist"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Hyperextension — Lie face down with hands near the head and gently lift and lower the chest. Equipment: none.\nROW 2: Half Bending Pushing Forward — Maintain a shallow squat and forward hinge while pressing the arms forward and returning. Equipment: none.\nROW 3: High Knee with Twist — Alternate lifting a knee while turning the opposite shoulder toward it. Equipment: none.\nROW 4: Lunge Twist — Step into a lunge with arms forward and gently rotate the torso toward the front leg. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_90.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "lateral_plank_walk",
+      "modified_burpees",
+      "mountain_climber_squat_thrust",
+      "push_up_rotation"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Lateral Plank Walk — Maintain a high plank and take small side steps with the hands and feet. Equipment: none, mat.\nROW 2: Modified Burpees — Move from standing into a squat and plank, then return to standing without a jump. Equipment: none, mat.\nROW 3: Mountain Climber Squat Thrust — Alternate knee drives from a high plank, then bring both feet toward the hands and extend back. Equipment: none, mat.\nROW 4: Push-up & Rotation — Perform a push-up, then rotate into a side plank with the free arm raised. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_91.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "plank_taps",
+      "plank_leg_up",
+      "plank_and_reach",
+      "plank_jacks"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Plank Taps — From a high plank, alternate lifting a hand to tap the opposite shoulder. Equipment: none, mat.\nROW 2: Plank Leg Up — Hold a high plank and alternate lifting one straight leg behind the body. Equipment: none, mat.\nROW 3: Plank and Reach — From a forearm plank, alternate extending one arm forward and returning it to the floor. Equipment: none, mat.\nROW 4: Plank Jacks — Maintain a high plank and hop both feet apart and back together. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_92.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "skater_jump",
+      "side_hop",
+      "side_plank_front_kick_left",
+      "swimmer_and_superman"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Skater Jump — Bound sideways from one supporting leg to the other while the free leg crosses behind. Equipment: none.\nROW 2: Side Hop — Make small two-foot hops from side to side. Equipment: none.\nROW 3: Side Plank Front Kick Left — Hold a left side plank and draw the upper leg forward into a controlled kick. Equipment: none, mat.\nROW 4: Swimmer and Superman — Lie face down, lift opposite arm and leg, then lift both arms and legs together. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_93.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "skipping_without_rope",
+      "star_crawl",
+      "straight_leg_bounds",
+      "squat_reach_ups"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Skipping without Rope — Make light hops while circling the hands as if turning a skipping rope. Equipment: none.\nROW 2: Star Crawl — From a high plank, alternate small outward hand steps and opposite knee drives. Equipment: none, mat.\nROW 3: Straight Leg Bounds — Alternate small forward bounds with the swinging leg kept straighter. Equipment: none.\nROW 4: Squat Reach Ups — Lower into a squat and reach both arms overhead while rising. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_94.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "star_jumps",
+      "squat_jacks",
+      "standing_crossover_toe_touches",
+      "side_step_jacks"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Star Jumps — Jump with arms and legs opening outward into a star shape, then land softly. Equipment: none.\nROW 2: Squat Jacks — Alternate a squat with a jump that opens the arms and legs. Equipment: none.\nROW 3: Standing Crossover Toe Touches — From a wide stance, reach one hand toward the opposite foot and alternate sides. Equipment: none.\nROW 4: Side Step Jacks — Alternate stepping one foot sideways while raising both arms, then return together. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_95.png",
+    "stage": "full_body_cardio",
+    "exercises": [
+      "toy_soldiers",
+      "thread_needle_left",
+      "up_down_plank",
+      "x_burpees"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Full-body and cardio exercises: show every important movement in four poses. For opposite limb movements use a clear neutral pose, first side, neutral, second side. For burpees show standing, crouch hands down, legs extended plank, return to standing. Preserve the named exercise form.\nExact row order:\nROW 1: Toy Soldiers — Alternate lifting a straight leg forward while reaching toward it with the opposite hand. Equipment: none.\nROW 2: Thread the Needle Left — From hands and knees, slide the left arm beneath the other shoulder and rotate the chest toward the floor. Equipment: none, mat.\nROW 3: Up and Down Plank — Alternate lowering from hands to forearms and pressing back to a high plank one arm at a time. Equipment: none, mat.\nROW 4: X-Burpees — Move through a squat and plank, then rise into a jump with arms and legs opening into an X. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_96.png",
+    "stage": "stretching",
+    "exercises": [
+      "adductor_stretch_standing",
+      "anterior_shoulder_stretch",
+      "bow_pose",
+      "chest_stretch"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Adductor Stretch in Standing — A wide standing stance shifts from side to side, bending one knee while the other leg stays straighter. Equipment: none.\nROW 2: Anterior Shoulder Stretch — Sit with bent knees and hands behind the body to gently open the shoulders. Equipment: none.\nROW 3: Bow Pose — Lie face down and reach back toward bent ankles while lifting the chest and thighs gently. Equipment: none.\nROW 4: Chest Stretch — With forearms supported at the sides of a doorway, gently lean forward to open the chest. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_97.png",
+    "stage": "stretching",
+    "exercises": [
+      "calf_stretch_left",
+      "double_knees_to_chest",
+      "downward_facing_dog",
+      "downward_facing_dog_wall"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Calf Stretch Left — Step the left leg back with its heel grounded and lean toward a wall. Equipment: none.\nROW 2: Double Knees to Chest — Lie on the back and gently hold both bent knees toward the chest. Equipment: none.\nROW 3: Downward Facing Dog — Support the body on hands and feet, lifting the hips into an inverted V. Equipment: none, mat.\nROW 4: Downward Facing Dog on the Wall — Place hands against a wall and hinge at the hips with the back extended. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_98.png",
+    "stage": "stretching",
+    "exercises": [
+      "forward_bend",
+      "forward_spine_stretch",
+      "glute_stretch_left",
+      "kneeling_lunge_stretch_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Forward Bend — From standing, fold gently forward at the hips and let the arms hang toward the floor. Equipment: none, mat.\nROW 2: Forward Spine Stretch — Sit with legs extended and gently reach forward over the legs. Equipment: none.\nROW 3: Glute Stretch Left — Lie on the back, cross the left ankle over the opposite thigh, and gently draw the legs toward the chest. Equipment: none.\nROW 4: Kneeling Lunge Stretch Left — Rest the left knee on the floor behind the body and gently shift toward the bent front leg. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_99.png",
+    "stage": "stretching",
+    "exercises": [
+      "knee_to_chest_stretch_left",
+      "leaning_stretcher_raises",
+      "lying_butterfly_stretch",
+      "pigeon_pose_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Knee to Chest Stretch Left — Lie on the back, extend one leg along the floor, and gently hold the left knee toward the chest. Equipment: none, mat.\nROW 2: Leaning Stretcher Raises — Lean with hands supported against a wall, then raise and lower the heels. Equipment: none.\nROW 3: Lying Butterfly Stretch — Lie on the back, bring the soles together, and let bent knees open outward. Equipment: none, mat.\nROW 4: Pigeon Pose Left — Bring the left bent leg under the torso and extend the other leg behind while supporting the upper body with the hands. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_100.png",
+    "stage": "stretching",
+    "exercises": [
+      "quad_stretch",
+      "shoulder_stretch",
+      "side_lying_floor_stretch_left",
+      "spine_lumbar_twist_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Quad Stretch — Stand on one leg and gently hold the opposite ankle behind the body with knees close together. Equipment: none.\nROW 2: Shoulder Stretch — Bring one arm across the chest and gently support it with the other hand. Equipment: none.\nROW 3: Side-lying Floor Stretch Left — Lie on the right side with arms extended overhead and lengthen the left side of the body. Equipment: none, mat.\nROW 4: Spine Lumbar Twist Stretch Left — Lie with arms open and gently rotate bent knees toward the left side. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_101.png",
+    "stage": "stretching",
+    "exercises": [
+      "standing_biceps_stretch_left",
+      "sitting_hamstring_stretch_left",
+      "seated_butterfly_stretch",
+      "supine_hamstring_stretch_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Standing Biceps Stretch Left — Support the left hand behind the body against a wall and gently turn the chest away. Equipment: none.\nROW 2: Sitting Hamstring Stretch Left — Sit with the left leg extended and the other bent, then gently reach toward the extended foot. Equipment: none.\nROW 3: Seated Butterfly Stretch — Sit with soles together and knees open, holding the feet while sitting tall. Equipment: none.\nROW 4: Supine Hamstring Stretch Left — Lie on the back, raise the straight left leg, and gently support it behind the thigh. Equipment: none, mat.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_102.png",
+    "stage": "stretching",
+    "exercises": [
+      "seated_cat_cow",
+      "triceps_stretch_left",
+      "triangle_pose_left",
+      "wrists_ankles_stretch_left"
+    ],
+    "prompt": "Use case: scientific-educational exercise animation. NEW photorealistic 4x4 atlas of exactly 16 equal square cells. The reference is only for realistic demonstrator identity and studio appearance. Same adult man black fitted tee and exercise trousers white trainers, plain grey studio and grey mat. Each row is a separate exercise, four ordered poses setup, intermediate, peak, return, fixed camera scale lighting within a row. Gentle stretching and mobility, comfortable ranges, show supports and controlled entry to the named position followed by a hold and return. Do not show a different stretch.\nExact row order:\nROW 1: Seated Cat Cow — Sit cross-legged and gently round and extend the back with hands supported on the knees. Equipment: none, mat.\nROW 2: Triceps Stretch Left — Bend the left elbow overhead and gently support it with the other hand. Equipment: none.\nROW 3: Triangle Pose Left — Stand wide, hinge sideways toward the left leg, and reach the opposite arm upward. Equipment: none.\nROW 4: Wrists & Ankles Stretch Left — Clasp the hands in front and gently circle the wrists while moving the left ankle. Equipment: none.\nFull body and named equipment visible in each cell, accurate limbs and stable supports, no cropped hands or feet, no changed limb within a named side exercise. Do not copy movements from the reference. No words, arrows, labels, logo or UI, thin neutral grid separators only."
+  },
+  {
+    "asset": "assets/images/challenge_avatars/atlas_103.png",
+    "stage": "corrections",
+    "exercises": [
+      "twisting_piston",
+      "step_up_onto_chair",
+      "dumbbell_squat",
+      "dumbbell_reverse_lunge"
+    ],
+    "prompt": "Create NEW photorealistic movement atlas, same black tee/trousers, white trainers and grey studio demonstrator from reference, but DO NOT repeat its movements. Exactly square 4x4 atlas, one different exercise per row, four key poses per row, same camera scale and anatomy in all cells of a row, complete person and exact equipment visible. ROW 1 twisting_piston: Start high plank, both feet together. Hop BOTH knees together to the left outside the left elbow while hands stay planted, return full high plank with both legs straight, then hop BOTH knees together to the right outside the right elbow. No single-leg mountain climber; knees and feet move together.\nROW 2 step_up_onto_chair: Use a low, wide, stable nonslip rectangular exercise step platform, not a chair, stable flat floor. Side view. Start standing beside the step, place one entire foot on it, rise upright onto the step with both feet supported, return by lowering one foot to the floor. Same step in all frames.\nROW 3 dumbbell_squat: Two distinct black dumbbells, ONE IN EACH HAND held at chest/shoulder height with space between them. Stand, descend into squat halfway, reach stable squat at peak, rise. Both dumbbells remain visible in all cells. NOT a single goblet dumbbell.\nROW 4 dumbbell_reverse_lunge: Hold TWO distinct black dumbbells, one in each hand close to the torso, clearly visible and separated. Stand with both feet together, step left leg behind, lower both knees into reverse lunge, return upright with both dumbbells. Stable side three-quarter camera, NOT a single dumbbell.\nNo text labels arrows marks or logos. Thin neutral separators. Follow the specified counts of dumbbells and both-leg movement accurately."
+  }
+]

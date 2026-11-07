@@ -1,5 +1,9 @@
 # Realistic animations for challenge exercises — 5 November 2026
 
+## Asset deployment follow-up
+
+The development app bundle was later found to contain only 28 sheets even though source and unit-test assets had all 47. That explained the illustrated fallbacks in the user's Ripped V-Cut screenshot. Refreshed `build/flutter_assets` successfully with `flutter build bundle --debug --no-pub` and verified that every referenced sheet is present. Mapped avatars now show loading or a retry action when an image fails, instead of silently switching to a cartoon. A test verifies error recovery after retry. A complete Android APK rebuild was attempted but Gradle could not establish a local Java loopback connection in the build environment; a new APK was not produced by that attempt.
+
 The user requested the same realistic exercise demonstrations shown in the Belly Fat Burn recording, inside every challenge workout rather than new card covers.
 
 Added 18 original eight-phase/two-exercise atlases (`atlas_30.png` through `atlas_47.png`) and restored the previously missing `atlas_28.png`. The shared renderer now covers every exercise ID in the 11 standard challenge workouts, including reused existing sequences, plus leg raises and side planks from the customized Ripped V-Cut Abs workout in the recording. Mirrored counterparts, rep/timed variants and repeated sets reuse the appropriate sequence.
