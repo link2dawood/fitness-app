@@ -32,7 +32,11 @@ class TrainingChallengeCard extends StatelessWidget {
     image: challengePosterArtwork(workout, gender),
     color: customized ? color : challengePosterColor(workout.id),
     actionLabel: 'START WORKOUT',
-    onTap: () => openTrainingWorkout(context, workout),
+    onTap: () => openTrainingWorkout(
+      context,
+      workout,
+      challengeImage: challengePosterArtwork(workout, gender),
+    ),
   );
 }
 

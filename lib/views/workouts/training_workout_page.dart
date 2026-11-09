@@ -11,22 +11,164 @@ import '../../data/repositories/training_history_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
 import '../../widgets/rate_collection_dialog.dart';
 import 'exercise_detail.dart';
+import '../../data/models/challenge_poster.dart';
+import '../../widgets/workout_session_view.dart';
+import '../../core/routes/app_routes.dart';
 
 Future<void> openTrainingWorkout(
   BuildContext context,
-  TrainingWorkout workout,
-) => Navigator.of(context).push<void>(
-  MaterialPageRoute(builder: (_) => TrainingWorkoutPage(workout: workout)),
+  TrainingWorkout workout, {
+  String? challengeImage,
+}) => Navigator.of(context).push<void>(
+  MaterialPageRoute(
+    builder: (_) =>
+        TrainingWorkoutPage(workout: workout, challengeImage: challengeImage),
+  ),
 );
 
 class TrainingWorkoutPage extends StatefulWidget {
-  const TrainingWorkoutPage({super.key, required this.workout});
+  const TrainingWorkoutPage({
+    super.key,
+    required this.workout,
+    this.challengeImage,
+  });
+  final String? challengeImage;
   final TrainingWorkout workout;
   @override
   State<TrainingWorkoutPage> createState() => _TrainingWorkoutPageState();
 }
 
 class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
+  bool get isChallenge =>
+      widget.challengeImage != null ||
+      challengePosterIds.contains(widget.workout.id);
+
+  Future<void> _start() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => TrainingSessionPage(workout: widget.workout),
+      ),
+    );
+    if (mounted) await _load();
+  }
+
+  Widget _workoutHeader() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Stack(
+        children: [
+          Container(
+            height: 260,
+            width: double.infinity,
+            color: const Color(0xFFE0F2FE),
+            child: Image.asset(
+              widget.challengeImage ??
+                  (isChallenge
+                      ? challengePosterArtwork(widget.workout, null)
+                      : widget.workout.image),
+              fit: isChallenge ? BoxFit.contain : BoxFit.cover,
+              alignment: Alignment.bottomCenter,
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: IconButton(
+                tooltip: 'Back',
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.black54,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Navigator.maybePop(context),
+                icon: const Icon(Icons.arrow_back),
+              ),
+            ),
+          ),
+        ],
+      ),
+      ColoredBox(
+        color: const Color(0xFFE0F2FE),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isChallenge ? 'DAY 1' : widget.workout.title,
+                style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
+              ),
+              Text(
+                isChallenge ? widget.workout.title : widget.workout.summary,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 22,
+                runSpacing: 8,
+                children: [
+                  Text(
+                    '~${widget.workout.estimatedMinutes} mins',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    '${widget.workout.exercises.length} Exercises',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF10CFE3), Color(0xFF004BFF)],
+                  ),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: const Size(0, 60),
+                    ),
+                    onPressed: _start,
+                    child: Text(
+                      isChallenge ? 'Start' : 'Start workout',
+                      style: TextStyle(
+                        fontSize: 23,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'Exercises',
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
   bool loading = true;
   String? error;
   Set<int> _completedIndices = {};
@@ -95,7 +237,10 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.workout.title)),
+    backgroundColor: Colors.white,
+    appBar: loading || error != null
+        ? AppBar(title: Text(widget.workout.title))
+        : null,
     body: loading
         ? const Center(child: CircularProgressIndicator())
         : error != null
@@ -109,17 +254,9 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
             ),
           )
         : ListView(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.zero,
             children: [
-              Text(
-                widget.workout.summary,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Estimated time includes rest between exercises. Rep pace may vary.',
-              ),
-              const SizedBox(height: 12),
+              _workoutHeader(),
               for (final (entryIndex, exercise)
                   in widget.workout.exercises.indexed)
                 () {
@@ -128,14 +265,20 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
                     key: ValueKey(
                       'training-exercise-${widget.workout.id}-$entryIndex',
                     ),
-                    contentPadding: EdgeInsets.zero,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     leading: Stack(
                       clipBehavior: Clip.none,
                       children: [
                         SizedBox(
-                          width: 56,
-                          height: 56,
-                          child: ChallengeAvatar(exercise: exercise),
+                          width: 76,
+                          height: 76,
+                          child: ChallengeAvatar(
+                            exercise: exercise,
+                            animate: false,
+                          ),
                         ),
                         if (isDone)
                           Positioned(
@@ -206,30 +349,6 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
                 }(),
             ],
           ),
-    bottomNavigationBar: loading || error != null
-        ? null
-        : SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: FilledButton(
-                onPressed: () async {
-                  await Navigator.of(context).push<void>(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          TrainingSessionPage(workout: widget.workout),
-                    ),
-                  );
-                  if (mounted) {
-                    _load();
-                  }
-                },
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Start workout'),
-                ),
-              ),
-            ),
-          ),
   );
 }
 
@@ -252,6 +371,8 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   late final phase = widget.createStopwatch?.call() ?? Stopwatch();
   Timer? timer;
   int index = 0;
+  int restAdjustment = 0;
+  int? sessionRest;
   SettingsRecord? preferences;
   bool preparing = false;
   String? settingsError;
@@ -331,8 +452,10 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   int get phaseSeconds => preparing
       ? (preferences?.getInt('settings_prep') ?? 15).clamp(0, 60)
       : rest
-      ? (preferences?.restFor(widget.workout.restAfter(index)) ??
-            widget.workout.restAfter(index))
+      ? (sessionRest ??
+                preferences?.restFor(widget.workout.restAfter(index)) ??
+                widget.workout.restAfter(index)) +
+            restAdjustment
       : widget.workout.exercises[index].timed
       ? widget.workout.targetAt(index)
       : 0;
@@ -351,6 +474,10 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
             phase.reset();
           });
           _announce();
+        } else if (!preparing &&
+            remaining == 0 &&
+            (rest || widget.workout.exercises[index].timed)) {
+          _next();
         } else {
           setState(() {});
         }
@@ -399,17 +526,22 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
     }());
   }
 
-  void _next() {
+  void _next({bool skip = false}) {
     if (preferences == null ||
-        preparing ||
         paused ||
         finished ||
         saving ||
-        (!rest && widget.workout.exercises[index].timed && remaining > 0)) {
+        (!skip &&
+            !rest &&
+            !preparing &&
+            widget.workout.exercises[index].timed &&
+            remaining > 0)) {
       return;
     }
     setState(() {
-      if (rest) {
+      if (preparing) {
+        preparing = false;
+      } else if (rest) {
         rest = false;
         index++;
       } else if (index == widget.workout.exercises.length - 1) {
@@ -420,12 +552,72 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
         phase.stop();
       } else {
         _markExerciseDone(index);
-        rest = preferences!.restFor(widget.workout.restAfter(index)) > 0;
+        rest =
+            (sessionRest ??
+                preferences!.restFor(widget.workout.restAfter(index))) >
+            0;
         if (!rest) index++;
       }
+      restAdjustment = 0;
       phase.reset();
     });
     if (finished) unawaited(audio?.play(false) ?? Future.value());
+    _announce();
+  }
+
+  Future<void> _details() async {
+    final wasPaused = paused;
+    if (!paused) _pause();
+    await showExercisePreview(
+      context,
+      widget.workout.exerciseAt(rest ? index + 1 : index),
+    );
+    if (mounted && !wasPaused && paused) _pause();
+  }
+
+  Future<void> _editRest() async {
+    final wasPaused = paused;
+    if (!paused) _pause();
+    final value = await showSessionRestEditor(
+      context,
+      sessionRest ?? preferences!.restFor(widget.workout.restAfter(index)),
+      widget.workout.restAfter(index),
+    );
+    if (!mounted) return;
+    if (value != null) {
+      setState(() {
+        sessionRest = value;
+        restAdjustment = 0;
+        phase.reset();
+      });
+    }
+    if (!wasPaused && paused) _pause();
+  }
+
+  Future<void> _settings() async {
+    final wasPaused = paused;
+    if (!paused) _pause();
+    await Navigator.pushNamed(context, AppRoutes.workoutSettings);
+    if (!mounted) return;
+    try {
+      final updated = await SettingsRecord.load('settings_');
+      if (!mounted) return;
+      setState(() => preferences = updated);
+    } catch (_) {
+      if (mounted) setState(() => error = 'Could not reload workout settings.');
+    }
+    if (mounted && !wasPaused && paused) _pause();
+  }
+
+  void _previous() {
+    if (index == 0 && !rest) return;
+    setState(() {
+      if (!rest) index--;
+      rest = false;
+      preparing = false;
+      restAdjustment = 0;
+      phase.reset();
+    });
     _announce();
   }
 
@@ -506,6 +698,38 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
   @override
   Widget build(BuildContext context) {
     final exercise = widget.workout.exercises[index];
+    if (preferences != null && !finished) {
+      final displayIndex = rest ? index + 1 : index;
+      return PopScope(
+        canPop: leaving,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _exit();
+        },
+        child: WorkoutSessionView(
+          exercise: widget.workout.exerciseAt(displayIndex),
+          index: displayIndex,
+          count: widget.workout.exercises.length,
+          remaining: remaining,
+          target: widget.workout.targetAt(displayIndex),
+          preparing: preparing,
+          resting: rest,
+          paused: paused,
+          prepSeconds: preferences!.getInt('settings_prep') ?? 15,
+          onExit: _exit,
+          onPause: _pause,
+          onNext: () => _next(skip: true),
+          onPrevious: index == 0 && !rest ? null : _previous,
+          onDetails: _details,
+          onEditRest: _editRest,
+          onAddRest: () => setState(
+            () => restAdjustment = (restAdjustment + 20).clamp(0, 3600),
+          ),
+          onSettings: _settings,
+          error: error,
+          onRetry: () => setState(() => error = null),
+        ),
+      );
+    }
     return PopScope(
       canPop: leaving || saved,
       onPopInvokedWithResult: (didPop, _) {

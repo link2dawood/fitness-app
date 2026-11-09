@@ -3488,7 +3488,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Abs Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/abs.jpg',
+    image: 'assets/images/workouts/bf_abs_advanced.jpg',
     exerciseIds: [
       'plank_jacks',
       'plank_hip_dips',
@@ -3542,7 +3542,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Abs Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/abs.jpg',
+    image: 'assets/images/workouts/bf_abs_beginner.jpg',
     exerciseIds: [
       'in_and_outs',
       'jumping_jacks',
@@ -3569,7 +3569,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Abs Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/abs.jpg',
+    image: 'assets/images/workouts/bf_abs_intermediate.jpg',
     exerciseIds: [
       'toy_soldiers',
       'torso_twist',
@@ -3623,7 +3623,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Arm Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_arm_advanced.jpg',
     exerciseIds: [
       'bird_dog_left',
       'bird_dog_right',
@@ -3691,7 +3691,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Arm Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_arm_beginner.jpg',
     exerciseIds: [
       'floor_tricep_dips',
       'fast_spider_lunges',
@@ -3801,7 +3801,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Arm Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_arm_intermediate.jpg',
     exerciseIds: [
       'claps_over_head',
       'crab_kick_up',
@@ -4405,7 +4405,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Butt Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_butt_advanced.jpg',
     exerciseIds: [
       'in_and_outs',
       'jumping_jacks',
@@ -4453,7 +4453,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Butt Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_butt_beginner.jpg',
     exerciseIds: [
       'mountain_climber_timed',
       'push_up_rotation',
@@ -4479,7 +4479,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Butt Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_butt_intermediate.jpg',
     exerciseIds: [
       'bird_dog',
       'bridge',
@@ -4597,7 +4597,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Chest Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/massive_body.jpg',
+    image: 'assets/images/workouts/bf_chest_advanced.jpg',
     exerciseIds: [
       'jumping_push_ups',
       'knee_push_ups',
@@ -4624,7 +4624,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Chest Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/massive_body.jpg',
+    image: 'assets/images/workouts/bf_chest_beginner.jpg',
     exerciseIds: [
       'straight_arm_plank',
       'staggered_push_ups',
@@ -4639,7 +4639,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Chest Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/massive_body.jpg',
+    image: 'assets/images/workouts/bf_chest_intermediate.jpg',
     exerciseIds: [
       'bird_dog',
       'box_push_ups',
@@ -4802,7 +4802,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Forearm Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_forearm_advanced.jpg',
     exerciseIds: [
       'reverse_flys',
       'right_leg_lateral_raise',
@@ -4862,7 +4862,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Forearm Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_forearm_beginner.jpg',
     exerciseIds: [
       'back_bow_pulls',
       'back_arches',
@@ -4922,7 +4922,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Forearm Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_forearm_intermediate.jpg',
     exerciseIds: [
       'arm_raises',
       'alternating_hooks',
@@ -5269,7 +5269,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Leg Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_leg_advanced.jpg',
     exerciseIds: [
       'wall_sit',
       'wall_calf_raises',
@@ -5367,7 +5367,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Leg Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_leg_beginner.jpg',
     exerciseIds: [
       'single_right_leg_calf_raises',
       'single_left_leg_calf_raises',
@@ -5382,7 +5382,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Leg Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/squat.jpg',
+    image: 'assets/images/workouts/bf_leg_intermediate.jpg',
     exerciseIds: [
       'sumo_squat_leg_raises',
       'side_lying_leg_lift_right',
@@ -5797,7 +5797,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Shoulder & Back Advanced",
     difficulty: ExerciseDifficulty.hard,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_shoulder_back_advanced.jpg',
     exerciseIds: [
       'side_plank_front_kick_right',
       'swimmer_and_superman',
@@ -5843,7 +5843,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Shoulder & Back Beginner",
     difficulty: ExerciseDifficulty.easy,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_shoulder_back_beginner.jpg',
     exerciseIds: [
       'standing_crossover_toe_touches',
       'straight_arm_plank_to_pike',
@@ -5889,7 +5889,7 @@ const trainingWorkouts = <TrainingWorkout>[
     title: "Shoulder & Back Intermediate",
     difficulty: ExerciseDifficulty.medium,
     type: ExerciseType.training,
-    image: 'assets/images/workouts/back_builder.jpg',
+    image: 'assets/images/workouts/bf_shoulder_back_intermediate.jpg',
     exerciseIds: [
       'star_crawl',
       'straight_leg_bounds',

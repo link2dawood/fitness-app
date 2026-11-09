@@ -13,6 +13,7 @@ import '../../widgets/exercises/challenge_avatar.dart';
 import '../../widgets/rate_collection_dialog.dart';
 import '../../widgets/training_feature_cards.dart';
 import 'challenge_plan_editor.dart';
+import '../../widgets/workout_session_view.dart';
 
 class ChallengeSessionPage extends StatefulWidget {
   const ChallengeSessionPage({
@@ -504,6 +505,60 @@ class _ChallengeSessionPageState extends State<ChallengeSessionPage>
     final rest = controller.phase == ChallengePhase.rest,
         completePhase = controller.phase == ChallengePhase.complete;
     final entry = widget.day.entries[controller.displayIndex];
+    if (!completePhase) {
+      return PopScope(
+        canPop: leaving,
+        onPopInvokedWithResult: (popped, _) {
+          if (!popped) exit();
+        },
+        child: WorkoutSessionView(
+          exitLabel: 'Save and leave challenge',
+          exercise: entry.exercise,
+          index: controller.displayIndex,
+          count: widget.day.entries.length,
+          remaining: controller.remainingSeconds,
+          target: entry.seconds,
+          preparing: controller.phase == ChallengePhase.prep,
+          resting: rest,
+          paused: controller.paused,
+          prepSeconds: widget.prep,
+          onExit: exit,
+          onPause: () => controller.pause(!controller.paused),
+          onNext: controller.next,
+          onPrevious: controller.index == 0 && !rest
+              ? null
+              : controller.previous,
+          onDetails: () async {
+            final wasPaused = controller.paused;
+            controller.pause();
+            await showChallengeExerciseDetails(
+              context,
+              widget.day.entries,
+              controller.displayIndex,
+              editable: false,
+            );
+            if (mounted && !wasPaused) controller.pause(false);
+          },
+          onAddRest: controller.addRest,
+          onEditRest: () async {
+            final wasPaused = controller.paused;
+            controller.pause();
+            final seconds = await showSessionRestEditor(
+              context,
+              controller.restSeconds,
+              widget.rest,
+            );
+            if (!mounted) return;
+            if (seconds != null) controller.setRest(seconds);
+            if (!wasPaused) controller.pause(false);
+          },
+          onSettings: settings,
+          onMusic: music,
+          error: error,
+          onRetry: checkpoint,
+        ),
+      );
+    }
     return PopScope(
       canPop: leaving,
       onPopInvokedWithResult: (popped, _) {

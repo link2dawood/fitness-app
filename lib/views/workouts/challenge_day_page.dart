@@ -341,12 +341,12 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
                 expandedHeight: 240,
                 pinned: true,
                 foregroundColor: Colors.white,
-                backgroundColor: const Color(0xFF242424),
+                backgroundColor: const Color(0xFFE0F2FE),
                 title: const Text('Day 1'),
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.asset(
-                    'assets/images/workouts/belly_fat_burn.jpg',
-                    fit: BoxFit.cover,
+                    'assets/images/workouts/poster_intense_belly_fat_burn.png',
+                    fit: BoxFit.contain,
                     alignment: Alignment.topCenter,
                   ),
                 ),

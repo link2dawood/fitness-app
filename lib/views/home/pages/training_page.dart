@@ -411,15 +411,12 @@ class _TrainingPageState extends State<TrainingPage> {
               ),
               const SizedBox(height: 12),
               _routines(
-                trainingWorkouts.where(
-                  (w) =>
-                      w.title.startsWith('$area ') &&
-                      [
-                        'Beginner',
-                        'Intermediate',
-                        'Advanced',
-                      ].any((level) => w.title == '$area $level'),
-                ),
+                [
+                  for (final level in ['Beginner', 'Intermediate', 'Advanced'])
+                    ...trainingWorkouts.where(
+                      (w) => w.title == '$area $level',
+                    ),
+                ],
               ),
               _section('Workout Types'),
               SingleChildScrollView(

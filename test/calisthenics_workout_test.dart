@@ -174,20 +174,11 @@ void main() {
       );
       await tester.pumpAndSettle();
       for (var i = 0; i < 22; i++) {
-        expect(find.text('Exercise ${i + 1} of 22'), findsOneWidget);
-        expect(find.text(names[i]), findsOneWidget);
-        final action = find.widgetWithText(
-          FilledButton,
-          i == 21 ? 'Finish exercise' : 'Exercise done',
-        );
-        expect(tester.widget<FilledButton>(action).onPressed, isNull);
+        expect(find.text(names[i].toUpperCase()), findsOneWidget);
         for (final clock in clocks) {
           clock.advance(workout.targetAt(i));
         }
         await tester.pump(const Duration(milliseconds: 250));
-        await tester.ensureVisible(action);
-        await tester.tap(action);
-        await tester.pump();
       }
       await tester.ensureVisible(find.text('Save completion'));
       await tester.tap(find.text('Save completion'));
