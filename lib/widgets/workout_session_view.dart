@@ -3,8 +3,87 @@ import '../data/models/exercise.dart';
 import 'exercises/challenge_avatar.dart';
 
 const sessionBlue = Color(0xFF0057FF);
+const _green = Color(0xFF7AC143);
+
 String sessionTime(int seconds) =>
     '${(seconds ~/ 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Animated progress pill  (Pause / Resume + left-to-right green fill)
+// ─────────────────────────────────────────────────────────────────────────────
+class _PauseProgressButton extends StatelessWidget {
+  const _PauseProgressButton({
+    required this.paused,
+    required this.remaining,
+    required this.target,
+    required this.isTimed,
+    required this.preparing,
+    required this.prepSeconds,
+    required this.onPause,
+  });
+
+  final bool paused, isTimed, preparing;
+  final int remaining, target, prepSeconds;
+  final VoidCallback onPause;
+
+  @override
+  Widget build(BuildContext context) {
+    final int totalSecs =
+        preparing ? prepSeconds : (isTimed ? target : 0);
+    final double progress = totalSecs > 0
+        ? ((totalSecs - remaining) / totalSecs).clamp(0.0, 1.0)
+        : 0.0;
+    final bool showProgress = isTimed && !paused && !preparing && totalSecs > 0;
+
+    return GestureDetector(
+      onTap: onPause,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: SizedBox(
+          height: 56,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Track
+              Container(color: const Color(0xFFEEEEEE)),
+              // Green fill
+              if (showProgress)
+                FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: progress,
+                  child: Container(color: _green.withValues(alpha: 0.85)),
+                ),
+              // Label
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                    color: Colors.black87,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    paused ? 'Resume' : 'Pause',
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WorkoutSessionView
+// ─────────────────────────────────────────────────────────────────────────────
 
 /// Shared ready/exercise/rest presentation, driven by each session's own clock.
 class WorkoutSessionView extends StatelessWidget {
@@ -32,6 +111,7 @@ class WorkoutSessionView extends StatelessWidget {
     this.prepSeconds = 15,
     this.exitLabel = 'Leave workout',
   });
+
   final ExerciseDefinition exercise;
   final int index, count, remaining, target, prepSeconds;
   final bool preparing, resting, paused;
@@ -43,10 +123,14 @@ class WorkoutSessionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foreground = resting ? Colors.white : Colors.black;
+
     return Scaffold(
       backgroundColor: resting ? sessionBlue : Colors.white,
+
+      // ── Bottom bar ──────────────────────────────────────────────────────────
       bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+        // Extra 20 px bottom so the pill clears the home indicator / bottom edge
+        minimum: const EdgeInsets.fromLTRB(20, 8, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -79,43 +163,58 @@ class WorkoutSessionView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // ◀  Previous
                   IconButton.filledTonal(
                     tooltip: 'Previous exercise',
                     onPressed: onPrevious,
-                    icon: const Icon(Icons.skip_previous),
+                    icon: const Icon(Icons.skip_previous_rounded),
                   ),
                   const SizedBox(width: 12),
+
+                  // ▌▌  Pause / Progress pill
                   Flexible(
-                    child: FilledButton.icon(
-                      onPressed: onPause,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFFEEEEEE),
-                        foregroundColor: Colors.black,
-                        minimumSize: const Size(150, 56),
-                      ),
-                      icon: Icon(paused ? Icons.play_arrow : Icons.pause),
-                      label: Text(paused ? 'Resume' : 'Pause'),
+                    child: _PauseProgressButton(
+                      paused: paused,
+                      remaining: remaining,
+                      target: target,
+                      isTimed: exercise.timed,
+                      preparing: preparing,
+                      prepSeconds: prepSeconds,
+                      onPause: onPause,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  IconButton.filledTonal(
+
+                  // ▶  Next — solid green
+                  IconButton.filled(
                     tooltip: preparing ? 'Skip preparation' : 'Next exercise',
                     onPressed: onNext,
-                    icon: const Icon(Icons.skip_next),
+                    style: IconButton.styleFrom(
+                      backgroundColor: _green,
+                      foregroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.skip_next_rounded),
                   ),
                 ],
               ),
+
             if (resting)
               TextButton(
                 onPressed: onPause,
                 style: TextButton.styleFrom(foregroundColor: Colors.white),
                 child: Text(paused ? 'Resume' : 'Pause'),
               ),
+
             if (!resting && !preparing && !exercise.timed)
-              TextButton(onPressed: onNext, child: const Text('Exercise done')),
+              TextButton(
+                onPressed: onNext,
+                child: const Text('Exercise done'),
+              ),
           ],
         ),
       ),
+
+      // ── Body ────────────────────────────────────────────────────────────────
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -124,6 +223,7 @@ class WorkoutSessionView extends StatelessWidget {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
                   children: [
+                    // Error banner
                     if (error != null)
                       MaterialBanner(
                         content: Text(error!),
@@ -134,6 +234,8 @@ class WorkoutSessionView extends StatelessWidget {
                           ),
                         ],
                       ),
+
+                    // ── Avatar card (half screen) ─────────────────────────────
                     Container(
                       decoration: const BoxDecoration(
                         color: Color(0xFFF7F8FA),
@@ -143,6 +245,7 @@ class WorkoutSessionView extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
+                          // Top bar: back  |  music  |  settings
                           Row(
                             children: [
                               IconButton(
@@ -151,6 +254,7 @@ class WorkoutSessionView extends StatelessWidget {
                                 icon: const Icon(Icons.arrow_back),
                               ),
                               const Spacer(),
+                              // Music button always next to settings
                               if (onMusic != null)
                                 IconButton(
                                   tooltip: 'Workout music',
@@ -165,11 +269,10 @@ class WorkoutSessionView extends StatelessWidget {
                                 ),
                             ],
                           ),
+
+                          // Avatar = 50% of available screen height
                           SizedBox(
-                            height: (constraints.maxHeight * .37).clamp(
-                              170.0,
-                              360.0,
-                            ),
+                            height: constraints.maxHeight * 0.50,
                             width: double.infinity,
                             child: ChallengeAvatar(
                               exercise: exercise,
@@ -180,6 +283,8 @@ class WorkoutSessionView extends StatelessWidget {
                         ],
                       ),
                     ),
+
+                    // ── Info section ─────────────────────────────────────────
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -195,6 +300,7 @@ class WorkoutSessionView extends StatelessWidget {
                                 ),
                               ),
                             ),
+
                           if (preparing)
                             const Padding(
                               padding: EdgeInsets.only(top: 20, bottom: 12),
@@ -207,6 +313,8 @@ class WorkoutSessionView extends StatelessWidget {
                                 ),
                               ),
                             ),
+
+                          // Exercise name + help icon
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -239,7 +347,9 @@ class WorkoutSessionView extends StatelessWidget {
                                 ),
                             ],
                           ),
+
                           SizedBox(height: resting ? 40 : 20),
+
                           if (resting)
                             const Text(
                               'REST',
@@ -249,6 +359,8 @@ class WorkoutSessionView extends StatelessWidget {
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
+
+                          // Timer / rep count
                           if (preparing)
                             SizedBox(
                               width: 96,
@@ -260,10 +372,8 @@ class WorkoutSessionView extends StatelessWidget {
                                     child: CircularProgressIndicator(
                                       value: prepSeconds == 0
                                           ? 0
-                                          : (remaining / prepSeconds).clamp(
-                                              0,
-                                              1,
-                                            ),
+                                          : (remaining / prepSeconds)
+                                              .clamp(0, 1),
                                       strokeWidth: 7,
                                       color: sessionBlue,
                                       backgroundColor: Colors.black12,
@@ -290,8 +400,13 @@ class WorkoutSessionView extends StatelessWidget {
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
+
                           if (paused)
-                            Text('Paused', style: TextStyle(color: foreground)),
+                            Text(
+                              'Paused',
+                              style: TextStyle(color: foreground),
+                            ),
+
                           if (resting)
                             TextButton(
                               onPressed: onEditRest,
@@ -301,6 +416,7 @@ class WorkoutSessionView extends StatelessWidget {
                               ),
                               child: const Text('Edit Rest Time'),
                             ),
+
                           const SizedBox(height: 28),
                         ],
                       ),
@@ -315,6 +431,10 @@ class WorkoutSessionView extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rest editor
+// ─────────────────────────────────────────────────────────────────────────────
 
 Future<int?> showSessionRestEditor(
   BuildContext context,
@@ -369,8 +489,8 @@ Future<int?> showSessionRestEditor(
                       onPressed: seconds == 0
                           ? null
                           : () => update(
-                              () => seconds = (seconds - 5).clamp(0, 600),
-                            ),
+                                () => seconds = (seconds - 5).clamp(0, 600),
+                              ),
                       icon: const Icon(Icons.remove),
                     ),
                     Text('$seconds seconds'),
@@ -379,8 +499,8 @@ Future<int?> showSessionRestEditor(
                       onPressed: seconds == 600
                           ? null
                           : () => update(
-                              () => seconds = (seconds + 5).clamp(0, 600),
-                            ),
+                                () => seconds = (seconds + 5).clamp(0, 600),
+                              ),
                       icon: const Icon(Icons.add),
                     ),
                   ],

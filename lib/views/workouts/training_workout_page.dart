@@ -552,11 +552,15 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
         phase.stop();
       } else {
         _markExerciseDone(index);
-        rest =
+        final hasRest =
             (sessionRest ??
                 preferences!.restFor(widget.workout.restAfter(index))) >
             0;
-        if (!rest) index++;
+        if (hasRest) {
+          rest = true;
+        } else {
+          index++;
+        }
       }
       restAdjustment = 0;
       phase.reset();
@@ -591,6 +595,86 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
         phase.reset();
       });
     }
+    if (!wasPaused && paused) _pause();
+  }
+
+  Future<void> _music() async {
+    final media = audio;
+    if (media == null) return;
+    final wasPaused = paused;
+    if (!paused) _pause();
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: AnimatedBuilder(
+          animation: media,
+          builder: (ctx, _) => SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Music'),
+                  value: media.enabled,
+                  onChanged: (value) => media.toggle(value),
+                ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(40),
+                  child: Image.asset(
+                    media.cover,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  media.tracks[media.index].$1,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
+                  ),
+                ),
+                const Text('Saved workout music'),
+                Wrap(
+                  children: [
+                    IconButton(
+                      tooltip: media.repeat
+                          ? 'Repeat current song'
+                          : 'Play queue in order',
+                      onPressed: media.toggleRepeat,
+                      icon: Icon(
+                        media.repeat ? Icons.repeat_one : Icons.repeat,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Previous song',
+                      onPressed: () => media.select(media.index - 1),
+                      icon: const Icon(Icons.skip_previous),
+                    ),
+                    IconButton(
+                      tooltip: media.playing ? 'Pause music' : 'Play music',
+                      onPressed: () => media.play(!media.playing),
+                      icon: Icon(
+                        media.playing ? Icons.pause_circle : Icons.play_circle,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Next song',
+                      onPressed: () => media.select(media.index + 1),
+                      icon: const Icon(Icons.skip_next),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (!mounted) return;
     if (!wasPaused && paused) _pause();
   }
 
@@ -725,6 +809,7 @@ class _TrainingSessionPageState extends State<TrainingSessionPage>
             () => restAdjustment = (restAdjustment + 20).clamp(0, 3600),
           ),
           onSettings: _settings,
+          onMusic: audio != null ? _music : null,
           error: error,
           onRetry: () => setState(() => error = null),
         ),
