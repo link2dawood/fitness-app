@@ -132,7 +132,9 @@ class _TrainingPageState extends State<TrainingPage> {
         .map((e) => TrainingHistoryRepository.day(e.finishedAt))
         .toSet();
     final recommended = TrainingRecommendations.forProfile(vm.profile);
-    final challenges = TrainingChallenges.featured.map((item) => item.workout);
+    final challenges = TrainingChallenges.featured().map(
+      (item) => item.workout,
+    );
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -410,14 +412,10 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              _routines(
-                [
-                  for (final level in ['Beginner', 'Intermediate', 'Advanced'])
-                    ...trainingWorkouts.where(
-                      (w) => w.title == '$area $level',
-                    ),
-                ],
-              ),
+              _routines([
+                for (final level in ['Beginner', 'Intermediate', 'Advanced'])
+                  ...trainingWorkouts.where((w) => w.title == '$area $level'),
+              ]),
               _section('Workout Types'),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,

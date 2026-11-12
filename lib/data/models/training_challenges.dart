@@ -1,4 +1,5 @@
 import 'exercise.dart';
+import 'challenge_poster.dart';
 import 'training_workout.dart';
 import 'training_recommendations.dart';
 import 'user_profile.dart';
@@ -83,7 +84,7 @@ class TrainingChallenges {
     TrainingChallenge('beginner_abs_shred', {FitnessGoal.loseWeight}),
   ];
 
-  static Iterable<TrainingChallenge> get featured => catalog.where(
+  static Iterable<TrainingChallenge> featured() => catalog.where(
     (item) => const {
       'calisthenics_plan',
       'full_body_challenge',
@@ -92,19 +93,33 @@ class TrainingChallenges {
   );
 
   static List<TrainingChallenge> forProfile(UserProfile? profile) {
+    final visibleCatalog = profile?.gender == Gender.female
+        ? catalog
+              .where(
+                (item) =>
+                    !item.referenceDay &&
+                    hasFemaleChallengePoster(item.workoutId),
+              )
+              .toList(growable: false)
+        : catalog;
     final recommended = TrainingRecommendations.forProfile(profile);
-    if (recommended.isEmpty) return catalog;
+    if (recommended.isEmpty) return visibleCatalog;
     final id = recommended.first.id;
-    final existing = catalog.where((item) => item.workoutId == id).firstOrNull;
+    final existing = visibleCatalog
+        .where((item) => item.workoutId == id)
+        .firstOrNull;
     // Preserve the real Day 1 destination, never replace it with a generic card.
-    if (existing?.referenceDay == true) return catalog;
+    if (existing == null || existing.referenceDay) return visibleCatalog;
     final customized = TrainingChallenge(
       id,
-      existing?.goals ?? {if (profile?.goal != null) profile!.goal!},
-      fullBody: existing?.fullBody ?? recommended.first.focus.length > 3,
-      calisthenics: existing?.calisthenics ?? false,
+      existing.goals,
+      fullBody: existing.fullBody,
+      calisthenics: existing.calisthenics,
       customized: true,
     );
-    return [customized, ...catalog.where((item) => item.workoutId != id)];
+    return [
+      customized,
+      ...visibleCatalog.where((item) => item.workoutId != id),
+    ];
   }
 }

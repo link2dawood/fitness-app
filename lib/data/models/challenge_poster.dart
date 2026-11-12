@@ -17,12 +17,29 @@ const challengePosterIds = {
   'beginner_abs_shred',
 };
 
-const _femalePosterIds = {
-  'lose_weight_for_women',
-  'full_body_challenge',
-  'get_ripped_with_dumbbell',
-  'beginner_abs_shred',
+/// Female-specific poster artwork for every card shown to a female profile.
+/// Keeping the mapping explicit prevents a fallback to a default (male) image.
+const femaleChallengePosterAssets = <String, String>{
+  'intense_belly_fat_burn':
+      'assets/images/workouts/poster_sculpted_body_challenge_female.png',
+  'calisthenics_plan':
+      'assets/images/workouts/poster_height_increase_challenge_female.png',
+  'lose_weight_for_women':
+      'assets/images/workouts/poster_lose_weight_for_women_female.png',
+  'full_body_challenge':
+      'assets/images/workouts/poster_full_body_challenge_female.png',
+  'lower_body_challenge':
+      'assets/images/workouts/poster_kegel_pelvic_firming_female.png',
+  'get_ripped_with_dumbbell':
+      'assets/images/workouts/poster_get_ripped_with_dumbbell_female.png',
+  'full_body_shred':
+      'assets/images/workouts/poster_get_fit_with_dumbbell_female.png',
+  'beginner_abs_shred':
+      'assets/images/workouts/poster_beginner_abs_shred_female.png',
 };
+
+bool hasFemaleChallengePoster(String workoutId) =>
+    femaleChallengePosterAssets.containsKey(workoutId);
 
 String challengePosterTitle(TrainingWorkout workout) => switch (workout.id) {
   'calisthenics_plan' => 'CALISTHENICS\nPLAN',
@@ -39,6 +56,14 @@ String challengePosterTitle(TrainingWorkout workout) => switch (workout.id) {
 };
 
 String challengePosterArtwork(TrainingWorkout workout, Gender? gender) {
+  if (gender == Gender.female) {
+    final femaleArtwork = femaleChallengePosterAssets[workout.id];
+    if (femaleArtwork != null) return femaleArtwork;
+  }
+  if (gender == null) {
+    final defaultArtwork = femaleChallengePosterAssets[workout.id];
+    if (defaultArtwork != null) return defaultArtwork;
+  }
   var id = workout.id;
   if (!challengePosterIds.contains(id)) {
     final focus = workout.focus;
@@ -53,11 +78,7 @@ String challengePosterArtwork(TrainingWorkout workout, Gender? gender) {
         ? 'lower_body_challenge'
         : 'full_body_challenge';
   }
-  final female =
-      _femalePosterIds.contains(id) &&
-      (gender == Gender.female ||
-          (gender == null && _femalePosterIds.contains(workout.id)));
-  return 'assets/images/workouts/poster_$id${female ? '_female' : ''}.png';
+  return 'assets/images/workouts/poster_$id.png';
 }
 
 Color challengePosterColor(String id) => switch (id) {

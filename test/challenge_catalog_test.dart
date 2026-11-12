@@ -53,7 +53,7 @@ void main() {
           'intense_belly_fat_burn',
           'lose_weight_for_men',
           'lose_weight_for_women',
-          ...TrainingChallenges.featured.map((item) => item.workoutId),
+          ...TrainingChallenges.featured().map((item) => item.workoutId),
         ]),
       );
       for (final item in all) {
@@ -145,6 +145,46 @@ void main() {
       expect(challengeArtwork(item.workout, null), item.workout.image);
     }
     expect(images, hasLength(TrainingChallenges.catalog.length));
+  });
+  test('Female profiles only receive cards with female poster artwork', () {
+    final female = TrainingChallenges.forProfile(
+      const UserProfile(gender: Gender.female),
+    );
+    expect(female, isNotEmpty);
+    expect(
+      female.map((item) => item.workoutId),
+      isNot(contains('lose_weight_for_men')),
+    );
+    expect(female.where((item) => item.referenceDay), isEmpty);
+    for (final item in female) {
+      final image = challengePosterArtwork(item.workout, Gender.female);
+      expect(hasFemaleChallengePoster(item.workoutId), isTrue);
+      expect(image, contains('_female.png'));
+      expect(File(image).existsSync(), isTrue, reason: image);
+    }
+  });
+  testWidgets('Female challenge screen hides male and Day 1 cards', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(const ChallengePage(profile: UserProfile(gender: Gender.female))),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ReferenceChallengeCard), findsNothing);
+    final cards = tester.widgetList<TrainingChallengeCard>(
+      find.byType(TrainingChallengeCard),
+    );
+    expect(cards, isNotEmpty);
+    for (final card in cards) {
+      expect(hasFemaleChallengePoster(card.workout.id), isTrue);
+      expect(
+        challengePosterArtwork(card.workout, Gender.female),
+        contains('_female.png'),
+      );
+    }
+    expect(find.text('LOSE WEIGHT\nFOR MEN'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
   });
   testWidgets('Male selection is used when rendering challenge thumbnails', (
     tester,
