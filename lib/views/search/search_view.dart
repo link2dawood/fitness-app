@@ -14,6 +14,8 @@ import '../../data/models/medium_duration_workouts.dart';
 import '../../data/models/long_duration_workouts.dart';
 import '../../data/models/extended_duration_workouts.dart';
 import '../../data/models/workout_type_collections.dart';
+import '../../data/models/user_profile.dart';
+import '../../data/repositories/onboarding_repository.dart';
 import '../home/pages/training_collection_page.dart';
 import '../home/pages/training_profile_builder.dart';
 import '../settings/feature_suggestions_sheet.dart';
@@ -32,43 +34,57 @@ class _SearchViewState extends State<SearchView> {
     text: widget.initialQuery,
   );
   final FocusNode _focusNode = FocusNode();
+  late Future<UserProfile?> _profileFuture;
 
   String? _selectedBodyFocus;
   String? _selectedWorkoutType;
   String? _selectedLevel;
   int? _selectedDurationBand;
 
-  static const List<({String label, String asset, ExerciseFocus? focus})>
+  static const List<
+    ({String label, String asset, String femaleAsset, ExerciseFocus? focus})
+  >
   _bodyFocusItems = [
     (
       label: 'Abs',
       asset: 'assets/images/body/abs.png',
+      femaleAsset: 'assets/images/body/abs_female.png',
       focus: ExerciseFocus.abs,
     ),
-    (label: 'Full Body', asset: 'assets/images/body/fullbody.png', focus: null),
+    (
+      label: 'Full Body',
+      asset: 'assets/images/body/fullbody.png',
+      femaleAsset: 'assets/images/body/fullbody_female.png',
+      focus: null,
+    ),
     (
       label: 'Arm',
       asset: 'assets/images/body/arm.png',
+      femaleAsset: 'assets/images/body/arm_female.png',
       focus: ExerciseFocus.arm,
     ),
     (
       label: 'Butt & Leg',
       asset: 'assets/images/body/leg.png',
+      femaleAsset: 'assets/images/body/leg_female.png',
       focus: ExerciseFocus.leg,
     ),
     (
       label: 'Chest',
       asset: 'assets/images/body/chest.png',
+      femaleAsset: 'assets/images/body/chest_female.png',
       focus: ExerciseFocus.chest,
     ),
     (
       label: 'Back',
       asset: 'assets/images/body/back.png',
+      femaleAsset: 'assets/images/body/back_female.png',
       focus: ExerciseFocus.back,
     ),
     (
       label: 'Shoulder',
       asset: 'assets/images/body/shoulder.png',
+      femaleAsset: 'assets/images/body/shoulder_female.png',
       focus: ExerciseFocus.shoulder,
     ),
   ];
@@ -132,6 +148,12 @@ class _SearchViewState extends State<SearchView> {
     (range: '21-30', band: 2),
     (range: '>30', band: 3),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = OnboardingRepository().loadProfile();
+  }
 
   @override
   void dispose() {
@@ -272,7 +294,35 @@ class _SearchViewState extends State<SearchView> {
                         // 1. Body Focus
                         _buildSectionHeader('Body Focus'),
                         const SizedBox(height: 14),
-                        _buildBodyFocusList(),
+                        FutureBuilder<UserProfile?>(
+                          future: _profileFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState !=
+                                ConnectionState.done) {
+                              return const SizedBox(
+                                height: 104,
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return SizedBox(
+                                height: 104,
+                                child: Center(
+                                  child: TextButton(
+                                    onPressed: () => setState(() {
+                                      _profileFuture = OnboardingRepository()
+                                          .loadProfile();
+                                    }),
+                                    child: const Text('Retry Body Focus'),
+                                  ),
+                                ),
+                              );
+                            }
+                            return _buildBodyFocusList(snapshot.data?.gender);
+                          },
+                        ),
 
                         const SizedBox(height: 26),
 
@@ -358,8 +408,18 @@ class _SearchViewState extends State<SearchView> {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
                       sliver: SliverList.builder(
                         itemCount: results.length,
-                        itemBuilder: (_, i) =>
-                            TrainingWorkoutTile(workout: results[i]),
+                        itemBuilder: (_, i) => FutureBuilder<UserProfile?>(
+                          future: _profileFuture,
+                          builder: (context, snapshot) =>
+                              snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  !snapshot.hasError
+                              ? TrainingWorkoutTile(
+                                  workout: results[i],
+                                  gender: snapshot.data?.gender,
+                                )
+                              : const SizedBox(height: 76),
+                        ),
                       ),
                     ),
                 ],
@@ -386,7 +446,8 @@ class _SearchViewState extends State<SearchView> {
     );
   }
 
-  Widget _buildBodyFocusList() {
+  Widget _buildBodyFocusList(Gender? gender) {
+    final femaleProfile = gender == Gender.female;
     return SizedBox(
       height: 104,
       child: ListView.separated(
@@ -405,8 +466,10 @@ class _SearchViewState extends State<SearchView> {
               if (bodyFocusWorkouts.containsKey(item.label)) {
                 Navigator.of(context).push<void>(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        BodyFocusResultsView(focusLabel: item.label),
+                    builder: (_) => BodyFocusResultsView(
+                      focusLabel: item.label,
+                      gender: gender,
+                    ),
                   ),
                 );
                 return;
@@ -452,7 +515,9 @@ class _SearchViewState extends State<SearchView> {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      item.asset,
+                      femaleProfile ? item.femaleAsset : item.asset,
+                      cacheWidth: 256,
+                      cacheHeight: 256,
                       fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => const Icon(
                         Icons.fitness_center_rounded,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../data/models/exercise.dart';
 import '../../data/models/training_workout.dart';
+import '../../data/models/female_search_artwork.dart';
+import '../../data/models/user_profile.dart';
 import '../workouts/training_workout_page.dart';
 
 /// Data model for a single workout entry shown in the results list.
@@ -323,10 +325,15 @@ const Map<String, List<WorkoutEntry>> bodyFocusWorkouts = {
 /// Screen that displays workouts for a selected body focus area.
 /// Navigated to from [SearchView] when the user taps a body focus badge.
 class BodyFocusResultsView extends StatelessWidget {
-  const BodyFocusResultsView({super.key, required this.focusLabel});
+  const BodyFocusResultsView({
+    super.key,
+    required this.focusLabel,
+    this.gender,
+  });
 
   /// The body focus label, e.g. "Butt & Leg", "Back", "Arm", "Chest".
   final String focusLabel;
+  final Gender? gender;
 
   List<WorkoutEntry> get _workouts => bodyFocusWorkouts[focusLabel] ?? const [];
 
@@ -377,8 +384,11 @@ class BodyFocusResultsView extends StatelessWidget {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                       itemCount: _workouts.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) =>
-                          _WorkoutCard(entry: _workouts[index]),
+                      itemBuilder: (context, index) => _WorkoutCard(
+                        entry: _workouts[index],
+                        focusLabel: focusLabel,
+                        gender: gender,
+                      ),
                     ),
             ),
           ],
@@ -413,9 +423,15 @@ class BodyFocusResultsView extends StatelessWidget {
 }
 
 class _WorkoutCard extends StatelessWidget {
-  const _WorkoutCard({required this.entry});
+  const _WorkoutCard({
+    required this.entry,
+    required this.focusLabel,
+    required this.gender,
+  });
 
   final WorkoutEntry entry;
+  final String focusLabel;
+  final Gender? gender;
 
   TrainingWorkout _resolveWorkout() {
     final normalizedTitle = entry.title.toLowerCase();
@@ -453,12 +469,20 @@ class _WorkoutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workout = _resolveWorkout();
+    final imagePath = gender == Gender.female
+        ? femaleSearchArtwork(workout, focusLabel: focusLabel)
+        : entry.imagePath;
     return Material(
       color: const Color(0xFFF5F7FA),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () => openTrainingWorkout(context, _resolveWorkout()),
+        onTap: () => openTrainingWorkout(
+          context,
+          workout,
+          imageOverride: gender == Gender.female ? imagePath : null,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
@@ -467,7 +491,8 @@ class _WorkoutCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.asset(
-                  entry.imagePath,
+                  imagePath,
+                  cacheWidth: 224,
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/training_workout.dart';
 import '../../../data/models/exercise.dart';
+import '../../../data/models/user_profile.dart';
 import '../../workouts/training_workout_page.dart';
 import '../../../data/repositories/custom_workout_repository.dart';
+import '../../../data/repositories/onboarding_repository.dart';
 import '../../../widgets/exercises/exercise_avatar.dart';
 import '../../workouts/workout_editor_page.dart';
 
@@ -18,13 +20,27 @@ class _CustomWorkoutPageState extends State<CustomWorkoutPage> {
   final repository = CustomWorkoutRepository();
   List<CustomWorkout> _workouts = [];
   bool _loading = true;
+  bool _profileLoading = true;
   bool _busy = false;
   String? _error;
+  Gender? _gender;
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final profile = await OnboardingRepository().loadProfile();
+      if (mounted) setState(() => _gender = profile?.gender);
+    } catch (_) {
+      // Custom workouts remain available if the profile cannot be read.
+    } finally {
+      if (mounted) setState(() => _profileLoading = false);
+    }
   }
 
   Future<void> _load() async {
@@ -123,7 +139,7 @@ class _CustomWorkoutPageState extends State<CustomWorkoutPage> {
         style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
       ),
     ),
-    body: _loading
+    body: _loading || (_workouts.isEmpty && _profileLoading)
         ? const Center(child: CircularProgressIndicator())
         : _error != null
         ? Center(
@@ -148,7 +164,9 @@ class _CustomWorkoutPageState extends State<CustomWorkoutPage> {
                 children: [
                   ClipOval(
                     child: Image.asset(
-                      'assets/images/ui/plan_coach.jpg',
+                      _gender == Gender.female
+                          ? 'assets/images/ui/plan_coach_female.png'
+                          : 'assets/images/ui/plan_coach.jpg',
                       width: 140,
                       height: 140,
                       fit: BoxFit.cover,

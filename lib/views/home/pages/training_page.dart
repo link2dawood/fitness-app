@@ -8,6 +8,9 @@ import '../../../data/models/exercise.dart';
 import '../../../data/models/training_recommendations.dart';
 import '../../../data/models/training_calendar.dart';
 import '../../../data/models/training_workout.dart';
+import '../../../data/models/user_profile.dart';
+import '../../../data/models/female_body_focus_artwork.dart';
+import '../../../data/models/female_search_artwork.dart';
 import '../../../data/repositories/training_history_repository.dart';
 import '../../../viewmodels/home_viewmodel.dart';
 import '../../search/search_view.dart';
@@ -106,9 +109,28 @@ class _TrainingPageState extends State<TrainingPage> {
       ],
     ),
   );
-  Widget _routines(Iterable<TrainingWorkout> workouts) => Column(
+  Widget _routines(
+    Iterable<TrainingWorkout> workouts, {
+    bool femaleBodyFocus = false,
+    Gender? gender,
+  }) => Column(
     children: [
-      for (final workout in workouts) TrainingWorkoutTile(workout: workout),
+      for (final workout in workouts)
+        TrainingWorkoutTile(
+          workout: workout,
+          gender: gender,
+          largeThumbnail: femaleBodyFocus,
+          imagePath: femaleBodyFocus
+              ? femaleBodyFocusArtwork[workout.id]
+              : null,
+          onOpen: femaleBodyFocus
+              ? () => openTrainingWorkout(
+                  context,
+                  workout,
+                  challengeImage: femaleBodyFocusArtwork[workout.id],
+                )
+              : null,
+        ),
     ],
   );
   void _search([String? query]) => Navigator.push(
@@ -132,9 +154,12 @@ class _TrainingPageState extends State<TrainingPage> {
         .map((e) => TrainingHistoryRepository.day(e.finishedAt))
         .toSet();
     final recommended = TrainingRecommendations.forProfile(vm.profile);
-    final challenges = TrainingChallenges.featured().map(
-      (item) => item.workout,
-    );
+    final femaleProfile = vm.profile?.gender == Gender.female;
+    final challenges =
+        (femaleProfile
+                ? TrainingChallenges.femaleCatalog
+                : TrainingChallenges.featured())
+            .map((item) => item.workout);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -351,15 +376,16 @@ class _TrainingPageState extends State<TrainingPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 14),
-                          child: SizedBox(
-                            width: (MediaQuery.sizeOf(context).width - 48)
-                                .clamp(248.0, 400.0),
-                            child: const ReferenceChallengeCard(),
+                        if (!femaleProfile)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 14),
+                            child: SizedBox(
+                              width: (MediaQuery.sizeOf(context).width - 48)
+                                  .clamp(248.0, 400.0),
+                              child: const ReferenceChallengeCard(),
+                            ),
                           ),
-                        ),
-                        if (recommended.isNotEmpty)
+                        if (!femaleProfile && recommended.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(right: 14),
                             child: SizedBox(
@@ -412,10 +438,14 @@ class _TrainingPageState extends State<TrainingPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              _routines([
-                for (final level in ['Beginner', 'Intermediate', 'Advanced'])
-                  ...trainingWorkouts.where((w) => w.title == '$area $level'),
-              ]),
+              _routines(
+                [
+                  for (final level in ['Beginner', 'Intermediate', 'Advanced'])
+                    ...trainingWorkouts.where((w) => w.title == '$area $level'),
+                ],
+                femaleBodyFocus: femaleProfile,
+                gender: vm.profile?.gender,
+              ),
               _section('Workout Types'),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -457,13 +487,20 @@ class _TrainingPageState extends State<TrainingPage> {
                   width: double.infinity,
                   child: TrainingPhotoCard(
                     title: recommended.first.title.toUpperCase(),
-                    image: recommended.first.image,
+                    image: femaleProfile
+                        ? femaleSearchArtwork(recommended.first)
+                        : recommended.first.image,
                     subtitle:
                         '${recommended.first.summary}\nPersonalized for your training profile',
                     recommended: true,
                     actionLabel: 'VIEW WORKOUT',
-                    onTap: () =>
-                        openTrainingWorkout(context, recommended.first),
+                    onTap: () => openTrainingWorkout(
+                      context,
+                      recommended.first,
+                      imageOverride: femaleProfile
+                          ? femaleSearchArtwork(recommended.first)
+                          : null,
+                    ),
                   ),
                 )
               else
@@ -471,14 +508,19 @@ class _TrainingPageState extends State<TrainingPage> {
                   width: double.infinity,
                   child: TrainingPhotoCard(
                     title: 'Find your next workout',
-                    image: 'assets/images/ui/recommended_height.jpg',
+                    image: femaleProfile
+                        ? 'assets/images/body/fullbody_female.png'
+                        : 'assets/images/ui/recommended_height.jpg',
                     subtitle: 'Browse animated workout routines',
                     actionLabel: 'EXPLORE',
                     onTap: _search,
                   ),
                 ),
               _section('Just For You', route: AppRoutes.justForYou),
-              _routines(recommended.skip(1).take(2)),
+              _routines(
+                recommended.skip(1).take(2),
+                gender: vm.profile?.gender,
+              ),
               _section('Stretch & Warm Up', route: AppRoutes.stretchWarmUp),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -503,12 +545,19 @@ class _TrainingPageState extends State<TrainingPage> {
                                 : 190,
                             child: TrainingPhotoCard(
                               title: workout.title,
-                              image: index.isEven
+                              image: femaleProfile
+                                  ? femaleSearchArtwork(workout)
+                                  : index.isEven
                                   ? 'assets/images/workouts/stretch_warmup.jpg'
                                   : 'assets/images/workouts/stretch_sleepy.jpg',
                               subtitle: workout.summary,
-                              onTap: () =>
-                                  openTrainingWorkout(context, workout),
+                              onTap: () => openTrainingWorkout(
+                                context,
+                                workout,
+                                imageOverride: femaleProfile
+                                    ? femaleSearchArtwork(workout)
+                                    : null,
+                              ),
                             ),
                           ),
                         ),
@@ -529,15 +578,24 @@ class _TrainingPageState extends State<TrainingPage> {
                     ),
                 ],
               ),
-              _routines(goalWorkouts(goal).take(3)),
+              _routines(goalWorkouts(goal).take(3), gender: vm.profile?.gender),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: TrainingPhotoCard(
                   title: 'Explore more\nworkouts',
-                  image: 'assets/images/workouts/hiit_fat_burning.jpg',
+                  image: femaleProfile
+                      ? 'assets/images/body/fullbody_female.png'
+                      : 'assets/images/workouts/hiit_fat_burning.jpg',
                   subtitle: 'Discover more ways to train',
                   collage: true,
+                  collageImages: femaleProfile
+                      ? [
+                          femaleBodyFocusArtwork['abs_beginner']!,
+                          femaleBodyFocusArtwork['arm_beginner']!,
+                          femaleBodyFocusArtwork['leg_beginner']!,
+                        ]
+                      : null,
                   actionLabel: 'Go',
                   onTap: () => vm.setTab(1),
                 ),
@@ -557,6 +615,7 @@ class _TrainingPageState extends State<TrainingPage> {
                               : goal == 'Build Muscle'
                               ? AppRoutes.buildMuscleMore
                               : AppRoutes.keepFitMore,
+                          arguments: vm.profile,
                         ),
                         child: Text('More $goal workouts'),
                       ),

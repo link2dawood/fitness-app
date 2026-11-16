@@ -28,6 +28,7 @@ class JustForYouPage extends StatelessWidget {
       return TrainingCollectionPage(
         title: 'Just For You',
         workouts: workouts.take(12).toList(),
+        gender: current?.gender,
       );
     },
   );

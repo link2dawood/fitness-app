@@ -19,10 +19,14 @@ Future<void> openTrainingWorkout(
   BuildContext context,
   TrainingWorkout workout, {
   String? challengeImage,
+  String? imageOverride,
 }) => Navigator.of(context).push<void>(
   MaterialPageRoute(
-    builder: (_) =>
-        TrainingWorkoutPage(workout: workout, challengeImage: challengeImage),
+    builder: (_) => TrainingWorkoutPage(
+      workout: workout,
+      challengeImage: challengeImage,
+      imageOverride: imageOverride,
+    ),
   ),
 );
 
@@ -31,8 +35,10 @@ class TrainingWorkoutPage extends StatefulWidget {
     super.key,
     required this.workout,
     this.challengeImage,
+    this.imageOverride,
   });
   final String? challengeImage;
+  final String? imageOverride;
   final TrainingWorkout workout;
   @override
   State<TrainingWorkoutPage> createState() => _TrainingWorkoutPageState();
@@ -62,7 +68,8 @@ class _TrainingWorkoutPageState extends State<TrainingWorkoutPage> {
             width: double.infinity,
             color: const Color(0xFFE0F2FE),
             child: Image.asset(
-              widget.challengeImage ??
+              widget.imageOverride ??
+                  widget.challengeImage ??
                   (isChallenge
                       ? challengePosterArtwork(widget.workout, null)
                       : widget.workout.image),

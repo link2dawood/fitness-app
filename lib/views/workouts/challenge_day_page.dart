@@ -3,7 +3,6 @@ import '../../core/settings/settings_record.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/challenge_day.dart';
-import '../../data/models/training_workout.dart';
 import '../../data/models/challenge_poster.dart';
 import '../../data/repositories/challenge_day_repository.dart';
 import '../../widgets/exercises/challenge_avatar.dart';
@@ -41,12 +40,7 @@ class _ReferenceChallengeCardState extends State<ReferenceChallengeCard> {
         title: 'INTENSE\nBELLY FAT BURN',
         kicker: 'DAY 1',
         color: challengePosterColor('intense_belly_fat_burn'),
-        image: challengePosterArtwork(
-          trainingWorkouts.singleWhere(
-            (workout) => workout.id == 'intense_belly_fat_burn',
-          ),
-          null,
-        ),
+        image: intenseBellyFatBurnMaleCutout,
         description: snapshot.hasError
             ? 'Open Day 1 to retry loading your saved plan.'
             : 'Train your core with focused bodyweight exercises.',
@@ -345,7 +339,7 @@ class _ChallengeDayPageState extends State<ChallengeDayPage> {
                 title: const Text('Day 1'),
                 flexibleSpace: FlexibleSpaceBar(
                   background: Image.asset(
-                    'assets/images/workouts/poster_intense_belly_fat_burn.png',
+                    intenseBellyFatBurnMaleCutout,
                     fit: BoxFit.contain,
                     alignment: Alignment.topCenter,
                   ),

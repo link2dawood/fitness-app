@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:fitness_pro/data/models/exercise.dart';
 import 'package:fitness_pro/core/theme/app_theme.dart';
 import 'package:fitness_pro/data/repositories/custom_workout_repository.dart';
+import 'package:fitness_pro/data/repositories/onboarding_repository.dart';
+import 'package:fitness_pro/data/models/user_profile.dart';
 import 'package:fitness_pro/views/home/pages/custom_workout_page.dart';
 import 'package:fitness_pro/views/workouts/exercise_picker.dart';
 import 'package:fitness_pro/widgets/exercises/exercise_avatar.dart';
@@ -49,6 +51,25 @@ void main() {
     });
   }
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('Custom workout trainer follows the selected profile', (
+    tester,
+  ) async {
+    for (final gender in [Gender.female, Gender.male]) {
+      SharedPreferences.setMockInitialValues({});
+      await OnboardingRepository().saveProfile(UserProfile(gender: gender));
+      await tester.pumpWidget(app(const CustomWorkoutPage()));
+      await tester.pumpAndSettle();
+      final image = tester.widget<Image>(find.byType(Image).first).image;
+      expect(
+        (image as AssetImage).assetName,
+        gender == Gender.female
+            ? 'assets/images/ui/plan_coach_female.png'
+            : 'assets/images/ui/plan_coach.jpg',
+      );
+      await tester.pumpWidget(const SizedBox());
+    }
+  });
 
   test(
     'Every starter exercise has a unique original motion and default target',

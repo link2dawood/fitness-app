@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:fitness_pro/core/routes/app_routes.dart';
 import 'package:fitness_pro/data/models/exercise.dart';
 import 'package:fitness_pro/data/models/challenge_artwork.dart';
@@ -117,6 +118,47 @@ void main() {
       expect(image, startsWith('assets/images/workouts/'));
     }
   });
+  test('male reference poster is a transparent athlete cutout', () async {
+    final workout = TrainingChallenges.catalog
+        .firstWhere((item) => item.workoutId == 'intense_belly_fat_burn')
+        .workout;
+    expect(
+      challengePosterArtwork(workout, Gender.male),
+      intenseBellyFatBurnMaleCutout,
+    );
+    expect(
+      challengePosterArtwork(workout, null),
+      intenseBellyFatBurnMaleCutout,
+    );
+    expect(
+      challengePosterArtwork(workout, Gender.female),
+      isNot(intenseBellyFatBurnMaleCutout),
+    );
+    final bytes = await File(intenseBellyFatBurnMaleCutout).readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final image = (await codec.getNextFrame()).image;
+    final rgba = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+    int alphaAt(int x, int y) => rgba.getUint8((y * image.width + x) * 4 + 3);
+    expect(alphaAt(0, 0), 0);
+    expect(alphaAt(100, 600), 0);
+    expect(alphaAt(600, 600), greaterThan(0));
+    image.dispose();
+    codec.dispose();
+  });
+  testWidgets('reference Challenge card displays the male cutout', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(const Scaffold(body: ReferenceChallengeCard())),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<ChallengePosterCard>(find.byType(ChallengePosterCard))
+          .image,
+      intenseBellyFatBurnMaleCutout,
+    );
+  });
   test(
     'Every poster has unique bundled artwork for each profile selection',
     () {
@@ -151,17 +193,33 @@ void main() {
       const UserProfile(gender: Gender.female),
     );
     expect(female, isNotEmpty);
+    expect(female.map((item) => item.workoutId).toList(), [
+      'female_full_body_challenge',
+      'female_sculpted_body_challenge',
+      'female_calisthenics_plan',
+      'female_get_fit_with_dumbbell',
+      'female_lose_weight_for_women',
+      'female_lower_body_challenge',
+      'female_flat_belly_six_pack',
+      'female_kegel_pelvic_firming',
+      'female_height_increase_challenge',
+      'female_intense_belly_fat_blast',
+    ]);
     expect(
       female.map((item) => item.workoutId),
       isNot(contains('lose_weight_for_men')),
     );
     expect(female.where((item) => item.referenceDay), isEmpty);
+    final images = <String>{};
     for (final item in female) {
       final image = challengePosterArtwork(item.workout, Gender.female);
+      images.add(image);
+      expect(item.workout.exerciseIds, isNotEmpty);
       expect(hasFemaleChallengePoster(item.workoutId), isTrue);
       expect(image, contains('_female.png'));
       expect(File(image).existsSync(), isTrue, reason: image);
     }
+    expect(images, hasLength(female.length));
   });
   testWidgets('Female challenge screen hides male and Day 1 cards', (
     tester,
@@ -185,6 +243,46 @@ void main() {
     expect(find.text('LOSE WEIGHT\nFOR MEN'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
+  });
+  testWidgets('Female Training carousel uses only the ten female cards', (
+    tester,
+  ) async {
+    final repository = OnboardingRepository();
+    await repository.saveProfile(const UserProfile(gender: Gender.female));
+    final vm = HomeViewModel(repository);
+    await tester.runAsync(vm.load);
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(value: vm, child: app(const TrainingPage())),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ReferenceChallengeCard), findsNothing);
+    final cards = tester.widgetList<TrainingChallengeCard>(
+      find.byType(TrainingChallengeCard),
+    );
+    expect(
+      cards.map((card) => card.workout.id).toList(),
+      TrainingChallenges.femaleCatalog.map((item) => item.workoutId).toList(),
+    );
+    await tester.pumpWidget(const SizedBox());
+    vm.dispose();
+  });
+  testWidgets('Female challenge opens its matching workout and image', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      app(const ChallengePage(profile: UserProfile(gender: Gender.female))),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('START WORKOUT').first);
+    await tester.pumpAndSettle();
+    final page = tester.widget<TrainingWorkoutPage>(
+      find.byType(TrainingWorkoutPage),
+    );
+    expect(page.workout.id, 'female_full_body_challenge');
+    expect(
+      page.challengeImage,
+      femaleChallengePosterAssets['female_full_body_challenge'],
+    );
   });
   testWidgets('Male selection is used when rendering challenge thumbnails', (
     tester,

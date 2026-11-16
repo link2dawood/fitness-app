@@ -129,12 +129,14 @@ class TrainingPhotoCard extends StatelessWidget {
     required this.onTap,
     this.recommended = false,
     this.collage = false,
+    this.collageImages,
     this.compact = false,
     this.actionLabel,
   });
   final String title, image, subtitle;
   final VoidCallback onTap;
   final bool recommended, collage, compact;
+  final List<String>? collageImages;
   final String? actionLabel;
   @override
   Widget build(BuildContext context) => Semantics(
@@ -158,11 +160,13 @@ class TrainingPhotoCard extends StatelessWidget {
                     ? Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          for (final path in [
-                            'assets/images/workouts/hiit_fat_burning.jpg',
-                            'assets/images/workouts/dumbbell_abs_shaper.jpg',
-                            'assets/images/workouts/massive_body.jpg',
-                          ])
+                          for (final path
+                              in collageImages ??
+                                  [
+                                    'assets/images/workouts/hiit_fat_burning.jpg',
+                                    'assets/images/workouts/dumbbell_abs_shaper.jpg',
+                                    'assets/images/workouts/massive_body.jpg',
+                                  ])
                             Expanded(
                               child: Image.asset(path, fit: BoxFit.cover),
                             ),

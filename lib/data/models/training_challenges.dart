@@ -17,8 +17,11 @@ class TrainingChallenge {
   final String workoutId;
   final Set<FitnessGoal> goals;
   final bool fullBody, calisthenics, referenceDay, customized;
-  TrainingWorkout get workout =>
-      trainingWorkouts.firstWhere((workout) => workout.id == workoutId);
+  TrainingWorkout get workout => workoutId.startsWith('female_')
+      ? TrainingChallenges.femaleWorkouts.firstWhere(
+          (workout) => workout.id == workoutId,
+        )
+      : trainingWorkouts.firstWhere((workout) => workout.id == workoutId);
   bool matches(String filter) => switch (filter) {
     'All' => true,
     'Build Muscle' => goals.contains(FitnessGoal.buildMuscle),
@@ -43,6 +46,117 @@ class TrainingChallenge {
 }
 
 class TrainingChallenges {
+  static TrainingWorkout _femaleWorkout(
+    String id,
+    String title,
+    String sourceId,
+    String image,
+  ) {
+    final source = trainingWorkouts.firstWhere((item) => item.id == sourceId);
+    return TrainingWorkout(
+      id: id,
+      title: title,
+      difficulty: source.difficulty,
+      type: source.type,
+      image: image,
+      exerciseIds: source.exerciseIds,
+      targets: source.targets,
+      restSeconds: source.restSeconds,
+      timedExercises: source.timedExercises,
+    );
+  }
+
+  static final femaleWorkouts = [
+    _femaleWorkout(
+      'female_full_body_challenge',
+      'Full Body Challenge',
+      'full_body_challenge',
+      femaleChallengePosterAssets['female_full_body_challenge']!,
+    ),
+    _femaleWorkout(
+      'female_sculpted_body_challenge',
+      'Sculpted Body Challenge',
+      'massive_body_challenge',
+      femaleChallengePosterAssets['female_sculpted_body_challenge']!,
+    ),
+    _femaleWorkout(
+      'female_calisthenics_plan',
+      'Calisthenics Plan',
+      'calisthenics_plan',
+      femaleChallengePosterAssets['female_calisthenics_plan']!,
+    ),
+    _femaleWorkout(
+      'female_get_fit_with_dumbbell',
+      'Get Fit With Dumbbell',
+      'get_ripped_with_dumbbell',
+      femaleChallengePosterAssets['female_get_fit_with_dumbbell']!,
+    ),
+    _femaleWorkout(
+      'female_lose_weight_for_women',
+      'Lose Weight For Women',
+      'lose_weight_for_women',
+      femaleChallengePosterAssets['female_lose_weight_for_women']!,
+    ),
+    _femaleWorkout(
+      'female_lower_body_challenge',
+      'Lower Body Challenge',
+      'lower_body_challenge',
+      femaleChallengePosterAssets['female_lower_body_challenge']!,
+    ),
+    _femaleWorkout(
+      'female_flat_belly_six_pack',
+      'Flat Belly & Six Pack',
+      'six_pack_challenge',
+      femaleChallengePosterAssets['female_flat_belly_six_pack']!,
+    ),
+    _femaleWorkout(
+      'female_kegel_pelvic_firming',
+      'Kegel Pelvic Firming',
+      'bubble_butt_workout',
+      femaleChallengePosterAssets['female_kegel_pelvic_firming']!,
+    ),
+    _femaleWorkout(
+      'female_height_increase_challenge',
+      'Height Increase Challenge',
+      'full_body_stretching',
+      femaleChallengePosterAssets['female_height_increase_challenge']!,
+    ),
+    _femaleWorkout(
+      'female_intense_belly_fat_blast',
+      'Intense Belly Fat Blast',
+      'intense_belly_fat_burn',
+      femaleChallengePosterAssets['female_intense_belly_fat_blast']!,
+    ),
+  ];
+
+  static const femaleCatalog = [
+    TrainingChallenge('female_full_body_challenge', {
+      FitnessGoal.buildMuscle,
+      FitnessGoal.loseWeight,
+    }, fullBody: true),
+    TrainingChallenge('female_sculpted_body_challenge', {
+      FitnessGoal.buildMuscle,
+    }, fullBody: true),
+    TrainingChallenge(
+      'female_calisthenics_plan',
+      {FitnessGoal.buildMuscle},
+      fullBody: true,
+      calisthenics: true,
+    ),
+    TrainingChallenge('female_get_fit_with_dumbbell', {
+      FitnessGoal.buildMuscle,
+    }, fullBody: true),
+    TrainingChallenge('female_lose_weight_for_women', {FitnessGoal.loseWeight}),
+    TrainingChallenge('female_lower_body_challenge', {FitnessGoal.buildMuscle}),
+    TrainingChallenge('female_flat_belly_six_pack', {FitnessGoal.buildMuscle}),
+    TrainingChallenge('female_kegel_pelvic_firming', {FitnessGoal.buildMuscle}),
+    TrainingChallenge('female_height_increase_challenge', {
+      FitnessGoal.buildMuscle,
+    }),
+    TrainingChallenge('female_intense_belly_fat_blast', {
+      FitnessGoal.loseWeight,
+    }),
+  ];
   static const filters = [
     'All',
     'Build Muscle',
@@ -94,13 +208,7 @@ class TrainingChallenges {
 
   static List<TrainingChallenge> forProfile(UserProfile? profile) {
     final visibleCatalog = profile?.gender == Gender.female
-        ? catalog
-              .where(
-                (item) =>
-                    !item.referenceDay &&
-                    hasFemaleChallengePoster(item.workoutId),
-              )
-              .toList(growable: false)
+        ? femaleCatalog
         : catalog;
     final recommended = TrainingRecommendations.forProfile(profile);
     if (recommended.isEmpty) return visibleCatalog;

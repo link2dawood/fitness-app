@@ -86,20 +86,32 @@ class AppRoutes {
       case search:
         return _fade(settings, const SearchView());
       case stretchWarmUp:
-        return _fade(settings, const StretchWarmUpPage());
+        return _fade(
+          settings,
+          StretchWarmUpPage(profile: settings.arguments as UserProfile?),
+        );
       case justForYou:
         return _fade(
           settings,
           JustForYouPage(profile: settings.arguments as UserProfile?),
         );
       case buildMuscleMore:
-        return _fade(settings, const BuildMuscleMorePage());
+        return _fade(
+          settings,
+          BuildMuscleMorePage(profile: settings.arguments as UserProfile?),
+        );
       case burnFatMore:
-        return _fade(settings, const BurnFatMorePage());
+        return _fade(
+          settings,
+          BurnFatMorePage(profile: settings.arguments as UserProfile?),
+        );
       case customWorkout:
         return _fade(settings, const CustomWorkoutPage());
       case keepFitMore:
-        return _fade(settings, const KeepFitMorePage());
+        return _fade(
+          settings,
+          KeepFitMorePage(profile: settings.arguments as UserProfile?),
+        );
       case workoutSettings:
         return _fade(settings, const WorkoutSettingsView());
       case genderSettings:
