@@ -161,17 +161,24 @@ class TrainingWorkoutTile extends StatelessWidget {
           : Card(
               child: ListTile(
                 contentPadding: const EdgeInsets.all(12),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    imagePath ??
-                        (gender == Gender.female
-                            ? femaleSearchArtwork(workout)
-                            : challengeArtwork(workout, gender)),
-                    cacheWidth: 224,
-                    width: 56,
-                    height: 56,
-                    fit: BoxFit.cover,
+                leading: SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      imagePath ??
+                          (gender == Gender.female
+                              ? femaleSearchArtwork(workout)
+                              : challengeArtwork(workout, gender)),
+                      cacheWidth: 224,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const ColoredBox(
+                            color: Color(0xFFE8ECF2),
+                            child: Icon(Icons.fitness_center, size: 24),
+                          ),
+                    ),
                   ),
                 ),
                 title: Text(workout.title),

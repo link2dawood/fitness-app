@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../viewmodels/home_viewmodel.dart';
+import '../../data/models/user_profile.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/storage_recovery_view.dart';
 import '../../core/routes/app_routes.dart';
@@ -42,14 +43,48 @@ class HomeView extends StatelessWidget {
       );
     }
 
-    final pages = const [
-      TrainingPage(),
-      DiscoverPage(),
-      ReportPage(),
-      SettingsPage(),
+    final needsGenderSelection = vm.profile?.gender == Gender.other;
+    final pages = [
+      needsGenderSelection ? const SizedBox.shrink() : const TrainingPage(),
+      needsGenderSelection ? const SizedBox.shrink() : const DiscoverPage(),
+      const ReportPage(),
+      const SettingsPage(),
     ];
 
-    final content = IndexedStack(index: vm.currentTab, children: pages);
+    final content = needsGenderSelection && vm.currentTab < 2
+        ? SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Choose a workout profile',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Your saved Other profile is currently unavailable. Choose Male or Female to browse workouts.',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () async {
+                        await Navigator.of(
+                          context,
+                        ).pushNamed(AppRoutes.genderSettings);
+                        await vm.load();
+                      },
+                      child: const Text('Choose profile'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        : IndexedStack(index: vm.currentTab, children: pages);
 
     return Scaffold(
       backgroundColor: Colors.white,

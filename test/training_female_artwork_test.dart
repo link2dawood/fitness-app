@@ -108,4 +108,59 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     }
   });
+
+  testWidgets('Home Training cards preserve male and female profile context', (
+    tester,
+  ) async {
+    for (final gender in [Gender.male, Gender.female]) {
+      final repository = OnboardingRepository();
+      await repository.saveProfile(profile.copyWith(gender: gender));
+      final vm = HomeViewModel(repository);
+      await tester.runAsync(vm.load);
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: vm,
+          child: const MaterialApp(home: TrainingPage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widgetList<TrainingWorkoutTile>(find.byType(TrainingWorkoutTile))
+            .every((tile) => tile.gender == gender),
+        isTrue,
+      );
+
+      final recommendedCard = tester.widget<TrainingPhotoCard>(
+        find.byWidgetPredicate(
+          (widget) => widget is TrainingPhotoCard && widget.recommended,
+        ),
+      );
+      final recommended = TrainingRecommendations.forProfile(
+        profile.copyWith(gender: gender),
+      ).first;
+      expect(
+        recommendedCard.image,
+        gender == Gender.female
+            ? femaleSearchArtwork(recommended)
+            : recommended.image,
+      );
+
+      recommendedCard.onTap();
+      await tester.pumpAndSettle();
+      final detail = tester.widget<TrainingWorkoutPage>(
+        find.byType(TrainingWorkoutPage),
+      );
+      expect(
+        detail.imageOverride,
+        gender == Gender.female ? femaleSearchArtwork(recommended) : isNull,
+      );
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      await tester.pumpWidget(const SizedBox());
+      vm.dispose();
+    }
+  });
 }

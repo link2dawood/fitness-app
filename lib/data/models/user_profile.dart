@@ -1,10 +1,12 @@
 enum Gender {
   male('Male'),
   female('Female'),
+  // Retained to read existing profiles. New selections use selectableValues.
   other('Other');
 
   const Gender(this.label);
   final String label;
+  static const selectableValues = [male, female];
 }
 
 enum FocusArea {

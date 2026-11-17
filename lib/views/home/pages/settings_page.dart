@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_routes.dart';
 import '../../../viewmodels/home_viewmodel.dart';
 import '../../../widgets/rate_collection_dialog.dart';
+import '../../../widgets/pro_button.dart';
 import '../../settings/feature_suggestions_sheet.dart';
 import '../../settings/language_options_dialog.dart';
 import '../../../core/settings/general_settings.dart';
@@ -17,6 +19,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  late final Future<PackageInfo> _packageInfo = PackageInfo.fromPlatform();
+
   void _showUnavailable(String feature, String reason) {
     showDialog<void>(
       context: context,
@@ -254,14 +258,26 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 28),
 
           // App Version Text
-          const Center(
-            child: Text(
-              'Version 1.7.91',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF9CA3AF),
-              ),
+          Center(
+            child: FutureBuilder<PackageInfo>(
+              future: _packageInfo,
+              builder: (context, snapshot) {
+                final info = snapshot.data;
+                final label = info != null && info.version.isNotEmpty
+                    ? 'Version ${info.version}${info.buildNumber.isEmpty ? '' : ' (build ${info.buildNumber})'}'
+                    : snapshot.connectionState == ConnectionState.done
+                    ? 'Version unavailable'
+                    : 'Loading version…';
+                return Text(
+                  label,
+                  key: const ValueKey('settings-app-version'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                );
+              },
             ),
           ),
 
@@ -310,42 +326,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildGoPremiumButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+    return ProButton(
+      expanded: true,
+      onPressed: () {
         HapticFeedback.selectionClick();
         Navigator.of(context).pushNamed(AppRoutes.pro);
       },
-      child: Container(
-        height: 52,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0066FF),
-          borderRadius: BorderRadius.circular(26),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0066FF).withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.block_rounded, color: Colors.white, size: 20),
-            SizedBox(width: 8),
-            Text(
-              'GO PREMIUM',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

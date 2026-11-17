@@ -66,13 +66,13 @@ class _GoalCard extends StatelessWidget {
 
     switch (goal) {
       case FitnessGoal.loseWeight:
-        return 'assets/images/goal_lose_weight.png';
+        return 'assets/images/workouts/popular_burn_fat_male_1.jpg';
       case FitnessGoal.buildMuscle:
-        return 'assets/images/goal_build_muscle.png';
+        return 'assets/images/workouts/popular_build_muscle_male_3.jpg';
       case FitnessGoal.keepFit:
-        return 'assets/images/goal_keep_fit.png';
+        return 'assets/images/workouts/popular_keep_fit_male_1.jpg';
       case FitnessGoal.endurance:
-        return 'assets/images/goal_endurance.png';
+        return 'assets/images/workouts/popular_burn_fat_male_3.jpg';
     }
   }
 
@@ -137,6 +137,7 @@ class _GoalCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: Image.asset(
               _getPrimaryAsset(goal, gender),
+              key: ValueKey('goal-artwork-${goal.name}'),
               width: 95,
               height: 115,
               fit: BoxFit.cover,

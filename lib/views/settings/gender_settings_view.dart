@@ -58,7 +58,9 @@ class _GenderSettingsViewState extends State<GenderSettingsView> {
   }
 
   Future<void> _editGender() async {
-    var selected = _profile!.gender ?? Gender.male;
+    Gender? selected = Gender.selectableValues.contains(_profile!.gender)
+        ? _profile!.gender
+        : null;
     final result = await showModalBottomSheet<Gender>(
       context: context,
       isScrollControlled: true,
@@ -69,11 +71,13 @@ class _GenderSettingsViewState extends State<GenderSettingsView> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, update) => _editorSheet(
           title: 'Gender',
-          onSave: () => Navigator.of(ctx).pop(selected),
+          onSave: selected == null
+              ? null
+              : () => Navigator.of(ctx).pop(selected),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (final gender in Gender.values)
+              for (final gender in Gender.selectableValues)
                 ListTile(
                   title: Text(gender.label),
                   trailing: Icon(
@@ -146,7 +150,7 @@ class _GenderSettingsViewState extends State<GenderSettingsView> {
   Widget _editorSheet({
     required String title,
     required Widget child,
-    required VoidCallback onSave,
+    required VoidCallback? onSave,
   }) {
     return SafeArea(
       child: Padding(
